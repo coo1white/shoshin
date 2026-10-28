@@ -111,7 +111,17 @@ what they return.
 
 `doctor --json` (seen on yokoten 0.1.2) gives `steps` (each `id`, `stage`,
 `mark`: done / to do / next / can't check) and `findings` (each `id`, `what`,
-`why`, `fix`). The page uses these fields as they are.
+`why`, `fix`). The page uses these fields as they are, with three rules
+(confirmed on yokoten main, 2026-10-29; a contract test pins these keys and
+types for v0.1.3, and new keys may only be added):
+
+- Key everything on `steps[].id`. `findings` also holds notes that are not
+  steps, so look a step's finding up by id; never walk `findings` as the list.
+- Exit code 1 is normal (some step is to do). The runner reads the JSON on
+  stdout and treats only bad JSON or a timeout as a failure.
+- With no network in the sandbox, the server steps come back "can't check"
+  ("gh is not installed") in about half a second; the page shows them as
+  "needs your machine".
 
 **File-based steps.** These are judged from the repo's files alone, so anyone
 who re-runs the same yokoten version on the same commit gets the same mark:
