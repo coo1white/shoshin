@@ -1,1 +1,1 @@
-# shoshin
+# yokoten-doctor
