@@ -1,6 +1,6 @@
 # yokoten doctor (web): design
 
-Status: draft 3, 2026-10-28. Written by Claude (design and review only).
+Status: draft 3, 2026-10-28; owner decisions of 2026-10-29 added. Written by Claude (design and review only).
 Every line of code in this repo is written by Muse, from this document.
 
 Changes from draft 2: the server runs the real yokoten instead of the page
@@ -155,14 +155,16 @@ streamed events (server-sent events) back to the browser
 
 - One repo, `coo1white/yokoten-doctor`, holds web and server.
 - Web: static files (one HTML file, one TS file, one CSS file), on any static
-  host. Served at `doctor.yokoten.app` if the owner says yes (one DNS record).
-  Trust does not rest on the host (section 6.4).
+  host. Served at `doctor.yokoten.app` (owner, 2026-10-29). Trust does not
+  rest on the host (section 6.4).
 - Server: Modal, which gives one throwaway sandbox per check. (Not checked yet:
   the exact Modal sandbox and web endpoint API, and how far the hackathon
   credits go. The credits must first be claimed by the owner.)
 - yokoten version: the server image installs the latest yokoten release from
-  npm at each deploy, and a daily job rebuilds it. The version used is written
-  into every result.
+  npm at each deploy, and a daily job rebuilds it; nothing is fetched at check
+  time. The version used is written into every result. yokoten v0.1.3 ships
+  before 2026-11-02 UTC with the misread fixes (issue #1167, issue #1169) and
+  a contract test that pins the `doctor --all --json` shape.
 - Language: TypeScript for the web; the server in whatever Modal supports best
   for this (Python or TypeScript), decided in build step 1.
 - Secrets live only in the server's secret store, never in the repo, never in
@@ -184,8 +186,15 @@ streamed events (server-sent events) back to the browser
     Anchor.toml / Makefile, whichever exist), the workflow files, CODEOWNERS,
     the first 3 KB of CHANGELOG.md. Each cut at 20 KB, 120 KB in all.
 - The sandbox never runs the repo's own code: no install, no build, no tests,
-  no scripts. It has no secrets. Network: GitHub only. Limits: 2 minutes,
-  1 CPU, 1 GB memory, 1 GB disk. Destroyed after the run.
+  no scripts. It has no secrets. Limits: 2 minutes, 1 CPU, 1 GB memory, 1 GB
+  disk. Destroyed after the run.
+- Two rules taken from the yokoten desk, whose recent bugs came from exactly
+  these (owner's yokoten lead, 2026-10-29):
+  - Network to an allowlist only: GitHub for the clone, and nothing at all
+    while yokoten runs. doctor then skips the GitHub-settings steps; yokoten
+    v0.1.3 has a test that it does so without waiting or failing.
+  - A writable temp folder of the sandbox's own, set in `TMPDIR`, `TEMP` and
+    `TMP`.
 - Never read or send to Muse: anything matching `.env*`, `*.pem`, `*.key`,
   `id_*`, `*keypair*.json`, or any file a `check` hit points to.
 
@@ -368,7 +377,8 @@ the patched steps as done.
 
 ## 12. Open questions for the owner
 
-- Subdomain `doctor.yokoten.app`: needs the owner's yes and one DNS record.
+- Subdomain `doctor.yokoten.app`: decided 2026-10-29; the owner adds the DNS
+  record when the page is deployed.
 - Modal: the hackathon credits must be claimed through the approval email.
 - The public record (6.5): decided, Rekor plus a Solana devnet memo; mainnet
   later, only if the owner decides.
