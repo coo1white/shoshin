@@ -125,7 +125,10 @@ types for v0.1.3, and new keys may only be added):
 - Fields read (agreed with the yokoten lead 2026-10-29; pinned for outside
   readers by yokoten issue #1202, fields may be added, never renamed,
   removed or retyped): doctor top `version`, `stage`, `next.id`; `steps[]` `id`,
-  `stage`, `mark` with exactly "done", "to do", "next", "can't check";
+  `stage`, `mark` with exactly "done", "to do", "next", "can't check",
+  "not now" (the repo's yokoten.json skips the step on purpose; it then also
+  carries `reason`, shown as "skipped on purpose: <reason>"); any other value
+  shows as "unknown" instead of failing the page;
   `findings[]` `id`, `what`, `why`, `fix`, optional `docs`. check top `ok`;
   `findings[]` `id`, `what`, `file`, `line`, `grade`, `why`, `fix`, where
   `what` never holds the secret value.
