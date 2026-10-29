@@ -309,10 +309,15 @@ settles):
   it is yokoten's core rules, word for word.
 - So a user gets the same files from the page as from `yokoten init`, and a
   change to the standard reaches the page with the next yokoten release.
-- Asked of yokoten, not blocking: `yokoten init --dry-run --json` printing
-  {path, content, step} without writing, so the page needs no path list of
-  its own. Not checked yet: that init runs no repo code (it looked so on a
-  scratch repo, 2026-10-29).
+- init runs no repo code (checked on yokoten main by its lead, 2026-10-29):
+  without `--github` its only child processes are git reads and
+  `git config core.hooksPath`, which only touches the throwaway clone;
+  manifests are read as text. Not audited line by line, so the sandbox's
+  no-network rule stays the real guarantee.
+- Planned for yokoten v0.1.4, not needed for the demo: `yokoten init
+  --dry-run --json` printing {path, content, step} without writing, with the
+  runtime and agent configs left out. Then the page drops its own path list,
+  and the list lives only in yokoten.
 
 ### 6.3 Patch
 
