@@ -29,6 +29,20 @@ and so is this page. Every check shows the rule it used, the page shows exactly
 what was sent to Muse, the fixes need no sign-up or waitlist, and anyone can
 re-run a result or run their own copy.
 
+### The name
+
+Same name as the `yokoten doctor` command on purpose: the judging is the same
+thing, so what the page shows is what the terminal would show. The page adds
+the sandbox run and the Muse-written fixes. Three rules keep the shared name
+from confusing anyone:
+
+- Where to report: a wrong check result goes to the yokoten repo; a broken
+  page goes to this repo. The README and the page footer link both.
+- No npm package from this repo. The one way to install is `npx yokoten`.
+- One way to say it: "doctor.yokoten.app" or "yokoten doctor (web)"; the repo
+  description is "The web version of `yokoten doctor`". Never a new product
+  name.
+
 ## 2. Goals and non-goals
 
 Goals, in order:
