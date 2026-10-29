@@ -382,7 +382,9 @@ the patched steps as done.
   this repo") and a README badge. A private repo never goes into a public
   record (Rekor or a chain): even a hash entry names the repo and its commit.
   Private repos use the CLI or the Action in their own CI only; this page
-  never touches them. Strongest proof for web3 users. Mostly
+  never touches them. yokoten issue #1205 makes this a rule in yokoten (refuse a
+  private repo, fail closed when visibility can't be read) and blocks
+  offering anchoring or CI-signed results to users until it lands. Strongest proof for web3 users. Mostly
   yokoten repo work; worth a place in yokoten's own plan.
 - A files-only mode in `yokoten doctor`, so a re-run on any machine gives the
   same output with no "needs your machine" steps. yokoten repo work.
