@@ -268,12 +268,11 @@ streamed events (server-sent events) back to the browser
 }
 ```
 
-- Only paths for a step that is not done may come back: `rules` (AGENTS.md and
-  the import line in an existing CLAUDE.md), `tests` (a CI workflow), `templates`
-  (issue and pull request templates), `changelog` (CHANGELOG.md), `codeowners`
-  (CODEOWNERS), `security-files` (SECURITY.md, Dependabot config; never a
-  license). Any other path is dropped. A file that already exists is never
-  replaced.
+- Muse's `files` may hold only AGENTS.md, and only its "## This project"
+  section; the rest of every fix file comes from `yokoten init` (6.2a). Later,
+  the test workflow's test command too. Any other path is dropped. A file
+  that already exists in the repo is never replaced; an existing CLAUDE.md
+  only gains the one import line.
 - Run-time prompt (system), to be used as written:
 
   > You help a developer get their repository ready for AI coding agents. You
