@@ -292,6 +292,29 @@ streamed events (server-sent events) back to the browser
   twice, so it is not re-runnable. The page says "Suggested by Muse; read
   before you apply."
 
+### 6.2a Write once: the fix files come from `yokoten init`
+
+The files are yokoten's own standard, not Muse's invention (owner,
+2026-10-29: "write once, run everywhere"; v0.1.3 is where the standard
+settles):
+
+- The sandbox runs `yokoten init` (no `--github`, no network) in the
+  throwaway clone and takes only these paths from `git status`: AGENTS.md,
+  `.github/ISSUE_TEMPLATE/*`, `.github/pull_request_template.md`,
+  `.github/SECURITY.md`, `.github/dependabot.yml`, `.github/CODEOWNERS` (with
+  the repo owner's handle in place of the placeholder), and later the test
+  workflow. It drops `.yokoten/` (the 3.6 MB runtime), `.githooks/` and every
+  agent config: those need yokoten installed, which `npx yokoten` does.
+- Muse writes only AGENTS.md's "## This project" section (build, test, what
+  not to touch), the one place init leaves for the project. Everything above
+  it is yokoten's core rules, word for word.
+- So a user gets the same files from the page as from `yokoten init`, and a
+  change to the standard reaches the page with the next yokoten release.
+- Asked of yokoten, not blocking: `yokoten init --dry-run --json` printing
+  {path, content, step} without writing, so the page needs no path list of
+  its own. Not checked yet: that init runs no repo code (it looked so on a
+  scratch repo, 2026-10-29).
+
 ### 6.3 Patch
 
 Built in the browser from `files`: a unified diff that adds each file (and the
