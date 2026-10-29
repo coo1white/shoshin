@@ -302,7 +302,17 @@ shows `git apply yokoten-doctor.patch` under the button.
   It only adds files (plus the one CLAUDE.md line), so it still applies after
   main has moved on; if someone added a same-named file meanwhile, `git apply`
   stops with an error and overwrites nothing.
-- Under the button, a copyable block turns the patch into a pull request from
+- First, for beginners (shown first, largest): each generated file gets an
+  "Add on GitHub" button. It opens GitHub's own new-file page for that repo
+  with the file name and content filled in
+  (`https://github.com/<owner>/<repo>/new/<branch>?filename=<path>&value=<content>`);
+  the user reads it and clicks "Commit changes", choosing a new branch and a
+  pull request. No install, no terminal, and we still hold no write access.
+  Not checked yet, to test on a scratch repo in build step 6: that GitHub
+  still fills `value`, and the longest content that fits in the link; a file
+  too long for the link falls back to its Copy button.
+- Then the patch download above, folded.
+- Last, folded, a copyable block turns the patch into a pull request from
   the user's own machine, with the user's own account (we still hold no write
   access):
 
