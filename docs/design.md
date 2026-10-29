@@ -232,8 +232,15 @@ streamed events (server-sent events) back to the browser
 
 - One call per check run, streamed, made by the API, outside the sandbox.
   Model: Muse Spark Open on Baseten, through Baseten's OpenAI-compatible chat
-  API. (Not checked yet: the exact model slug and base URL on Baseten. Muse
-  confirms them from the Baseten dashboard before writing the client.)
+  API. Model slug `meta-models/muse-spark-open-1026` (other entrants report it
+  working in the hackathon's Baseten channel, 2026-10-29; base URL not checked
+  yet). The hackathon key comes without a usage page, and some entrants report
+  429 rate-limit errors at low use, so the page must spend few calls:
+  - one Muse call per repo commit: the result (checks + Muse files) is cached
+    for 24 hours, keyed by repo, commit and yokoten version (a small Modal
+    key-value store holding public data only); a second check of the same
+    commit costs no call;
+  - on 429, wait and retry once, then show the checks without Muse files.
 - Input: the repo facts (name, description, file list, the files read in 6.1)
   and doctor's findings for the file-based steps that are not done.
 - Output: one JSON object, validated by the API before anything is shown:
