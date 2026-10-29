@@ -473,16 +473,26 @@ the patched steps as done.
 
 ## 11. Demo (3 minutes)
 
-1. (0:00) The problem in one line: agents work in repos that tell them nothing.
-2. (0:20) Paste a real bare repo. yokoten's checks appear, then Muse writes
-   AGENTS.md for that repo: point at its real test command.
-3. (1:20) Download the patch, `git apply`, run `npx yokoten doctor`: the same
-   steps turn done. Web and CLI agree, because the web is the CLI.
-4. (2:00) "Don't trust us": copy the re-run command, run it, same marks. (If
-   6.5 is built: open the public record.)
-5. (2:30) What runs where: real yokoten in a throwaway sandbox, Muse Spark Open
-   on Baseten for the writing, no write access, public repos only.
-6. (2:50) `npx yokoten` for the rest.
+Story outline agreed with the owner 2026-10-29, edited 2026-10-30; only what
+runs on the live page that day is shown, and the live part is also recorded
+as a backup video.
+
+1. (0:00, 20 s) The problem: "Your repo looks fine to you. To an AI agent,
+   it's full of traps."
+2. (0:20, 50 s) Paste a real public repo. The page reads like `yokoten
+   doctor`: steps done, the next step, the rest folded; each check says how it
+   was judged.
+3. (1:10, 60 s) The fix is yokoten's own standard; Muse writes AGENTS.md's
+   "This project" section with the repo's real commands, and the fold shows
+   what was sent to Muse. "Add on GitHub" (or the patch), then `npx yokoten
+   doctor`: the step turns done. "The model writes. The engine judges."
+4. (2:10, 25 s) The evidence card: yokoten version, commit, command. "Don't
+   trust us. Re-run it." (File-based steps only.)
+5. (2:35, 25 s) Close: Muse wrote every line of this page; yokoten was built
+   before the event and does the checking; Claude planned and reviewed.
+
+Bonus target: Best Build on Meta Open Weights. Not Best Agentic Use-Case: one
+Muse call per check is not an autonomous agent.
 
 ## 12. Open questions for the owner
 
