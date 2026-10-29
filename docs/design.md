@@ -298,6 +298,22 @@ Built in the browser from `files`: a unified diff that adds each file (and the
 one-line CLAUDE.md change), downloadable as `yokoten-doctor.patch`. The page
 shows `git apply yokoten-doctor.patch` under the button.
 
+- The patch is made against the commit that was checked (shown on the page).
+  It only adds files (plus the one CLAUDE.md line), so it still applies after
+  main has moved on; if someone added a same-named file meanwhile, `git apply`
+  stops with an error and overwrites nothing.
+- Under the button, a copyable block turns the patch into a pull request from
+  the user's own machine, with the user's own account (we still hold no write
+  access):
+
+  ```
+  git switch -c yokoten-doctor-fixes
+  git apply yokoten-doctor.patch
+  git add -A && git commit -m "docs: add agent rules from yokoten doctor"
+  git push -u origin yokoten-doctor-fixes
+  gh pr create --fill
+  ```
+
 ### 6.4 Check it yourself (re-run)
 
 Nobody has to trust the server, as with Sourcify, Solana verified builds and
