@@ -122,15 +122,16 @@ types for v0.1.3, and new keys may only be added):
 - With no network in the sandbox, the server steps come back "can't check"
   ("gh is not installed") in about half a second; the page shows them as
   "needs your machine".
-- Fields read (agreed with the yokoten lead 2026-10-29 for the v0.1.3
-  contract test): doctor top `version`, `stage`, `next.id`; `steps[]` `id`,
+- Fields read (agreed with the yokoten lead 2026-10-29; pinned for outside
+  readers by yokoten issue #1202, fields may be added, never renamed,
+  removed or retyped): doctor top `version`, `stage`, `next.id`; `steps[]` `id`,
   `stage`, `mark` with exactly "done", "to do", "next", "can't check";
   `findings[]` `id`, `what`, `why`, `fix`, optional `docs`. check top `ok`;
   `findings[]` `id`, `what`, `file`, `line`, `grade`, `why`, `fix`, where
   `what` never holds the secret value.
-- A done step has no text in 0.1.2. Asked for v0.1.3: an optional `how` and
-  `why` on every `steps[]` entry, for the "How this was judged" fold. Without
-  it, the fold links to the step in the yokoten docs.
+- A done step has no text in 0.1.2. yokoten issue #1203 (v0.1.3) adds an
+  optional `how` and `why` to every `steps[]` entry, the same text
+  `yokoten explain <id>` prints; the "How this was judged" fold shows it.
 - v0.1.3 is wanted on npm by 2026-11-02 00:00 UTC; hard latest 2026-11-03
   12:00 UTC, or the demo pins v0.1.2 and avoids repos it misreads.
 
