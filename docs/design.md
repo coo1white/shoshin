@@ -243,7 +243,7 @@ sandbox (Modal, throwaway): git clone --depth 1 → yokoten doctor/check --json
 streamed events (server-sent events) back to the browser
 ```
 
-- One repo, `coo1white/yokoten-doctor`, holds web and server.
+- One repo, in the owner's personal GitHub account, holds web and server.
 - Web: static files (one HTML file, one TS file, one CSS file), on any static
   host. Served at `doctor.yokoten.app` (owner, 2026-10-29). Trust does not
   rest on the host (section 6.4).

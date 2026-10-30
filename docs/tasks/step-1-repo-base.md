@@ -18,7 +18,7 @@ Claude planned it and reviews it. This task adds no page and no server logic yet
    config: this repo must hold no pre-existing yokoten code.
    - Fill AGENTS.md's "## This project" section: how to build and test here, what not to touch
      (no secrets, no yokoten code copied in, never run a scanned repo's code).
-   - CODEOWNERS: put `@coo1white` in place of the placeholder.
+   - CODEOWNERS: put the repo owner's GitHub handle in place of the placeholder.
 4. `CHANGELOG.md` with an `## Unreleased` section.
 5. Layout from section 8: `web/`, `server/`, `test/web/`, `test/server/`, `test/fixtures/`, each with
    the smallest real file. `package.json` (private, `"test": "node --test test/web/"`, Node 22+, no
