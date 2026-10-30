@@ -107,7 +107,7 @@ who moves to the CLI sees the same thing:
    mark (done / to do / needs your machine), and its own file if any.
 5. One button for all fixes: "Download patch" (a `git apply` patch), with the
    two commands to apply it.
-6. **Check it yourself** (always visible, small): "Checked by yokoten 0.1.3 at
+6. **Check it yourself** (always visible, small): "Checked by yokoten 0.2.0 at
    commit abc1234" and the command to re-run it, with a Copy button
    (section 6.4).
 7. Two folds that make the page open:
@@ -128,7 +128,7 @@ what they return.
 `mark`: done / to do / next / can't check) and `findings` (each `id`, `what`,
 `why`, `fix`). The page uses these fields as they are, with three rules
 (confirmed on yokoten main, 2026-10-29; a contract test pins these keys and
-types for v0.1.3, and new keys may only be added):
+types for v0.2.0, and new keys may only be added):
 
 - Key everything on `steps[].id`. `findings` also holds notes that are not
   steps, so look a step's finding up by id; never walk `findings` as the list.
@@ -150,11 +150,14 @@ types for v0.1.3, and new keys may only be added):
   `findings[]` `id`, `what`, `why`, `fix`, optional `docs`. check top `ok`;
   `findings[]` `id`, `what`, `file`, `line`, `grade`, `why`, `fix`, where
   `what` never holds the secret value.
-- A done step has no text in 0.1.2. yokoten issue #1203 (v0.1.3) adds an
+- A done step has no text in 0.1.2. yokoten issue #1203 (v0.2.0) adds an
   optional `how` and `why` to every `steps[]` entry, the same text
   `yokoten explain <id>` prints; the "How this was judged" fold shows it.
-- v0.1.3 is wanted on npm by 2026-11-02 00:00 UTC; hard latest 2026-11-03
-  12:00 UTC, or the demo pins v0.1.2 and avoids repos it misreads.
+- The release is v0.2.0, not v0.1.3 (owner, 2026-10-30, because `doctor
+  --files` is an added feature); tagged at c77d6e7c4. Pin `yokoten@0.2.0` once
+  `npm view yokoten version` prints it. The `tests` step's `fix` text changed
+  between PR #1265 and the tag (PR #1275); run `doctor --files --json` once on
+  the published package to confirm the parser.
 
 **File-based steps.** These are judged from the repo's files alone, so anyone
 who re-runs the same yokoten version on the same commit gets the same mark:
@@ -172,7 +175,7 @@ with the `npx yokoten` line.
 yokoten moves a step, the page follows yokoten, not this list; a test fails if
 a step id in the list is no longer in doctor's output.)
 
-**From v0.1.3 the split comes from yokoten itself** (yokoten lead, 2026-10-31):
+**From v0.2.0 the split comes from yokoten itself** (yokoten lead, 2026-10-31):
 
 - Each step in `doctor --json` gains `source` and `title` (additive; nothing
   pinned is renamed or removed). `source` has three values (yokoten lead,
@@ -204,7 +207,7 @@ a step id in the list is no longer in doctor's output.)
   agent sandbox configs). The page groups them under one line, "Fixed when you
   install yokoten", with `npx yokoten init`, so a user who applied the patch
   is not surprised that they are still to do.
-- `yokoten doctor --files --json` (yokoten issue #1256, planned for v0.1.3)
+- `yokoten doctor --files --json` (yokoten issue #1256, planned for v0.2.0)
   judges from the checkout's files only: no code-host read, no gh, no
   network, no machine notes, and host steps are left out. The sandbox runs
   this instead of `--all`, so every mark on the page is one anyone can re-run
@@ -245,7 +248,7 @@ streamed events (server-sent events) back to the browser
   credits go. The credits must first be claimed by the owner.)
 - yokoten version: the server image installs the latest yokoten release from
   npm at each deploy, and a daily job rebuilds it; nothing is fetched at check
-  time. The version used is written into every result. yokoten v0.1.3 ships
+  time. The version used is written into every result. yokoten v0.2.0 ships
   before 2026-11-02 UTC with the misread fixes (issue #1167, issue #1169) and
   a contract test that pins the `doctor --all --json` shape.
 - Language (decided 2026-10-29): TypeScript for the web page and its tests;
@@ -280,7 +283,7 @@ streamed events (server-sent events) back to the browser
   these (owner's yokoten lead, 2026-10-29):
   - Network to an allowlist only: GitHub for the clone, and nothing at all
     while yokoten runs. doctor then skips the GitHub-settings steps; yokoten
-    v0.1.3 has a test that it does so without waiting or failing.
+    v0.2.0 has a test that it does so without waiting or failing.
   - A writable temp folder of the sandbox's own, set in `TMPDIR`, `TEMP` and
     `TMP`.
 - Never read or send to Muse: anything matching `.env*`, `*.pem`, `*.key`,
@@ -338,7 +341,7 @@ streamed events (server-sent events) back to the browser
 ### 6.2a Write once: the fix files come from `yokoten init`
 
 The files are yokoten's own standard, not Muse's invention (owner,
-2026-10-29: "write once, run everywhere"; v0.1.3 is where the standard
+2026-10-29: "write once, run everywhere"; v0.2.0 is where the standard
 settles):
 
 - The sandbox runs `yokoten init` (no `--github`, no network) in the
@@ -409,7 +412,7 @@ OpenSSF Scorecard: the hosted run is a convenience, and anyone can re-run it.
   npx yokoten@<version> doctor --files --json
   ```
 
-- With `--files` (v0.1.3, issue #1256) the whole output must match, on any
+- With `--files` (v0.2.0, issue #1256) the whole output must match, on any
   machine. Without it (fallback: `--all`), the promise is for the file-based
   steps only, and the page says so next to the command.
 - The secret check (`check --json`) reads no network, but its privacy rules
@@ -586,7 +589,7 @@ The video is made as code, so it can be remade whenever the page changes:
   hand; captions with timings live in one strings file; `.vtt` tracks are
   written for them.
 - The doctor video reuses it: the `npx yokoten doctor --files` scene is
-  captured the same way at v0.1.3; the live page scenes are recorded from the
+  captured the same way at v0.2.0; the live page scenes are recorded from the
   real page with Playwright; one story file in the strings-file shape feeds
   both. Captions only, no voice, by default.
 - The video composition lives in the yokoten repo's promo tools
