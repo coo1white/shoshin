@@ -97,7 +97,7 @@ appear the moment yokoten is done; the Muse part streams in after.
 **State C, result.** Laid out like `yokoten doctor` in a terminal, so a user
 who moves to the CLI sees the same thing:
 
-1. Top line: "done 9 of 13 checks · next: <the first step not done>" (the
+1. Top line: "done 9 of 13 file checks · next: <the first step not done>" (the
    counts come from yokoten's output, never hard-coded).
 2. One sentence, written by Muse, about this repo, e.g. "An agent here would
    not know how to run the tests, because nothing in the repo says how."
@@ -154,10 +154,14 @@ types for v0.2.0, and new keys may only be added):
   optional `how` and `why` to every `steps[]` entry, the same text
   `yokoten explain <id>` prints; the "How this was judged" fold shows it.
 - The release is v0.2.0, not v0.1.3 (owner, 2026-10-30, because `doctor
-  --files` is an added feature); tagged at c77d6e7c4. Pin `yokoten@0.2.0` once
-  `npm view yokoten version` prints it. The `tests` step's `fix` text changed
-  between PR #1265 and the tag (PR #1275); run `doctor --files --json` once on
-  the published package to confirm the parser.
+  --files` is an added feature); tagged at c77d6e7c4, on npm. Pin
+  `yokoten@0.2.0`. Run on the published package on this repo (2026-10-30): 13
+  steps, all source "files", each with `id`, `stage`, `mark`, `how`, `why`,
+  `source`, `title` (and sometimes `standard`); `next` is a files step; exit 0.
+- yokoten's contract test pins `doctor --all --json`, not `--files`. So the
+  server pins the exact version, and this repo keeps its own test on a saved
+  `--files` output from 0.2.0; moving to a newer yokoten means that test first.
+  Do not read `channel`.
 
 **File-based steps.** These are judged from the repo's files alone, so anyone
 who re-runs the same yokoten version on the same commit gets the same mark:
@@ -351,6 +355,10 @@ settles):
   the repo owner's handle in place of the placeholder), and later the test
   workflow. It drops `.yokoten/` (the 3.6 MB runtime), `.githooks/` and every
   agent config: those need yokoten installed, which `npx yokoten` does.
+- A known yokoten bug to route around (issue #1286): on a repo with its own
+  root `SECURITY.md`, init also writes `.github/SECURITY.md`. The page drops
+  `.github/SECURITY.md` from the patch when any SECURITY.md already exists,
+  and avoids such a repo in the demo.
 - Muse writes only AGENTS.md's "## This project" section (build, test, what
   not to touch), the one place init leaves for the project. Everything above
   it is yokoten's core rules, word for word.
@@ -596,6 +604,13 @@ The video is made as code, so it can be remade whenever the page changes:
   (`web/site/tools/promo`), not in this one (owner, 2026-10-30), and lands
   there through a normal yokoten pull request; this repo holds only work done
   during the event.
+
+Say it right in the pitch: the version is 0.2.0 (there was never a v0.1.3); the
+npm page's README sample still says 0.1.3 until the next tag; yokoten is not
+listed in the Claude plugin directory or GitHub Marketplace yet, so claim
+neither. The page's count is "N of 13 file checks", while a local `yokoten
+doctor` says "N of 26 steps": label the page's count "file checks" so both
+read as true.
 
 Bonus target: Best Build on Meta Open Weights. Not Best Agentic Use-Case: one
 Muse call per check is not an autonomous agent.
