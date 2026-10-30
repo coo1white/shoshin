@@ -521,6 +521,16 @@ the patched steps as done.
   branch only, never the default branch, no token kept.
 - A link from yokoten.app, added by the site lead once this page is stable.
 
+### yokoten's one sentence
+
+The page's closing line uses yokoten's one sentence and first command, the
+same text as its README, npm description and site (yokoten PR #1266, issue
+#1139): "yokoten stops your AI coding agent from making the mistake you can't
+undo. One command, no setup." and `npx yokoten`. The page reads the sentence
+from the installed yokoten package's `description` at build time, not from a
+copy, and a test fails if the page shows any other wording (one source for
+public text).
+
 ### Beginner-friendly wording (agreed with the yokoten lead, 2026-10-31)
 
 - Each step shows yokoten's own plain task title first ("Write the rules for
