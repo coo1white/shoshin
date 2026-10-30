@@ -382,6 +382,21 @@ OpenSSF Scorecard: the hosted run is a convenience, and anyone can re-run it.
 - With `--files` (v0.1.3, issue #1256) the whole output must match, on any
   machine. Without it (fallback: `--all`), the promise is for the file-based
   steps only, and the page says so next to the command.
+- The secret check (`check --json`) reads no network, but its privacy rules
+  also use what the machine knows: the user's own private-marks file, the git
+  user name and the home folder path (yokoten lead, 2026-10-31; read from the
+  code, not tested offline). The sandbox has none of these, so its result is
+  repo-only; on a user's own laptop the same command may add findings from the
+  user's own marks. So the page's re-run line for check uses a throwaway home
+  folder, and says why:
+
+  ```
+  HOME="$(mktemp -d)" npx yokoten@<version> check --json
+  ```
+
+  "Run in a clean home folder: on your own machine, check also looks for your
+  own private marks, which this page never had." (A matching mode in yokoten
+  may come later; noted on yokoten issue #1256.)
 - The result JSON (what the page shows, minus Muse's files) can be downloaded,
   with its SHA-256 shown, so a user can keep it and compare later.
 
