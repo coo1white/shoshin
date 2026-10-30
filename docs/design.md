@@ -189,6 +189,12 @@ a step id in the list is no longer in doctor's output.)
   N of M" counts the "files" steps yokoten returns.
 - Under `--files`, `lessons` and `server` are empty arrays and `notes` holds
   at most the core-rules note; the page ignores all three.
+- `next` is the page's main card. Asked of yokoten issue #1256 (to be pinned
+  by a test): under `--files`, `next` and `stage` come from the files steps
+  only. The page still guards it: if `next` names a step whose `source` is not
+  "files", it shows the first files step in road order that is not done.
+- `title` is on every step in every doctor run, `--all` included (yokoten
+  lead, 2026-10-31), so the fallback path has titles too.
 - `yokoten doctor --files --json` (yokoten issue #1256, planned for v0.1.3)
   judges from the checkout's files only: no code-host read, no gh, no
   network, no machine notes, and host steps are left out. The sandbox runs
