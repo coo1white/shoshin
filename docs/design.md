@@ -195,6 +195,15 @@ a step id in the list is no longer in doctor's output.)
   "files", it shows the first files step in road order that is not done.
 - `title` is on every step in every doctor run, `--all` included (yokoten
   lead, 2026-10-31), so the fallback path has titles too.
+- Seen on yokoten main after PR #1265 (2026-10-30, run on this repo): 13
+  steps, all `source` "files", each with `title`, `how`, `why`; `next` is a
+  files step; exit 0; `notes`, `server`, `lessons` empty.
+- Three files steps are not fixed by the page's patch, because their files
+  need yokoten installed and the patch leaves them out (6.2a): `tool-hook`
+  (the guard in the agent configs), `runtime` (`.yokoten/`) and `sandbox` (the
+  agent sandbox configs). The page groups them under one line, "Fixed when you
+  install yokoten", with `npx yokoten init`, so a user who applied the patch
+  is not surprised that they are still to do.
 - `yokoten doctor --files --json` (yokoten issue #1256, planned for v0.1.3)
   judges from the checkout's files only: no code-host read, no gh, no
   network, no machine notes, and host steps are left out. The sandbox runs
