@@ -168,6 +168,20 @@ with the `npx yokoten` line.
 yokoten moves a step, the page follows yokoten, not this list; a test fails if
 a step id in the list is no longer in doctor's output.)
 
+**From v0.1.3 the split comes from yokoten itself** (yokoten lead, 2026-10-31):
+
+- Each step in `doctor --json` gains `source`: "files" or "host". The page
+  shows a "files" step as judged and a "host" step as "needs your machine",
+  and drops its own list above. Additive; nothing in the pinned contract is
+  renamed or removed.
+- `yokoten doctor --files --json` (yokoten issue #1256, planned for v0.1.3)
+  judges from the checkout's files only: no code-host read, no gh, no
+  network, no machine notes, and host steps are left out. The sandbox runs
+  this instead of `--all`, so every mark on the page is one anyone can re-run
+  anywhere.
+- If issue #1256 misses the tag: run `doctor --all --json` and keep the steps
+  whose `source` is "files" (or, without `source`, the list above).
+
 **Secrets.** `yokoten check --json` runs on the same copy. A secret hit is shown
 first, above everything else, with yokoten's masked text only; the value is
 never shown or sent to Muse. (Wallet keys are not found yet; that is yokoten
@@ -362,12 +376,12 @@ OpenSSF Scorecard: the hosted run is a convenience, and anyone can re-run it.
   ```
   git clone https://github.com/<owner>/<repo> && cd <repo>
   git checkout <commit>
-  npx yokoten@<version> doctor --all --json
+  npx yokoten@<version> doctor --files --json
   ```
 
-- The promise is for the file-based steps only (section 5): their marks must be
-  the same. Steps that read the user's machine or GitHub settings may differ,
-  and the page says so next to the command.
+- With `--files` (v0.1.3, issue #1256) the whole output must match, on any
+  machine. Without it (fallback: `--all`), the promise is for the file-based
+  steps only, and the page says so next to the command.
 - The result JSON (what the page shows, minus Muse's files) can be downloaded,
   with its SHA-256 shown, so a user can keep it and compare later.
 
