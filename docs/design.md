@@ -500,6 +500,24 @@ the patched steps as done.
   branch only, never the default branch, no token kept.
 - A link from yokoten.app, added by the site lead once this page is stable.
 
+### Beginner-friendly wording (agreed with the yokoten lead, 2026-10-31)
+
+- Each step shows yokoten's own plain task title first ("Write the rules for
+  your agents (AGENTS.md)", "Run your tests on every push"), the step id small
+  underneath. The titles come from yokoten (`STEP_TITLES`, at most 60
+  characters, tested); yokoten issue #1256 adds `title` to each JSON step. The
+  page writes no titles or rephrasings of its own.
+- Wording follows yokoten's screen rules (record 0049): plain words, the next
+  step as one full sentence, one fix per problem, no jargon before the step
+  that needs it. The terminal-only layout parts (80 columns) do not apply.
+- Input: a full URL, `owner/repo`, a URL with `/tree/<branch>` or `.git`; one
+  plain error for anything else.
+- People who don't code have no repo. For them the page says in one sentence
+  what an AI agent can break and shows an example result; nothing more is
+  promised.
+- English only for the hackathon. Other languages come later together with
+  yokoten's titles and how/why, under the site's four-language rule.
+
 ## 11. Demo (3 minutes)
 
 Story outline agreed with the owner 2026-10-29, edited 2026-10-30; only what
@@ -519,6 +537,20 @@ as a backup video.
    trust us. Re-run it." (File-based steps only.)
 5. (2:35, 25 s) Close: Muse wrote every line of this page; yokoten was built
    before the event and does the checking; Claude planned and reviewed.
+
+The video is made as code, so it can be remade whenever the page changes:
+
+- yokoten's site already has the pipeline (`web/site/tools/promo` in the
+  yokoten repo): Remotion renders the video; terminal scenes are drawn from
+  real screens captured at a release tag (`screens.json`), never typed by
+  hand; captions with timings live in one strings file; `.vtt` tracks are
+  written for them.
+- The doctor video reuses it: the `npx yokoten doctor --files` scene is
+  captured the same way at v0.1.3; the live page scenes are recorded from the
+  real page with Playwright; one story file in the strings-file shape feeds
+  both. Captions only, no voice, by default.
+- The video tooling stays in the yokoten repo, not in this one, so this repo
+  holds only work done during the event.
 
 Bonus target: Best Build on Meta Open Weights. Not Best Agentic Use-Case: one
 Muse call per check is not an autonomous agent.
