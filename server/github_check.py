@@ -1,0 +1,45 @@
+import json
+import urllib.request
+import urllib.error
+
+
+class RepoRefused(Exception):
+    pass
+
+
+def check_public(owner: str, repo: str) -> dict:
+    url = f"https://api.github.com/repos/{owner}/{repo}"
+    req = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": "yokoten-check",
+            "Accept": "application/vnd.github+json",
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            raise RepoRefused("That repo was not found or is private.") from e
+        raise RepoRefused("GitHub could not be reached. Please try again.") from e
+    except urllib.error.URLError as e:
+        raise RepoRefused("GitHub could not be reached. Please try again.") from e
+    except Exception as e:
+        # Any other error is treated as unreachable
+        if isinstance(e, RepoRefused):
+            raise
+        raise RepoRefused("GitHub could not be reached. Please try again.") from e
+
+    if data.get("private") is True:
+        raise RepoRefused("That repo is private.")
+
+    size = data.get("size", 0)
+    # size is KB
+    if isinstance(size, int) and size > 512000:
+        raise RepoRefused("This repo is over 500 MB, too big to check here.")
+
+    return {
+        "default_branch": data.get("default_branch"),
+        "size_kb": size,
+    }

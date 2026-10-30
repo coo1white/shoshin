@@ -1,0 +1,190 @@
+{
+  "version": "0.2.0",
+  "channel": "dev",
+  "selfTest": {
+    "ok": true,
+    "failed": [],
+    "ran": true,
+    "skipped": []
+  },
+  "stages": [
+    "safety net",
+    "issues and pull requests",
+    "release",
+    "a team of agents",
+    "going public"
+  ],
+  "ok": true,
+  "repo": true,
+  "stage": 1,
+  "next": {
+    "id": "tool-hook",
+    "what": "no tool-call guard in .claude/settings.json",
+    "why": "the guard stops a risky command, like a force push, before the agent runs it",
+    "fix": "`yokoten init` adds it"
+  },
+  "findings": [
+    {
+      "id": "tool-hook",
+      "what": "no tool-call guard in .claude/settings.json",
+      "why": "the guard stops a risky command, like a force push, before the agent runs it",
+      "fix": "`yokoten init` adds it"
+    },
+    {
+      "id": "runtime",
+      "what": "no .yokoten/ runtime",
+      "why": "the hooks and CI run this copy, so they work with no network and no global install",
+      "fix": "`yokoten init` adds it"
+    },
+    {
+      "id": "ci",
+      "what": "CI does not run `yokoten check`",
+      "why": "a commit made with the hook off would reach main unchecked",
+      "fix": "`yokoten init` adds .github/workflows/yokoten.yml"
+    },
+    {
+      "id": "titles",
+      "what": "CI does not check pull requests (`yokoten check --pr`)",
+      "why": "a pull request title becomes the commit on main, so it must say what changed and why",
+      "fix": "`yokoten init` adds .github/workflows/pr.yml"
+    },
+    {
+      "id": "sandbox",
+      "what": "no sandbox in .claude/settings.json",
+      "why": "a worker writes only where the sandbox allows, so it must cover the worktree",
+      "fix": "`yokoten init` adds it"
+    }
+  ],
+  "steps": [
+    {
+      "id": "rules",
+      "stage": 1,
+      "mark": "done",
+      "how": "AGENTS.md is at the repo root, and a CLAUDE.md (at the root or in .claude/), when there is one, imports it (`@AGENTS.md`, or `@../AGENTS.md` from .claude/; a Markdown link is not an import): with a CLAUDE.md, Claude Code reads AGENTS.md only through it",
+      "why": "an agent follows the rules it can read, and only those",
+      "source": "files",
+      "title": "Write the rules for your agents (AGENTS.md)",
+      "standard": "OpenSSF: AI code assistant instructions"
+    },
+    {
+      "id": "tool-hook",
+      "stage": 1,
+      "mark": "next",
+      "how": ".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only",
+      "why": "the guard stops a risky command, like a force push, before the agent runs it",
+      "source": "files",
+      "title": "Turn on the guard for your agents' commands"
+    },
+    {
+      "id": "runtime",
+      "stage": 1,
+      "mark": "to do",
+      "how": ".yokoten/VERSION is the version of the yokoten that runs doctor; yokoten's own repo needs no copy",
+      "why": "the hooks and CI run this copy, so they work with no network and no global install",
+      "source": "files",
+      "title": "Add the yokoten runtime to the project"
+    },
+    {
+      "id": "tests",
+      "stage": 1,
+      "mark": "done",
+      "how": "package.json has a real \"test\" script and a `run:` step in a workflow runs it, or a `run:` step starts a test runner such as `node --test`, `go test`, `pytest`, `tox`, `make test` or `npx vitest`; in a workspaces repo, `npm test --workspaces` or `pnpm -r test` counts too",
+      "why": "tests that run on every push catch a broken change before it reaches main",
+      "source": "files",
+      "title": "Run your tests on every push",
+      "standard": "Best Practices: test"
+    },
+    {
+      "id": "ci",
+      "stage": 2,
+      "mark": "to do",
+      "how": "a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten",
+      "why": "a commit made with the hook off would reach main unchecked",
+      "source": "files",
+      "title": "Run the checks on every pull request",
+      "standard": "Scorecard: CI-Tests"
+    },
+    {
+      "id": "issues",
+      "stage": 2,
+      "mark": "done",
+      "how": "there is no TODO.md, TODO, todo.md or docs/todo",
+      "why": "an issue has an owner, a state and a history; a todo file has none",
+      "source": "files",
+      "title": "Turn on issues",
+      "standard": "OSPS-GV-02.01"
+    },
+    {
+      "id": "templates",
+      "stage": 2,
+      "mark": "done",
+      "how": ".github/ISSUE_TEMPLATE holds a template, and .github holds a pull request template",
+      "why": "a template asks for what a reviewer needs, so nothing is forgotten",
+      "source": "files",
+      "title": "Add issue and pull request templates",
+      "standard": "GitHub community profile"
+    },
+    {
+      "id": "no-build-output",
+      "stage": 2,
+      "mark": "done",
+      "how": "no tracked file is in a dist/, build/ or out/ folder or is a built file by its name, apart from yokoten.json \"allowBuild\"",
+      "why": "a build makes these files again from the source, and a reviewer can't read a binary",
+      "source": "files",
+      "title": "Keep build output out of git",
+      "standard": "Scorecard: Binary-Artifacts"
+    },
+    {
+      "id": "changelog",
+      "stage": 3,
+      "mark": "done",
+      "how": "CHANGELOG.md has an Unreleased heading, or the repo has a changes/ folder or a .changeset/ folder (Changesets)",
+      "why": "each pull request adds its entry as it goes, so a release needs no digging",
+      "source": "files",
+      "title": "Keep a changelog",
+      "standard": "Best Practices: release_notes"
+    },
+    {
+      "id": "titles",
+      "stage": 3,
+      "mark": "to do",
+      "how": "a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check --pr`, or runs on pull requests with a step that uses yokoten-labs/yokoten and does not set `pr-check: false`",
+      "why": "a pull request title becomes the commit on main, so it must say what changed and why",
+      "source": "files",
+      "title": "Check pull request titles",
+      "standard": "Conventional Commits 1.0.0"
+    },
+    {
+      "id": "codeowners",
+      "stage": 4,
+      "mark": "done",
+      "how": "a CODEOWNERS file is in .github/, at the root or in docs/, and the first one GitHub reads names an owner, not init's placeholder @YOUR_GITHUB_HANDLE; full doctor also reads whether the repo belongs to an organization, and an organization alone (@org, not @org/team) is not an owner",
+      "why": "the host then asks you to review a pull request that changes those paths, and `check --pr` makes it tier A",
+      "source": "files",
+      "title": "Name the owner (CODEOWNERS)",
+      "standard": "Scorecard: Branch-Protection"
+    },
+    {
+      "id": "sandbox",
+      "stage": 4,
+      "mark": "to do",
+      "how": ".claude/settings.json turns the sandbox on with no * host; .codex/config.toml pins workspace-write, on-request and no network; .gemini/settings.json blocks YOLO mode; .grok/sandbox.toml holds a workspace profile; writable paths stay in the project",
+      "why": "a worker writes only where the sandbox allows, so it must cover the worktree",
+      "source": "files",
+      "title": "Keep your agents in a sandbox"
+    },
+    {
+      "id": "security-files",
+      "stage": 5,
+      "mark": "done",
+      "how": "a SECURITY.md, a Dependabot config and a license file are in the repo",
+      "why": "people can then report a hole in private, old dependencies get updates, and others know how they may use the code",
+      "source": "files",
+      "title": "Add a license and a security policy",
+      "standard": "Scorecard: Security-Policy · OSPS-VM-02.01"
+    }
+  ],
+  "notes": [],
+  "server": [],
+  "lessons": []
+}
