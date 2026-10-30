@@ -549,8 +549,10 @@ The video is made as code, so it can be remade whenever the page changes:
   captured the same way at v0.1.3; the live page scenes are recorded from the
   real page with Playwright; one story file in the strings-file shape feeds
   both. Captions only, no voice, by default.
-- The video tooling stays in the yokoten repo, not in this one, so this repo
-  holds only work done during the event.
+- The video composition lives in the yokoten repo's promo tools
+  (`web/site/tools/promo`), not in this one (owner, 2026-10-30), and lands
+  there through a normal yokoten pull request; this repo holds only work done
+  during the event.
 
 Bonus target: Best Build on Meta Open Weights. Not Best Agentic Use-Case: one
 Muse call per check is not an autonomous agent.
