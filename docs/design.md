@@ -97,7 +97,8 @@ appear the moment yokoten is done; the Muse part streams in after.
 **State C, result.** Laid out like `yokoten doctor` in a terminal, so a user
 who moves to the CLI sees the same thing:
 
-1. Top line: "done 7 of 11 checks · next: <the first step not done>".
+1. Top line: "done 9 of 13 checks · next: <the first step not done>" (the
+   counts come from yokoten's output, never hard-coded).
 2. One sentence, written by Muse, about this repo, e.g. "An agent here would
    not know how to run the tests, because nothing in the repo says how."
 3. The next step only: yokoten's own what, why and fix for it, and the file
@@ -131,8 +132,11 @@ types for v0.1.3, and new keys may only be added):
 
 - Key everything on `steps[].id`. `findings` also holds notes that are not
   steps, so look a step's finding up by id; never walk `findings` as the list.
-- Exit code 1 is normal (some step is to do). The runner reads the JSON on
-  stdout and treats only bad JSON or a timeout as a failure.
+- Exit codes 0 and 1 are both normal. Under `--all` a 1 means some step is to
+  do; under `--files` it comes only from a failed self-test or core rules that
+  are behind (the tree check does not run there; the page runs `check --json`
+  on its own). The runner reads the JSON on stdout and treats only bad JSON
+  or a timeout as a failure.
 - With no network in the sandbox, the server steps come back "can't check"
   ("gh is not installed") in about half a second; the page shows them as
   "needs your machine".
@@ -170,17 +174,28 @@ a step id in the list is no longer in doctor's output.)
 
 **From v0.1.3 the split comes from yokoten itself** (yokoten lead, 2026-10-31):
 
-- Each step in `doctor --json` gains `source`: "files" or "host". The page
-  shows a "files" step as judged and a "host" step as "needs your machine",
-  and drops its own list above. Additive; nothing in the pinned contract is
-  renamed or removed.
+- Each step in `doctor --json` gains `source` and `title` (additive; nothing
+  pinned is renamed or removed). `source` has three values (yokoten lead,
+  2026-10-31, from the built issue #1256):
+  - "files", 13 steps: rules, tool-hook, runtime, tests, ci, issues,
+    templates, no-build-output, changelog, titles, codeowners, sandbox,
+    security-files. Judged on the page.
+  - "host", 9 steps (labels, milestone, review, protection, merge-settings,
+    security-settings and the release steps): shown as "needs GitHub
+    settings".
+  - "machine", 4 steps (commit-check, remote, bot, skills): shown as "needs
+    your machine".
+  The page drops its own list above and never hard-codes a step count; "done
+  N of M" counts the "files" steps yokoten returns.
+- Under `--files`, `lessons` and `server` are empty arrays and `notes` holds
+  at most the core-rules note; the page ignores all three.
 - `yokoten doctor --files --json` (yokoten issue #1256, planned for v0.1.3)
   judges from the checkout's files only: no code-host read, no gh, no
   network, no machine notes, and host steps are left out. The sandbox runs
   this instead of `--all`, so every mark on the page is one anyone can re-run
   anywhere.
-- If issue #1256 misses the tag: run `doctor --all --json` and keep the steps
-  whose `source` is "files" (or, without `source`, the list above).
+- If issue #1256 misses the tag: run `doctor --all --json` and keep only the
+  steps whose `source` is "files" (or, without `source`, the list above).
 
 **Secrets.** `yokoten check --json` runs on the same copy. A secret hit is shown
 first, above everything else, with yokoten's masked text only; the value is
