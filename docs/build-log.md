@@ -27,8 +27,9 @@ This counts how many rounds of fixes each task needed after the first code came 
 | Pull request reviewer | 1 | review |
 | Headline and page wording | 1 | review |
 | Example pages | 4 | review, test, test, real page |
+| Reviewer on large pull requests | 1 | review |
 
-38 rounds over 23 tasks: a mean of 1.7. Found by review 12, tests 15, the commit check 2, real runs 9.
+39 rounds over 24 tasks: a mean of 1.6. Found by review 13, tests 15, the commit check 2, real runs 9.
 
 Four of the problems no test could have caught: a deploy that left out modules, a page buried by 26 repeated warnings, a wrong import, and a worker that weakened a security test while editing nearby lines.
 
