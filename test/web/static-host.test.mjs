@@ -215,7 +215,7 @@ describe('static host portability', () => {
     const data = JSON.parse(fs.readFileSync(path.resolve('web/src/data/sample-result.json'), 'utf8'));
     for (const ex of data.examples) {
       const slug = ex.repo.replaceAll("/", "-");
-      const href = `/example/${slug}`;
+      const href = `/example/${slug}.html`;
       assert.ok(html.includes(`href="${href}"`), `link for repo "${ex.repo}" should be href="${href}"`);
     }
   });
@@ -334,6 +334,7 @@ describe('static host portability', () => {
       assert.ok(fs.existsSync(htmlPath), `missing ${htmlPath}`);
       const html = fs.readFileSync(htmlPath, 'utf8');
       assert.ok(html.includes('name="robots"') && html.includes('content="noindex"'), `${slug}.html should contain robots noindex`);
+      assert.ok(html.includes('<noscript>'), `${slug}.html should explain that it needs JavaScript`);
     }
   });
 

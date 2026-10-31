@@ -22,6 +22,7 @@ const text = JSON.stringify(data).replace(/</g, "\\u003c");
 <Page noindex>
 <Header />
 <p class="saved-note small muted">Saved check from {date}, at commit {shortCommit}. <a href={liveHref}>Check again</a> for a live result.</p>
+<noscript><p class="saved-note small muted">This page needs JavaScript to show the saved check. You can also run it yourself: npx yokoten</p></noscript>
 <main id="app" hidden></main>
 <Footer />
 <div id="saved-check" data-check={text} hidden></div>
