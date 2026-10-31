@@ -5,7 +5,7 @@ Deploy is by `.github/workflows/pages.yml`.
 `doctor.yokoten.app` is a CNAME record.
 The custom domain is set in the repo Pages settings.
 
-The page is static files with relative paths.
+The page is static files, served from the root of the domain.
 The API address is in `web/src/client/app.ts` and the tag in `web/src/layouts/Page.astro`.
 A test keeps them equal.
 The security rule is in the page.
@@ -18,8 +18,6 @@ Change the CNAME record to Cloudflare.
 Turn off the Pages workflow.
 No code change is needed.
 The server allows the domain, and the domain stays.
-
-See `docs/roadmap.md`, which holds the moving steps.
 
 A move does not change rate limits.
 A busy day is limited by the API.
