@@ -3,10 +3,10 @@ interface Props { title: string; aside?: string; }
 const { title, aside } = Astro.props as Props;
 ---
 <figure class="terminal-window">
-  <figcaption class="terminal-bar">
-    <span aria-hidden="true" class="dot"></span>
-    <span aria-hidden="true" class="dot"></span>
-    <span aria-hidden="true" class="dot"></span>
+  <figcaption class="terminal-head">
+    <span aria-hidden="true" class="terminal-dot"></span>
+    <span aria-hidden="true" class="terminal-dot"></span>
+    <span aria-hidden="true" class="terminal-dot"></span>
     <span class="terminal-title">{title}</span>{aside && <span class="terminal-aside">{aside}</span>}
   </figcaption>
   <div class="terminal-body">

@@ -7,6 +7,20 @@ const distDir = path.resolve('dist');
 const indexPath = path.join(distDir, 'index.html');
 const appPath = path.join(path.resolve('web/src/client'), 'app.ts');
 
+function findMissingClasses(classLists, cssText) {
+  const defined = new Set();
+  const re = /\.([a-zA-Z0-9_-]+)/g;
+  let m;
+  while ((m = re.exec(cssText)) !== null) defined.add(m[1]);
+  const missing = [];
+  for (const list of classLists) {
+    for (const name of list.split(/\s+/).filter(Boolean)) {
+      if (!defined.has(name)) missing.push(name);
+    }
+  }
+  return missing;
+}
+
 describe('static host portability', () => {
   test('every <link> and <script> in dist/index.html has a path starting with /_astro/ or equal to /favicon.svg, and no scheme', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
@@ -21,8 +35,8 @@ describe('static host portability', () => {
     assert.ok(values.length > 0, 'expected at least one href or src');
     for (const v of values) {
       assert.equal(/^[a-zA-Z][a-zA-Z0-9+.\-]*:/.test(v), false, `href/src should not have a scheme: ${v}`);
-      const ok = v === '/favicon.svg' || v.startsWith('/_astro/');
-      assert.ok(ok, `href/src should be /favicon.svg or start with /_astro/: ${v}`);
+      const ok = v === '/favicon.svg' || v === '/images/favicon.svg' || v === '/js/theme.js' || v.startsWith('/_astro/');
+      assert.ok(ok, `href/src should be /favicon.svg or /images/favicon.svg or /js/theme.js or start with /_astro/: ${v}`);
     }
   });
 
@@ -83,7 +97,7 @@ describe('static host portability', () => {
       const tag = m[0];
       const hrefMatch = tag.match(/href\s*=\s*["']([^"']+)["']/i);
       assert.ok(hrefMatch, `icon link should have href: ${tag}`);
-      assert.equal(hrefMatch[1], '/favicon.svg');
+      assert.equal(hrefMatch[1], '/images/favicon.svg');
     }
   });
 
@@ -217,6 +231,48 @@ describe('static host portability', () => {
     assert.equal(data.total, steps.length);
     const doneCount = steps.filter(s => s.mark === 'done').length;
     assert.equal(data.done, doneCount);
+  });
+
+  test('every class used in .astro and client .ts appears in global.css', () => {
+    const cssText = fs.readFileSync(path.resolve('web/src/styles/global.css'), 'utf8');
+    function walk(dir, exts) {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      let files = [];
+      for (const e of entries) {
+        const full = path.join(dir, e.name);
+        if (e.isDirectory()) files = files.concat(walk(full, exts));
+        else if (exts.includes(path.extname(e.name))) files.push(full);
+      }
+      return files;
+    }
+    const astroFiles = walk(path.resolve('web/src'), ['.astro']);
+    const classLists = [];
+    for (const file of astroFiles) {
+      const content = fs.readFileSync(file, 'utf8');
+      const re = /class="([^"]+)"/g;
+      let m;
+      while ((m = re.exec(content)) !== null) classLists.push(m[1]);
+    }
+    const tsDir = path.resolve('web/src/client');
+    if (fs.existsSync(tsDir)) {
+      const tsFiles = walk(tsDir, ['.ts']);
+      for (const file of tsFiles) {
+        const content = fs.readFileSync(file, 'utf8');
+        const re = /className\s*=\s*"([^"]+)"/g;
+        let m;
+        while ((m = re.exec(content)) !== null) classLists.push(m[1]);
+      }
+    }
+    const missing = findMissingClasses(classLists, cssText);
+    assert.deepEqual(missing, [], `missing classes in global.css: ${missing.join(', ')}`);
+  });
+
+  test('findMissingClasses helper catches missing names', () => {
+    const css = '.foo { } .bar { }';
+    const missing = findMissingClasses(['foo bar baz', 'qux'], css);
+    assert.deepEqual(missing.sort(), ['baz', 'qux']);
+    const none = findMissingClasses(['foo bar'], css);
+    assert.deepEqual(none, []);
   });
 });
 

@@ -45,14 +45,12 @@ const ownerRepo = `${sample.owner}/${sample.repo}`;
   <TerminalWindow title="REAL RESULT" aside={commitShort}>
     <div class="sample-title">{ownerRepo} · {doneCount} of {total} steps</div>
     <div class="spacer"></div>
-    <div class="steps-grid">
-      {visible.map((s) => {
-        if (s.mark === "done") return (<><span class="step-done">✓ done</span><span>{s.title}</span></>);
-        if (s.mark === "next") return (<><span class="step-next">● next</span><span class="step-next-text">{s.title}</span></>);
-        return (<><span class="step-todo">● to do</span><span>{s.title}</span></>);
-      })}
-      <span class="step-more">+{hiddenCount}</span><span class="step-more">more to do</span>
-    </div>
+    {visible.map((s) => {
+      if (s.mark === "done") return (<div class="terminal-row is-done"><span>✓ done</span><span>{s.title}</span></div>);
+      if (s.mark === "next") return (<div class="terminal-row is-next"><span>● next</span><span>{s.title}</span></div>);
+      return (<div class="terminal-row is-todo"><span>● to do</span><span>{s.title}</span></div>);
+    })}
+    <div class="terminal-row is-more"><span>+{hiddenCount}</span><span>more to do</span></div>
     <div class="spacer"></div>
     <div class="muse-label">Muse wrote for this repo:</div>
     {sample.museLines.map((line: string) => <div>{line}</div>)}

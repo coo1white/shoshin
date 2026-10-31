@@ -1,6 +1,6 @@
 ---
-interface Props { id?: string; maskId?: string; }
-const { id = "yk-mark", maskId } = Astro.props as Props;
+interface Props { id?: string; maskId?: string; size?: number; }
+const { id = "yk-mark", maskId, size = 28 } = Astro.props as Props;
 const mid = maskId ?? id;
 ---
-<svg width="28" height="28" viewBox="0 0 512 512" aria-hidden="true" class="mark-logo"><defs><mask id={mid} maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512"><rect width="512" height="512" fill="white"></rect><path d="M116.2 132.3 L195.7 132.3 L258.2 233.1 L314.4 132.3 L391.8 132.3 L238.5 406.0 L161.1 406.0 L220.3 300.4 Z" fill="black"></path></mask></defs><polygon points="164.04,34 347.96,34 478,164.04 478,347.96 347.96,478 164.04,478 34,347.96 34,164.04" fill="currentColor" stroke="currentColor" stroke-width="28" stroke-linejoin="round" mask={`url(#${mid})`}></polygon></svg>
+<svg width={size} height={size} viewBox="0 0 512 512" aria-hidden="true" class="mark-logo"><defs><mask id={mid} maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512"><rect width="512" height="512" fill="white"></rect><path d="M116.2 132.3 L195.7 132.3 L258.2 233.1 L314.4 132.3 L391.8 132.3 L238.5 406.0 L161.1 406.0 L220.3 300.4 Z" fill="black"></path></mask></defs><polygon points="164.04,34 347.96,34 478,164.04 478,347.96 347.96,478 164.04,478 34,347.96 34,164.04" fill="currentColor" stroke="currentColor" stroke-width="28" stroke-linejoin="round" mask={`url(#${mid})`}></polygon></svg>
