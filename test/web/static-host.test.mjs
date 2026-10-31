@@ -30,7 +30,7 @@ describe('static host portability', () => {
     while ((tagMatch = tagRe.exec(html)) !== null) {
       const tag = tagMatch[0];
       // A canonical address names the site by design, and it loads nothing.
-      if (tag.includes('rel="canonical"')) continue;
+      if (/^<link rel="canonical" href="https:\/\/doctor\.yokoten\.app\/[^"]*"\s*\/?>$/.test(tag)) continue;
       const attrMatch = tag.match(/\b(?:href|src)\s*=\s*["']([^"']+)["']/i);
       if (attrMatch) values.push(attrMatch[1]);
     }
