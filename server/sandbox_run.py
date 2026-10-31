@@ -79,11 +79,52 @@ def _read_files(sb, paths, limit) -> dict:
         return {}
 
 
+def _score_after_fixes(sb, selected, fix_files):
+    try:
+        if not selected:
+            return None
+        p = sb.exec("git", "-C", "/tmp/repo", "checkout", "--", ".", timeout=10)
+        _, _, rc = _read_process(p)
+        if rc != 0:
+            return None
+        clean_args = ["git", "-C", "/tmp/repo", "clean", "-fdqx"]
+        for path in selected:
+            clean_args.extend(["-e", f"/{path}"])
+        p = sb.exec(*clean_args, timeout=10)
+        _, _, rc = _read_process(p)
+        if rc != 0:
+            return None
+        for f in fix_files or []:
+            if isinstance(f, dict) and f.get("path") == ".github/CODEOWNERS":
+                content = f.get("content") or ""
+                p = sb.exec("env", "-C", "/tmp/repo", "node", "-e", "require('fs').writeFileSync(process.argv[1], process.argv[2])", ".github/CODEOWNERS", content, timeout=10)
+                _, _, rc = _read_process(p)
+                if rc != 0:
+                    return None
+                break
+        p = sb.exec("env", "-C", "/tmp/repo", "yokoten", "doctor", "--files", "--json", timeout=30)
+        stdout, _, rc = _read_process(p)
+        if rc not in (0, 1):
+            return None
+        data = json.loads(stdout)
+        s = summarize(data)
+        done = s.get("done")
+        total = s.get("total")
+        if isinstance(done, int) and isinstance(total, int) and not isinstance(done, bool) and not isinstance(total, bool):
+            return {"done": done, "total": total}
+        return None
+    except Exception as e:
+        logger.error(type(e).__name__)
+        return None
+
+
 def _collect_fix_data(sb, owner, repo, doctor, check) -> dict:
     fix_files = []
     muse_facts = {}
     too_big = False
     claude_file = None
+    selected = []
+    after = None
     try:
         p = sb.exec("git", "-C", "/tmp/repo", "ls-files", timeout=10)
         stdout_ls, _, rc_ls = _read_process(p)
@@ -163,13 +204,15 @@ def _collect_fix_data(sb, owner, repo, doctor, check) -> dict:
                         if sel == ".github/CODEOWNERS":
                             content = fill_owner(content, owner)
                         fix_files.append({"path": sel, "content": content})
+        after = _score_after_fixes(sb, selected, fix_files)
     except Exception as e:
         logger.error(type(e).__name__)
         fix_files = []
         muse_facts = {}
         too_big = False
         claude_file = None
-    return {"fix_files": fix_files, "muse_facts": muse_facts, "too_big": too_big, "claude_file": claude_file}
+        after = None
+    return {"fix_files": fix_files, "muse_facts": muse_facts, "too_big": too_big, "claude_file": claude_file, "after": after}
 
 
 def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
@@ -302,6 +345,7 @@ def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
         muse_facts = collected["muse_facts"]
         too_big = collected["too_big"]
         claude_file = collected.get("claude_file")
+        after = collected.get("after")
         return {
             "owner": owner,
             "repo": repo,
@@ -316,6 +360,7 @@ def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
             "muse_facts": muse_facts,
             "too_big": too_big,
             "claude_file": claude_file,
+            "after": after,
         }
     finally:
         try:

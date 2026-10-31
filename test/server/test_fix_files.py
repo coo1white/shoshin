@@ -227,3 +227,108 @@ def test_cap_files_cut_inside_multibyte_does_not_raise():
     assert isinstance(out["a"], str)
     # Cutting 3 bytes from "\xc3\xa9\xc3\xa9\xc3\xa9" -> first 2 bytes is "é", third byte is incomplete and ignored
     assert out["a"] == "é"
+
+import io
+import json as _json
+from sandbox_run import _score_after_fixes
+
+class _FakeProc:
+    def __init__(self, stdout, stderr, rc):
+        self.stdout = io.BytesIO(stdout.encode("utf-8") if isinstance(stdout, str) else stdout)
+        self.stderr = io.BytesIO(stderr.encode("utf-8") if isinstance(stderr, str) else stderr)
+        self.returncode = rc
+    def wait(self):
+        return self.returncode
+
+class _FakeSb:
+    def __init__(self, outs):
+        self.calls = []
+        self._outs = list(outs)
+        self._idx = 0
+    def exec(self, *args, **kwargs):
+        self.calls.append(args)
+        if self._idx < len(self._outs):
+            out = self._outs[self._idx]
+        else:
+            out = ("", "", 0)
+        self._idx += 1
+        stdout, stderr, rc = out
+        return _FakeProc(stdout, stderr, rc)
+
+def test_score_after_fixes_clean_has_x_and_anchored_e():
+    selected = ["AGENTS.md", ".github/CODEOWNERS"]
+    doctor_json = _json.dumps({"steps": [{"id": "a", "source": "files", "mark": "done"}, {"id": "b", "source": "files", "mark": "to do"}], "findings": [], "next": {}})
+    sb = _FakeSb([("", "", 0), ("", "", 0), (doctor_json, "", 0)])
+    out = _score_after_fixes(sb, selected, [])
+    assert out == {"done": 1, "total": 2}
+    clean_call = None
+    for c in sb.calls:
+        if "clean" in c:
+            clean_call = c
+            break
+    assert clean_call is not None
+    combined = " ".join(clean_call)
+    assert "-fdqx" in combined or "-x" in combined
+    for p in selected:
+        assert "-e" in clean_call
+        assert f"/{p}" in clean_call
+
+def test_score_after_fixes_good_run_returns_score():
+    selected = ["AGENTS.md"]
+    doctor_json = _json.dumps({"steps": [{"id": "a", "source": "files", "mark": "done"}], "findings": [], "next": {}})
+    sb = _FakeSb([("", "", 0), ("", "", 0), (doctor_json, "", 0)])
+    out = _score_after_fixes(sb, selected, [])
+    assert out == {"done": 1, "total": 1}
+
+def test_score_after_fixes_bad_json_returns_none():
+    selected = ["AGENTS.md"]
+    sb = _FakeSb([("", "", 0), ("", "", 0), ("not json", "", 0)])
+    out = _score_after_fixes(sb, selected, [])
+    assert out is None
+
+def test_score_after_fixes_bad_exit_code_returns_none():
+    selected = ["AGENTS.md"]
+    sb = _FakeSb([("", "", 0), ("", "", 0), ("{}", "", 2)])
+    out = _score_after_fixes(sb, selected, [])
+    assert out is None
+
+def test_score_after_fixes_exception_returns_none():
+    class BadSb:
+        def exec(self, *a, **kw):
+            raise RuntimeError("boom")
+    out = _score_after_fixes(BadSb(), ["AGENTS.md"], [])
+    assert out is None
+
+def test_score_after_fixes_empty_selected_runs_nothing():
+    class NoCallSb:
+        def __init__(self):
+            self.calls = []
+        def exec(self, *a, **kw):
+            self.calls.append(a)
+            raise AssertionError("should not be called")
+    sb = NoCallSb()
+    out = _score_after_fixes(sb, [], [])
+    assert out is None
+    assert sb.calls == []
+
+def test_score_after_fixes_checkout_failed_returns_none():
+    selected = ["AGENTS.md"]
+    sb = _FakeSb([("", "", 1)])
+    out = _score_after_fixes(sb, selected, [])
+    assert out is None
+    assert not any("doctor" in c for c in sb.calls)
+
+def test_score_after_fixes_clean_failed_returns_none():
+    selected = ["AGENTS.md"]
+    sb = _FakeSb([("", "", 0), ("", "", 1)])
+    out = _score_after_fixes(sb, selected, [])
+    assert out is None
+    assert not any("doctor" in c for c in sb.calls)
+
+def test_score_after_fixes_codeowners_write_failed_returns_none():
+    selected = ["AGENTS.md"]
+    fix_files = [{"path": ".github/CODEOWNERS", "content": "* @octocat"}]
+    sb = _FakeSb([("", "", 0), ("", "", 0), ("", "", 1)])
+    out = _score_after_fixes(sb, selected, fix_files)
+    assert out is None
+    assert not any("doctor" in c for c in sb.calls)

@@ -461,3 +461,41 @@ def test_build_fixes_without_agents_never_has_claude_import():
         raise AssertionError("should not call Muse when no AGENTS.md")
     out = build_fixes(result, ask=should_not_be_called, cache=None)
     assert out["claude_import"] is None
+
+def test_build_fixes_after_passed_when_muse_works():
+    result = _base_result()
+    result["after"] = {"done": 7, "total": 13}
+    def fake_ask(facts):
+        return {"summary": "s", "this_project": "### X\nhello"}
+    out = build_fixes(result, ask=fake_ask, cache=None)
+    assert out["after"] == {"done": 7, "total": 13}
+
+def test_build_fixes_after_passed_when_muse_fails():
+    result = _base_result()
+    result["after"] = {"done": 2, "total": 10}
+    def fake_ask(facts):
+        raise RuntimeError("fail")
+    out = build_fixes(result, ask=fake_ask, cache=None)
+    assert out["after"] == {"done": 2, "total": 10}
+    assert out["muse"] == "failed"
+
+def test_build_fixes_after_passed_when_not_needed():
+    result = _base_result(fix_files=[{"path": "README.md", "content": "x"}])
+    result["after"] = {"done": 5, "total": 8}
+    out = build_fixes(result, cache=None)
+    assert out["after"] == {"done": 5, "total": 8}
+    assert out["muse"] == "not needed"
+
+def test_build_fixes_bad_after_left_out():
+    result = _base_result()
+    result["after"] = {"done": "7", "total": 13}
+    out = build_fixes(result, cache=None)
+    assert "after" not in out
+    result2 = _base_result()
+    result2["after"] = {"done": 1}
+    out2 = build_fixes(result2, cache=None)
+    assert "after" not in out2
+    result3 = _base_result()
+    result3["after"] = "bad"
+    out3 = build_fixes(result3, cache=None)
+    assert "after" not in out3

@@ -20,8 +20,9 @@ This counts how many rounds of fixes each task needed after the first code came 
 | Result page | 1 | real page |
 | Fix the Node version | 0 | none |
 | Match the main site | 2 | test, test |
+| Score after the fix files | 1 | review |
 
-24 rounds over 16 tasks: a mean of 1.5. Found by review 8, tests 9, the commit check 2, real runs 5.
+25 rounds over 17 tasks: a mean of 1.5. Found by review 9, tests 9, the commit check 2, real runs 5.
 
 Three of the problems no test could have caught: a deploy that left out modules, a page buried by 26 repeated warnings, and a wrong import.
 

@@ -31,6 +31,26 @@ def _claude_import_for(result, fix_files):
         return None
 
 
+def _get_after(result):
+    try:
+        after = result.get("after") if isinstance(result, dict) else None
+        if isinstance(after, dict):
+            done = after.get("done")
+            total = after.get("total")
+            if isinstance(done, int) and isinstance(total, int) and not isinstance(done, bool) and not isinstance(total, bool):
+                return {"done": done, "total": total}
+    except Exception:
+        pass
+    return None
+
+
+def _with_after(out, result):
+    after = _get_after(result)
+    if after is not None:
+        out["after"] = after
+    return out
+
+
 def build_fixes(result, ask=_ask_muse_default, cache=None, now=time.time) -> dict:
     try:
         fix_files = result.get("fix_files") if isinstance(result, dict) else None
@@ -48,7 +68,6 @@ def build_fixes(result, ask=_ask_muse_default, cache=None, now=time.time) -> dic
                     has_agents = True
                     break
         if not has_agents or too_big:
-            # no muse needed
             files_out = []
             if isinstance(fix_files, list):
                 for f in fix_files:
@@ -58,9 +77,8 @@ def build_fixes(result, ask=_ask_muse_default, cache=None, now=time.time) -> dic
                             "content": f.get("content"),
                             "source": "yokoten",
                         })
-            return {"files": files_out, "summary": "", "muse": "not needed", "claude_import": _claude_import_for(result, fix_files)}
+            return _with_after({"files": files_out, "summary": "", "muse": "not needed", "claude_import": _claude_import_for(result, fix_files)}, result)
 
-        # need muse
         cache_key = muse_cache_key(owner or "", repo or "", commit or "", yokoten_version or "")
         cached = None
         use_cached = False
@@ -94,7 +112,6 @@ def build_fixes(result, ask=_ask_muse_default, cache=None, now=time.time) -> dic
                 logger.error(type(e).__name__)
                 reply = None
             if reply is not None:
-                # store in cache
                 if cache is not None:
                     try:
                         cur2 = now()
@@ -112,7 +129,6 @@ def build_fixes(result, ask=_ask_muse_default, cache=None, now=time.time) -> dic
         if reply is not None and isinstance(reply.get("summary"), str) and isinstance(reply.get("this_project"), str):
             summary_out = reply["summary"]
             muse_status = "ok"
-            # merge into AGENTS.md
             for f in fix_files:
                 if not isinstance(f, dict):
                     continue
@@ -128,17 +144,15 @@ def build_fixes(result, ask=_ask_muse_default, cache=None, now=time.time) -> dic
                 else:
                     files_out.append({"path": path, "content": content, "source": "yokoten"})
         else:
-            # failed, keep as is
             for f in fix_files:
                 if isinstance(f, dict):
                     files_out.append({"path": f.get("path"), "content": f.get("content"), "source": "yokoten"})
             summary_out = ""
             muse_status = "failed"
 
-        return {"files": files_out, "summary": summary_out, "muse": muse_status, "claude_import": _claude_import_for(result, fix_files)}
+        return _with_after({"files": files_out, "summary": summary_out, "muse": muse_status, "claude_import": _claude_import_for(result, fix_files)}, result)
     except Exception as e:
         logger.error(type(e).__name__)
-        # never raise
         try:
             fix_files = result.get("fix_files") if isinstance(result, dict) else []
             files_out = []
