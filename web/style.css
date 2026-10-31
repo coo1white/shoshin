@@ -75,9 +75,7 @@ pre code { background: transparent; padding: 0; }
   padding: 1rem;
   margin-bottom: 1rem;
 }
-button, input {
-  font: inherit;
-}
+button, input { font: inherit; }
 button {
   background: var(--accent);
   color: white;
@@ -111,8 +109,6 @@ a { color: var(--accent); }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
-
-/* Fix cards */
 .fix-section {
   margin-top: 1.5rem;
   border-top: 1px solid var(--border);
@@ -128,10 +124,7 @@ a { color: var(--accent); }
   overflow-wrap: break-word;
   word-break: break-word;
 }
-.fix-card-title {
-  font-weight: 600;
-  margin: 0 0 0.5rem 0;
-}
+.fix-card-title { font-weight: 600; margin: 0 0 0.5rem 0; }
 .button-link {
   display: inline-block;
   background: var(--accent);
@@ -141,40 +134,36 @@ a { color: var(--accent); }
   text-decoration: none;
   cursor: pointer;
 }
-.button-link:active {
-  background: var(--accent-pressed);
-}
-.button-link:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
-}
-.fix-card-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: center;
-}
-.code-wrap pre.fix-code {
-  max-height: 30rem;
-  overflow-y: auto;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  word-break: break-word;
-  overflow-wrap: anywhere;
-}
-.code-wrap pre {
-  max-height: 30rem;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  word-break: break-word;
-  overflow-wrap: anywhere;
-}
-/* Prevent horizontal scroll at 400px: ensure pre wraps */
-pre, code {
-  max-width: 100%;
-  overflow-wrap: anywhere;
-}
+.button-link:active { background: var(--accent-pressed); }
+.button-link:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.fix-card-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.code-wrap { position: relative; }
+.code-wrap pre { padding-right: 5.5rem; }
+.code-wrap .button-quiet { position: absolute; top: 0.5rem; right: 0.5rem; }
+.code-wrap pre.fix-code { max-height: 30rem; overflow-y: auto; overflow-x: auto; white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere; }
+.code-wrap pre { max-height: 30rem; overflow-y: auto; white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere; }
+pre, code { max-width: 100%; overflow-wrap: anywhere; }
+.input-row { display: flex; gap: 0.5rem; align-items: center; }
+.input-row input { flex: 1 1 auto; min-width: 0; }
+.input-row button { flex: 0 0 auto; }
+.score-line { font-size: 1.4rem; font-weight: 700; margin: 0.4rem 0; }
+progress { width: 100%; height: 0.6rem; accent-color: var(--accent); }
+progress::-webkit-progress-bar { background: var(--border); border-radius: 999px; }
+progress::-webkit-progress-value { background: var(--accent); border-radius: 999px; }
+progress::-moz-progress-bar { background: var(--accent); border-radius: 999px; }
+.button-quiet { background: transparent; color: var(--fg); border: 1px solid var(--border); border-radius: 6px; padding: 0.25rem 0.6rem; font-size: 0.85rem; }
+.button-quiet:active { background: var(--code-bg); }
+.repo-row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; justify-content: space-between; }
+.field-label { margin: 0.5rem 0 0.15rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; font-size: 0.8rem; }
+.field-block p { margin: 0.15rem 0; }
+.section-label { font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.25rem; }
+.check-item { border-top: 1px solid var(--border); padding-top: 0.75rem; margin-top: 0.75rem; }
+.error-box { border: 1px solid var(--border); padding: 0.5rem; border-radius: 6px; }
+.secret-list { word-break: break-all; overflow-wrap: anywhere; white-space: pre-wrap; }
 @media (max-width: 400px) {
   #app { padding: 1rem 0.75rem; }
   pre { white-space: pre-wrap; word-break: break-word; }
+  .input-row { flex-wrap: wrap; }
+  .input-row button { width: 100%; }
+  .code-wrap pre { padding-right: 5rem; }
 }
