@@ -385,9 +385,9 @@ shows `git apply yokoten-doctor.patch` under the button.
   (`https://github.com/<owner>/<repo>/new/<branch>?filename=<path>&value=<content>`);
   the user reads it and clicks "Commit changes", choosing a new branch and a
   pull request. No install, no terminal, and we still hold no write access.
-  Not checked yet, to test on a scratch repo in build step 6: that GitHub
-  still fills `value`, and the longest content that fits in the link; a file
-  too long for the link falls back to its Copy button.
+  GitHub accepted a 6,000-character link and failed from 7,000 (measured without
+  a login, 2026-10-31). A file too long for the link, such as AGENTS.md, gets two
+  steps: copy the text, then open the new-file page with the name filled in.
 - Then the patch download above, folded.
 - Last, folded, a copyable block turns the patch into a pull request from
   the user's own machine, with the user's own account (we still hold no write
@@ -395,8 +395,8 @@ shows `git apply yokoten-doctor.patch` under the button.
 
   ```
   git switch -c yokoten-doctor-fixes
-  git apply yokoten-doctor.patch
-  git add -A && git commit -m "docs: add agent rules from yokoten doctor"
+  git apply --index yokoten-doctor.patch
+  git commit -m "docs: add agent rules from yokoten doctor"
   git push -u origin yokoten-doctor-fixes
   gh pr create --fill
   ```
@@ -477,6 +477,7 @@ first.
 ```
 web/index.html, web/style.css
 web/view.js              what to show, with no DOM; tested in Node
+web/fixes.js             patch and GitHub links (6.3), with no DOM; tested in Node
 web/app.js               DOM and network
 server/                  Modal app: API, sandbox run (6.1), Muse (6.2), record (6.5)
 test/web/                page states with saved doctor JSON, patch building

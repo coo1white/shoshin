@@ -2,6 +2,13 @@
 const API = "https://yokoten-doctor--yokoten-doctor-fastapi-app.us-east.modal.run";
 
 import { PROGRESS, markLabel, viewModel } from "./view.js";
+import {
+  fileLinkPlan,
+  buildPatch,
+  orderFiles,
+  fixMessage,
+  PATCH_COMMANDS,
+} from "./fixes.js";
 
 const appEl = document.getElementById("app");
 
@@ -10,6 +17,11 @@ let currentProgress = [];
 let lastResult = null;
 let errorMessage = "";
 let inputValue = "";
+let lastFixes = null;
+let isWaitingForFixes = false;
+
+/** @type {Set<string>} */
+let openDetailsKeys = new Set();
 
 function safeUrl(href) {
   if (typeof href !== "string") return null;
@@ -40,18 +52,6 @@ function createLink(href, text) {
   return a;
 }
 
-function copyWithFallback(text, codeEl) {
-  // must be called in click handler
-  // @ts-ignore
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).catch(() => {
-      fallbackSelect(codeEl);
-    });
-  } else {
-    fallbackSelect(codeEl);
-  }
-}
-
 function fallbackSelect(el) {
   const range = document.createRange();
   range.selectNodeContents(el);
@@ -62,7 +62,133 @@ function fallbackSelect(el) {
   }
 }
 
+function markFixesLost() {
+  if (lastResult && lastFixes == null) {
+    lastFixes = { files: [], summary: "", muse: "lost" };
+    isWaitingForFixes = false;
+    render();
+  }
+}
+
+function addCopyButton(label, text, codeEl) {
+  const btn = document.createElement("button");
+  btn.textContent = label;
+  btn.addEventListener("click", () => {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        () => {
+          btn.textContent = "Copied";
+          setTimeout(() => {
+            btn.textContent = label;
+          }, 2000);
+        },
+        () => {
+          fallbackSelect(codeEl);
+          btn.textContent = "Press Ctrl+C to copy";
+          const details = codeEl.closest("details");
+          if (details) details.open = true;
+        },
+      ).catch(() => {
+        fallbackSelect(codeEl);
+        btn.textContent = "Press Ctrl+C to copy";
+        const details = codeEl.closest("details");
+        if (details) details.open = true;
+      });
+    } else {
+      fallbackSelect(codeEl);
+      btn.textContent = "Press Ctrl+C to copy";
+      const details = codeEl.closest("details");
+      if (details) details.open = true;
+    }
+  });
+  return btn;
+}
+
+function captureDetailsState(root) {
+  if (!root) return;
+  const detailsEls = root.querySelectorAll("details[data-key]");
+  for (const d of detailsEls) {
+    const key = d.getAttribute("data-key");
+    if (!key) continue;
+    if (d.open) openDetailsKeys.add(key);
+    else openDetailsKeys.delete(key);
+  }
+}
+
+function restoreDetailsState(root) {
+  if (!root) return;
+  const detailsEls = root.querySelectorAll("details[data-key]");
+  for (const d of detailsEls) {
+    const key = d.getAttribute("data-key");
+    if (!key) continue;
+    if (openDetailsKeys.has(key)) d.open = true;
+  }
+}
+
+function createFixCard(owner, repo, branch, file) {
+  const card = document.createElement("div");
+  card.className = "fix-card";
+
+  const title = document.createElement("p");
+  title.className = "mono fix-card-title";
+  title.textContent = file.path;
+  card.appendChild(title);
+
+  if (file.source === "yokoten and Muse") {
+    const museNote = document.createElement("p");
+    museNote.className = "small";
+    museNote.textContent = "The section called This project is suggested by Muse. Read it before you apply it.";
+    card.appendChild(museNote);
+  }
+
+  const details = document.createElement("details");
+  details.setAttribute("data-key", "read-" + file.path);
+  const sum = document.createElement("summary");
+  sum.textContent = "Read this file";
+  details.appendChild(sum);
+  const preWrap = document.createElement("div");
+  preWrap.className = "code-wrap";
+  const pre = document.createElement("pre");
+  pre.className = "fix-code";
+  const code = document.createElement("code");
+  code.textContent = file.content;
+  pre.appendChild(code);
+  preWrap.appendChild(pre);
+  const copyBtn2 = addCopyButton("Copy", file.content, code);
+  preWrap.appendChild(copyBtn2);
+  details.appendChild(preWrap);
+  card.appendChild(details);
+
+  const plan = fileLinkPlan(owner, repo, branch, file);
+  if (plan.kind === "filled") {
+    const link = createLink(plan.href, "Add on GitHub");
+    link.className = "button-link";
+    card.appendChild(link);
+    const hint = document.createElement("p");
+    hint.className = "small muted";
+    hint.textContent = "GitHub asks you to commit. Choose a new branch to open a pull request.";
+    card.appendChild(hint);
+  } else {
+    const wrap = document.createElement("div");
+    wrap.className = "fix-card-actions";
+    const copyBtn = addCopyButton("1. Copy the text", file.content, code);
+    wrap.appendChild(copyBtn);
+    const link = createLink(plan.href, "2. Open GitHub and paste");
+    link.className = "button-link";
+    wrap.appendChild(link);
+    card.appendChild(wrap);
+    const hint2 = document.createElement("p");
+    hint2.className = "small muted";
+    hint2.textContent = "Paste it into the empty box on GitHub. Then choose a new branch to open a pull request.";
+    card.appendChild(hint2);
+  }
+
+  return card;
+}
+
 function render() {
+  // capture open details before clearing
+  if (appEl) captureDetailsState(appEl);
   if (!appEl) return;
   // clear
   while (appEl.firstChild) appEl.removeChild(appEl.firstChild);
@@ -160,14 +286,8 @@ function render() {
     progWrap.appendChild(title);
     const stepsOrder = ["reading", "copying", "checking"];
     stepsOrder.forEach((step) => {
-      const isDone = currentProgress.includes(step);
-      const isCurrent = currentProgress.length > 0 && currentProgress[currentProgress.length - 1] === step;
-      // Actually we show each progress item: earlier ticked, current step text
-      // If step is in progress list, show tick; else not shown? Spec: current step's text, with earlier ones ticked.
-      // We'll render only up to current
       const idx = stepsOrder.indexOf(step);
       const currentIdx = stepsOrder.indexOf(currentProgress[currentProgress.length - 1]);
-      // Only render if step appears <= currentIdx
       if (currentProgress.length === 0) return;
       if (idx > currentIdx) return;
       const p = document.createElement("p");
@@ -198,6 +318,7 @@ function render() {
       warnTitle.appendChild(strong);
       warn.appendChild(warnTitle);
       const details = document.createElement("details");
+      details.setAttribute("data-key", "secrets-where");
       const summaryEl = document.createElement("summary");
       summaryEl.textContent = "Show where";
       details.appendChild(summaryEl);
@@ -247,8 +368,9 @@ function render() {
     term.appendChild(headlineEl);
 
     // 3. next step
+    let nextWrap = null;
     if (vm.next) {
-      const nextWrap = document.createElement("div");
+      nextWrap = document.createElement("div");
       const nextTitle = document.createElement("h3");
       nextTitle.textContent = vm.next.title;
       nextWrap.appendChild(nextTitle);
@@ -279,6 +401,7 @@ function render() {
       }
       if (vm.next.how) {
         const details = document.createElement("details");
+        details.setAttribute("data-key", "next-how");
         const summaryEl = document.createElement("summary");
         summaryEl.textContent = "How this was judged";
         details.appendChild(summaryEl);
@@ -294,9 +417,115 @@ function render() {
       term.appendChild(doneP);
     }
 
+    // Fix it section: after next step block and before Show all checks
+    const fixSection = document.createElement("div");
+    fixSection.className = "fix-section";
+    const fixTitle = document.createElement("h3");
+    fixTitle.textContent = "Fix it";
+    fixSection.appendChild(fixTitle);
+
+    if (isWaitingForFixes && !lastFixes) {
+      const waitingP = document.createElement("p");
+      waitingP.textContent = "Writing the fix files…";
+      fixSection.appendChild(waitingP);
+    } else if (lastFixes) {
+      // lost case
+      if (lastFixes.muse === "lost") {
+        const lostP = document.createElement("p");
+        lostP.textContent = "The fix files did not arrive. Please run the check again.";
+        fixSection.appendChild(lostP);
+      } else {
+        if (lastFixes.summary && lastFixes.summary.trim() !== "") {
+          const sumP = document.createElement("p");
+          sumP.textContent = lastFixes.summary;
+          fixSection.appendChild(sumP);
+          const small = document.createElement("p");
+          small.className = "small muted";
+          small.textContent = "Summary by Muse.";
+          fixSection.appendChild(small);
+        }
+        const msg = fixMessage(lastFixes);
+        if (msg) {
+          const msgP = document.createElement("p");
+          msgP.textContent = msg;
+          fixSection.appendChild(msgP);
+        }
+        const files = lastFixes.files || [];
+        if (files.length > 0) {
+          const notice = document.createElement("p");
+          notice.textContent = "Nothing changes until you click Commit on GitHub. We have no access to your repo.";
+          fixSection.appendChild(notice);
+
+          const owner = lastResult.owner;
+          const repo = lastResult.repo;
+          const branch = lastResult.default_branch || null;
+          const ordered = orderFiles(files);
+          if (ordered.first) {
+            const card = createFixCard(owner, repo, branch, ordered.first);
+            fixSection.appendChild(card);
+          }
+          if (ordered.rest.length > 0) {
+            const detailsRest = document.createElement("details");
+            detailsRest.setAttribute("data-key", "more-files");
+            const sumRest = document.createElement("summary");
+            sumRest.textContent = `${ordered.rest.length} more files`;
+            detailsRest.appendChild(sumRest);
+            for (const f of ordered.rest) {
+              const c = createFixCard(owner, repo, branch, f);
+              detailsRest.appendChild(c);
+            }
+            fixSection.appendChild(detailsRest);
+          }
+
+          // Use the terminal instead
+          const termDetails = document.createElement("details");
+          termDetails.setAttribute("data-key", "use-terminal");
+          const termSum = document.createElement("summary");
+          termSum.textContent = "Use the terminal instead";
+          termDetails.appendChild(termSum);
+
+          const dlBtn = document.createElement("button");
+          dlBtn.textContent = "Download the patch";
+          dlBtn.addEventListener("click", () => {
+            const patch = buildPatch(files);
+            const blob = new Blob([patch], { type: "text/plain" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "yokoten-doctor.patch";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+          });
+          termDetails.appendChild(dlBtn);
+
+          const putP = document.createElement("p");
+          putP.textContent = "Put the file in your repo's folder, then run:";
+          termDetails.appendChild(putP);
+
+          const wrap = document.createElement("div");
+          wrap.className = "code-wrap";
+          const pre2 = document.createElement("pre");
+          const code2 = document.createElement("code");
+          code2.textContent = PATCH_COMMANDS;
+          pre2.appendChild(code2);
+          wrap.appendChild(pre2);
+          const copyBtn3 = addCopyButton("Copy", PATCH_COMMANDS, code2);
+          wrap.appendChild(copyBtn3);
+          termDetails.appendChild(wrap);
+
+          fixSection.appendChild(termDetails);
+        }
+      }
+    }
+
+    term.appendChild(fixSection);
+
     // 4. Show all checks
     if (vm.others.length > 0) {
       const detailsAll = document.createElement("details");
+      detailsAll.setAttribute("data-key", "show-all-checks");
       const sumAll = document.createElement("summary");
       sumAll.textContent = "Show all checks";
       detailsAll.appendChild(sumAll);
@@ -315,6 +544,7 @@ function render() {
         stWrap.appendChild(labelEl);
         if (st.how) {
           const detHow = document.createElement("details");
+          detHow.setAttribute("data-key", "how-" + st.id);
           const sumHow = document.createElement("summary");
           sumHow.textContent = "How this was judged";
           detHow.appendChild(sumHow);
@@ -352,14 +582,13 @@ function render() {
 
     function addCodeBlockWithCopy(text) {
       const wrap = document.createElement("div");
+      wrap.className = "code-wrap";
       const pre = document.createElement("pre");
       const code = document.createElement("code");
       code.textContent = text;
       pre.appendChild(code);
       wrap.appendChild(pre);
-      const btn = document.createElement("button");
-      btn.textContent = "Copy";
-      btn.addEventListener("click", () => copyWithFallback(text, code));
+      const btn = addCopyButton("Copy", text, code);
       wrap.appendChild(btn);
       return wrap;
     }
@@ -411,6 +640,7 @@ function render() {
     footer.appendChild(document.createTextNode("."));
     appEl.appendChild(footer);
   }
+  restoreDetailsState(appEl);
 }
 
 async function startCheck() {
@@ -424,6 +654,9 @@ async function startCheck() {
   state = "working";
   currentProgress = [];
   lastResult = null;
+  lastFixes = null;
+  isWaitingForFixes = false;
+  openDetailsKeys.clear();
   render();
 
   try {
@@ -441,7 +674,7 @@ async function startCheck() {
     }
     const decoder = new TextDecoder();
     let buffer = "";
-    let gotResultOrError = false;
+    let hasResultOrError = false;
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
@@ -468,25 +701,36 @@ async function startCheck() {
             render();
           }
         } else if (eventName === "result") {
-          gotResultOrError = true;
+          hasResultOrError = true;
           lastResult = data;
           state = "result";
+          isWaitingForFixes = true;
+          render();
+        } else if (eventName === "fixes") {
+          if (!lastResult) continue;
+          lastFixes = data;
+          isWaitingForFixes = false;
           render();
         } else if (eventName === "error") {
-          gotResultOrError = true;
+          hasResultOrError = true;
           errorMessage = data.message || "The check could not finish. Please try again in a minute.";
           state = "empty";
           render();
         }
       }
     }
-    if (!gotResultOrError) {
-      // dropped connection
+    if (!hasResultOrError) {
       errorMessage = "The connection dropped. Please try again.";
       state = "empty";
       render();
+    } else {
+      markFixesLost();
     }
   } catch (e) {
+    if (lastResult) {
+      markFixesLost();
+      return;
+    }
     errorMessage = "The connection dropped. Please try again.";
     state = "empty";
     render();

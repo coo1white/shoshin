@@ -64,6 +64,9 @@ pre code { background: transparent; padding: 0; }
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 1rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-width: 0;
 }
 .warning {
   background: var(--warning-bg);
@@ -107,4 +110,71 @@ a { color: var(--accent); }
 .footer { margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem; }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
+}
+
+/* Fix cards */
+.fix-section {
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+.fix-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 0.75rem 0;
+  background: var(--panel);
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+.fix-card-title {
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+.button-link {
+  display: inline-block;
+  background: var(--accent);
+  color: white !important;
+  border-radius: 6px;
+  padding: 0.5rem 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+.button-link:active {
+  background: var(--accent-pressed);
+}
+.button-link:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.fix-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+.code-wrap pre.fix-code {
+  max-height: 30rem;
+  overflow-y: auto;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+.code-wrap pre {
+  max-height: 30rem;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+/* Prevent horizontal scroll at 400px: ensure pre wraps */
+pre, code {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 400px) {
+  #app { padding: 1rem 0.75rem; }
+  pre { white-space: pre-wrap; word-break: break-word; }
 }

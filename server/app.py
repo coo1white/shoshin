@@ -122,9 +122,10 @@ def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_
 
         def gen():
             yield sse_event("progress", {"step": "reading"})
+            public_info = None
             try:
                 owner, repo = _parse_repo_url_default(url_val)
-                public(owner, repo)
+                public_info = public(owner, repo)
             except (BadRepoUrl, RepoRefused) as e:
                 yield sse_event("error", {"message": str(e)})
                 return
@@ -185,6 +186,8 @@ def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_
                 elif kind == "done":
                     try:
                         payload_out = build_result(item[1])
+                        default_branch = public_info.get("default_branch") if isinstance(public_info, dict) else None
+                        payload_out["default_branch"] = default_branch
                         yield sse_event("result", payload_out)
                     except Exception:
                         logger.exception("building result failed")

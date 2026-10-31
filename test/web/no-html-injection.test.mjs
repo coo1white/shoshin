@@ -5,7 +5,7 @@ import path from "node:path";
 
 const forbidden = ["innerHTML", "insertAdjacentHTML", "outerHTML", "document.write", "eval("];
 
-for (const file of ["web/app.js", "web/view.js"]) {
+for (const file of ["web/app.js", "web/view.js", "web/fixes.js"]) {
   test(`${file} does not contain HTML injection patterns`, () => {
     const content = fs.readFileSync(path.resolve(file), "utf8");
     for (const pat of forbidden) {

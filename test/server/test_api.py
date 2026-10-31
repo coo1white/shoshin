@@ -221,3 +221,28 @@ def test_make_fixes_not_called_when_run_fails():
     assert called == []
     assert any(e[0]=="error" for e in events)
     assert not any(e[0]=="fixes" for e in events)
+
+def test_result_holds_default_branch_from_public():
+    def fake_public(owner, repo):
+        return {"default_branch": "develop", "other": "ignore"}
+    def fake_run(owner, repo, on_progress=None):
+        return _base_result(owner, repo)
+    api = create_api(run=fake_run, public=fake_public, make_fixes=lambda r: {"files": [], "summary": "", "muse": "ok"})
+    client = TestClient(api)
+    resp = client.post("/api/check", json={"url": "https://github.com/owner/repo"})
+    events = parse_sse(resp.text)
+    result = [e for e in events if e[0] == "result"][0][1]
+    assert result["default_branch"] == "develop"
+
+def test_result_default_branch_null_when_public_returns_none():
+    def fake_public(owner, repo):
+        return None
+    def fake_run(owner, repo, on_progress=None):
+        return _base_result(owner, repo)
+    api = create_api(run=fake_run, public=fake_public, make_fixes=lambda r: {"files": [], "summary": "", "muse": "ok"})
+    client = TestClient(api)
+    resp = client.post("/api/check", json={"url": "https://github.com/owner/repo"})
+    events = parse_sse(resp.text)
+    result = [e for e in events if e[0] == "result"][0][1]
+    assert "default_branch" in result
+    assert result["default_branch"] is None
