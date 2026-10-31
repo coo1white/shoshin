@@ -37,8 +37,8 @@ jobs:
       - run: node .github/review/review.mjs
         env:
           REVIEWER_TOKEN: ${{ steps.app-token.outputs.token }}
-          BASETEN_API_KEY: ${{ secrets.BASETEN_API_KEY }}
-          MUSE_MODEL: meta-models/muse-spark-open-1026
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          REVIEW_MODEL: glm-5.3-flash
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           GITHUB_REPOSITORY: ${{ github.repository }}

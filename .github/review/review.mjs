@@ -1,4 +1,3 @@
-// Posts a Muse Spark Open review for the pull request based on its diff and metadata.
 export function parseAnswer(text) {
   if (typeof text !== "string") return null;
   let s = text.trim();
@@ -46,7 +45,7 @@ export function cleanText(text) {
 }
 
 export function buildReviewBody(answer, model) {
-  const lastLine = `Reviewed by Muse Spark Open (${model})`;
+  const lastLine = `Reviewed by GLM 5.3 Flash (${model})`;
   if (answer === null) {
     return `${cleanText("The reviewer could not read the model's answer. This is not an approval.")}\n${lastLine}`;
   }
@@ -87,19 +86,22 @@ function userMessage(title, body, diff) {
   ].join("\n");
 }
 
-async function callModel(apiKey, model, title, body, diff) {
+async function callModel(apiKey, model, title, body, diff, prNumber) {
   const controller = new AbortController();
   const t = setTimeout(() => controller.abort(), 300000);
   try {
-    const res = await fetch("https://inference.baseten.co/v1/chat/completions", {
+    const res = await fetch("https://opencode.ai/inference/go/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "User-Agent": "yokoten-doctor-reviewer",
+        "x-opencode-session": `review-${prNumber}`
       },
       body: JSON.stringify({
         model,
-        max_tokens: 4000,
+        max_tokens: 16000,
+        reasoning_effort: "high",
         messages: [
           { role: "system", content: systemMessage() },
           { role: "user", content: userMessage(title, body, diff) }
@@ -135,8 +137,8 @@ async function postReview(repo, prNumber, token, headSha, event, body) {
 
 export async function main() {
   const token = process.env.REVIEWER_TOKEN;
-  const apiKey = process.env.BASETEN_API_KEY;
-  const model = process.env.MUSE_MODEL;
+  const apiKey = process.env.OPENCODE_API_KEY;
+  const model = process.env.REVIEW_MODEL;
   const prNumber = process.env.PR_NUMBER;
   const headSha = process.env.HEAD_SHA;
   const repo = process.env.GITHUB_REPOSITORY;
@@ -179,10 +181,10 @@ export async function main() {
   let answer = null;
   let modelError = false;
   try {
-    let text = await callModel(apiKey, model, title, bodyText, diff);
+    let text = await callModel(apiKey, model, title, bodyText, diff, prNumber);
     answer = parseAnswer(text);
     if (answer === null) {
-      text = await callModel(apiKey, model, title, bodyText, diff);
+      text = await callModel(apiKey, model, title, bodyText, diff, prNumber);
       answer = parseAnswer(text);
     }
   } catch {

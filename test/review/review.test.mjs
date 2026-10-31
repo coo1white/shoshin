@@ -96,13 +96,13 @@ describe("cleanText", () => {
 describe("buildReviewBody", () => {
   it("last line names the model", () => {
     const body = buildReviewBody({ summary: "ok", findings: [] }, "my-model");
-    assert.equal(body.endsWith("Reviewed by Muse Spark Open (my-model)"), true);
+    assert.equal(body.endsWith("Reviewed by GLM 5.3 Flash (my-model)"), true);
   });
   it("null form says it is not an approval", () => {
     const body = buildReviewBody(null, "my-model");
     assert.match(body, /not an approval/i);
     assert.match(body, /could not read/i);
-    assert.equal(body.endsWith("Reviewed by Muse Spark Open (my-model)"), true);
+    assert.equal(body.endsWith("Reviewed by GLM 5.3 Flash (my-model)"), true);
   });
   it("includes findings", () => {
     const body = buildReviewBody({ summary: "summary", findings: [{ severity: "high", text: "bad" }] }, "m");
