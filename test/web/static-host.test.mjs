@@ -66,23 +66,18 @@ describe('static host portability', () => {
 
   test('web/index.html has a description meta tag, og:title, and a relative icon link', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
-    // description meta tag
     const descRe = /<meta\s+[^>]*name\s*=\s*["']description["'][^>]*>/i;
     const descMatch = html.match(descRe);
     assert.ok(descMatch, 'description meta tag not found');
     const descTag = descMatch[0];
     const descContent = descTag.match(/content\s*=\s*["']([^"']+)["']/i);
     assert.ok(descContent && descContent[1].trim().length > 0, 'description meta tag should have non-empty content');
-
-    // og:title
     const ogRe = /<meta\s+[^>]*property\s*=\s*["']og:title["'][^>]*>/i;
     const ogMatch = html.match(ogRe);
     assert.ok(ogMatch, 'og:title meta tag not found');
     const ogTag = ogMatch[0];
     const ogContent = ogTag.match(/content\s*=\s*["']([^"']+)["']/i);
     assert.ok(ogContent && ogContent[1].trim().length > 0, 'og:title meta tag should have non-empty content');
-
-    // relative icon link
     const linkRe = /<link\s+[^>]*rel\s*=\s*["'][^"']*icon[^"']*["'][^>]*>/gi;
     const iconMatches = [...html.matchAll(linkRe)];
     assert.ok(iconMatches.length > 0, 'icon link not found');
@@ -100,8 +95,6 @@ describe('static host portability', () => {
   test('connect-src in meta tag equals API constant in web/app.js', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
     const app = fs.readFileSync(appPath, 'utf8');
-
-    // Find CSP meta tag
     const metaRe = /<meta[^>]*http-equiv=["']Content-Security-Policy["'][^>]*>/i;
     const metaMatch = html.match(metaRe);
     assert.ok(metaMatch, 'Content-Security-Policy meta tag not found');
@@ -112,19 +105,63 @@ describe('static host portability', () => {
     const connectMatch = csp.match(/connect-src\s+([^;]+)/);
     assert.ok(connectMatch, 'connect-src not found in CSP');
     const connectSrc = connectMatch[1].trim().split(/\s+/)[0];
-
-    // Find API constant in app.js: API = "https://..." or '...'
     const apiMatch = app.match(/API\s*=\s*["']([^"']+)["']/);
     assert.ok(apiMatch, 'API constant not found in web/app.js');
     const api = apiMatch[1].trim();
-
     assert.equal(connectSrc, api, `connect-src (${connectSrc}) should equal API (${api})`);
   });
 
-  test('web/app.js holds the words "How this was made", "Muse Spark Open" and "Claude Opus 5.5"', () => {
-    const app = fs.readFileSync(appPath, 'utf8');
-    assert.ok(app.includes('How this was made'), 'web/app.js should contain "How this was made"');
-    assert.ok(app.includes('Muse Spark Open'), 'web/app.js should contain "Muse Spark Open"');
-    assert.ok(app.includes('Claude Opus 5.5'), 'web/app.js should contain "Claude Opus 5.5"');
+  test('web/*.js holds the words "How this was made", "Muse Spark Open" and "Claude Opus 5.5"', () => {
+    function walkJs(dir) {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      const files = [];
+      for (const e of entries) {
+        const full = path.join(dir, e.name);
+        if (e.isDirectory()) files.push(...walkJs(full));
+        else if (e.isFile() && path.extname(e.name) === ".js") files.push(full);
+      }
+      return files;
+    }
+    const jsFiles = walkJs(webDir);
+    const joined = jsFiles.map(f => fs.readFileSync(f, 'utf8')).join("\n");
+    assert.ok(joined.includes('How this was made'), 'web/*.js should contain "How this was made"');
+    assert.ok(joined.includes('Muse Spark Open'), 'web/*.js should contain "Muse Spark Open"');
+    assert.ok(joined.includes('Claude Opus 5.5'), 'web/*.js should contain "Claude Opus 5.5"');
+  });
+
+  test('every imported name in web/ exists in its source file', () => {
+    function walkJs(dir) {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      const files = [];
+      for (const e of entries) {
+        const full = path.join(dir, e.name);
+        if (e.isDirectory()) files.push(...walkJs(full));
+        else if (e.isFile() && path.extname(e.name) === '.js') files.push(full);
+      }
+      return files;
+    }
+    const jsFiles = walkJs(webDir);
+    const importRe = /import\s*\{([^}]+)\}\s*from\s*["']([^"']+)["']/g;
+    for (const file of jsFiles) {
+      const content = fs.readFileSync(file, 'utf8');
+      let m;
+      while ((m = importRe.exec(content)) !== null) {
+        const specifiersRaw = m[1];
+        const importPath = m[2];
+        const targetPath = path.resolve(path.dirname(file), importPath);
+        assert.ok(fs.existsSync(targetPath), `${path.relative(process.cwd(), file)} imports ${importPath} but file does not exist: ${path.relative(process.cwd(), targetPath)}`);
+        const targetContent = fs.readFileSync(targetPath, 'utf8');
+        const specs = specifiersRaw.split(',');
+        for (const raw of specs) {
+          const trimmed = raw.trim();
+          if (!trimmed) continue;
+          const name = trimmed.split(/\s+as\s+/)[0].trim();
+          if (!name) continue;
+          const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const exportRe = new RegExp(`export\\s+(?:async\\s+)?function\\s+${escaped}\\b|export\\s+const\\s+${escaped}\\b|export\\s+class\\s+${escaped}\\b`);
+          assert.ok(exportRe.test(targetContent), `${path.relative(process.cwd(), file)} imports ${name} from ${importPath} but ${path.relative(process.cwd(), targetPath)} does not export it`);
+        }
+      }
+    }
   });
 });
