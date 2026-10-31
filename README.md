@@ -7,15 +7,15 @@ without opening a terminal. The page shows the same checks as the command
 line tool, then hands you the files to fix what is missing.
 
 This repo holds the page in `web/src/` and the small server in `server/`. The
-server runs on Modal and calls Muse Spark Open on Baseten to write the
-fix files. The design is in `docs/design.md`.
+server runs on Modal, and it calls Muse Spark Open on Baseten to write each
+repo's summary and project section. The design is in `docs/design.md`.
 
 ## How it works
 
 1. You paste a public GitHub repo URL.
 2. A throwaway sandbox clones the repo and runs yokoten on it.
 3. The page shows yokoten's checks, in the same order as the terminal.
-4. Muse writes the missing files for your repo.
+4. The missing files come from yokoten's templates. Muse reads your repo and writes the project section of `AGENTS.md`.
 5. You copy the files or download them as a patch.
 6. The server writes a hash of the result to Sigstore Rekor and to a Solana devnet memo. You can download the result and compare.
 
