@@ -1,3 +1,19 @@
+@font-face {
+  font-family: 'Inter Fallback';
+  src: local('Arial'), local('ArialMT');
+  size-adjust: 107.12%;
+  ascent-override: 90.44%;
+  descent-override: 22.52%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'JetBrains Mono Fallback';
+  src: local('Courier New'), local('CourierNewPSMT');
+  size-adjust: 100%;
+  ascent-override: 102%;
+  descent-override: 30%;
+  line-gap-override: 0%;
+}
 :root {
   --bg: #ffffff;
   --fg: #171717;
@@ -10,8 +26,8 @@
   --ink: #171717;
   --on-ink: #ffffff;
   --shadow: 0 2px 4px rgb(21 23 28 / 0.06), 0 24px 60px -16px rgb(21 23 28 / 0.35);
-  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-sans: 'Inter Variable', 'Inter Fallback', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono Fallback', ui-monospace, SFMono-Regular, Menlo, monospace;
   --gutter: 1rem;
   --gap: 2.5rem;
   --head: 4.75rem;
@@ -421,6 +437,12 @@ nav a:hover, nav a[aria-current='page'] { color: var(--fg); }
     grid-template-columns: auto 1fr auto;
   }
 }
+@media (min-width: 64rem) {
+  .site-footer {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) auto;
+    column-gap: 4rem;
+  }
+}
 .site-footer h2 {
   font-family: var(--font-sans);
   font-size: 0.75rem;
@@ -475,7 +497,6 @@ nav a:hover, nav a[aria-current='page'] { color: var(--fg); }
   color: var(--muted);
 }
 .footer-made {
-  max-width: 32rem;
 }
 .footer-made dl {
   margin: 0;
