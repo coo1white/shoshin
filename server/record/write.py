@@ -40,7 +40,53 @@ def write_record(result, store=None, now=time.time, rekor=None, solana=None, env
                 logger.error(type(e).__name__)
                 existing = None
             if isinstance(existing, dict) and existing.get("rekor") is not None:
-                return existing
+                # both rekor and solana set: return as is
+                if existing.get("solana") is not None:
+                    return existing
+                # rekor set, solana None -> try solana-only retry if seed present
+                solana_seed = environ.get("SOLANA_DEVNET_SEED") if hasattr(environ, "get") else None
+                try:
+                    seed_hex = solana_seed.strip() if isinstance(solana_seed, str) else None
+                except Exception:
+                    seed_hex = None
+                if seed_hex:
+                    # keep stored sha256, recorded_at, document, rekor; write only memo
+                    sha256 = existing.get("sha256")
+                    recorded_at = existing.get("recorded_at")
+                    document = existing.get("document")
+                    # if stored record lacks sha256, fall back to using it anyway; memo needs sha256
+                    # use stored sha256 if present, otherwise cannot retry
+                    if sha256:
+                        try:
+                            memo = memo_text(owner, repo, commit, version, sha256)
+                        except Exception as e:
+                            logger.error(type(e).__name__)
+                            return existing
+                        solana_result = None
+                        try:
+                            solana_result = solana(memo, seed_hex)
+                        except Exception as e:
+                            logger.error(type(e).__name__)
+                            return existing
+                        if solana_result is not None:
+                            record = {
+                                "sha256": sha256,
+                                "recorded_at": recorded_at,
+                                "document": document,
+                                "rekor": existing.get("rekor"),
+                                "solana": solana_result,
+                            }
+                            try:
+                                store.put(key, record)
+                            except Exception as e:
+                                logger.error(type(e).__name__)
+                            return record
+                        else:
+                            return existing
+                    # no sha256 stored: return existing without write
+                    return existing
+                else:
+                    return existing
 
         # recorded_at
         try:

@@ -363,7 +363,7 @@ def test_write_record_both_succeed():
     assert rec["sha256"]
 
 def test_write_record_existing_rekor_makes_no_new_write():
-    existing = {"rekor": {"uuid": "old"}, "solana": None, "sha256": "x"}
+    existing = {"rekor": {"uuid": "old"}, "solana": {"signature": "old_sig"}, "sha256": "x"}
     store = DictStore()
     key = record_key("owner", "repo", "abc123", "1.0")
     store.d[key] = existing
@@ -500,4 +500,108 @@ def test_write_record_result_missing_commit_returns_none_explicit():
         return {"uuid":"u"}
     rec = write_record({"owner":"o"}, store=DictStore(), now=lambda: 0, rekor=fake_rekor, solana=fake_rekor, environ={"REKOR_SIGNING_KEY":"k"})
     assert rec is None
+    assert called == []
+
+def test_write_record_existing_rekor_solana_none_retries_solana_only():
+    # stored record with rekor set and solana None calls only solana writer, keeps same hash and time, stores result
+    key = record_key("owner", "repo", "abc123", "1.0")
+    existing = {
+        "sha256": "a" * 64,
+        "recorded_at": "2024-01-01T00:00:00Z",
+        "document": json.dumps({"hello": "world"}),
+        "rekor": {"uuid": "old"},
+        "solana": None,
+    }
+    store = DictStore()
+    store.d[key] = existing
+    called = []
+    def fake_rekor(doc, pem):
+        called.append("rekor")
+        return {"uuid": "new"}
+    def fake_solana(memo, seed_hex):
+        called.append("solana")
+        # memo should contain stored sha256
+        obj = json.loads(memo)
+        assert obj["sha256"] == "a" * 64
+        assert seed_hex == gen_seed_hex
+        return {"signature": "sig123", "url": "https://explorer.solana.com/tx/sig123?cluster=devnet"}
+    gen_seed_hex = gen_ed_seed().hex()
+    env = {"SOLANA_DEVNET_SEED": gen_seed_hex, "REKOR_SIGNING_KEY": gen_ec_pem().decode()}
+    rec = write_record(_result(), store=store, now=lambda: 999999, rekor=fake_rekor, solana=fake_solana, environ=env)
+    assert called == ["solana"]
+    assert rec["sha256"] == existing["sha256"]
+    assert rec["recorded_at"] == existing["recorded_at"]
+    assert rec["document"] == existing["document"]
+    assert rec["rekor"] == existing["rekor"]
+    assert rec["solana"]["signature"] == "sig123"
+    # stored result
+    assert store.d[key]["solana"]["signature"] == "sig123"
+    assert store.d[key]["sha256"] == "a" * 64
+
+def test_write_record_existing_rekor_solana_none_writer_raising_returns_stored_and_stores_nothing(caplog):
+    caplog.set_level(logging.ERROR)
+    key = record_key("owner", "repo", "abc123", "1.0")
+    existing = {
+        "sha256": "b" * 64,
+        "recorded_at": "2024-01-02T00:00:00Z",
+        "document": "doc",
+        "rekor": {"uuid": "old"},
+        "solana": None,
+    }
+    store = DictStore()
+    store.d[key] = existing
+    def fake_rekor(doc, pem):
+        raise AssertionError("should not be called")
+    def fake_solana(memo, seed_hex):
+        raise RuntimeError("solana boom")
+    env = {"SOLANA_DEVNET_SEED": gen_ed_seed().hex()}
+    rec = write_record(_result(), store=store, now=lambda: 0, rekor=fake_rekor, solana=fake_solana, environ=env)
+    assert rec is existing
+    assert store.d[key] is existing
+    assert "RuntimeError" in caplog.text
+
+def test_write_record_existing_rekor_solana_none_no_seed_no_writer_called():
+    key = record_key("owner", "repo", "abc123", "1.0")
+    existing = {
+        "sha256": "c" * 64,
+        "recorded_at": "2024-01-03T00:00:00Z",
+        "document": "doc",
+        "rekor": {"uuid": "old"},
+        "solana": None,
+    }
+    store = DictStore()
+    store.d[key] = existing
+    called = []
+    def fake_rekor(doc, pem):
+        called.append("rekor")
+        return {"uuid": "new"}
+    def fake_solana(memo, seed_hex):
+        called.append("solana")
+        return {"signature": "s"}
+    env = {}  # no seed
+    rec = write_record(_result(), store=store, now=lambda: 0, rekor=fake_rekor, solana=fake_solana, environ=env)
+    assert rec is existing
+    assert called == []
+
+def test_write_record_existing_both_set_no_writer_called():
+    key = record_key("owner", "repo", "abc123", "1.0")
+    existing = {
+        "sha256": "d" * 64,
+        "recorded_at": "2024-01-04T00:00:00Z",
+        "document": "doc",
+        "rekor": {"uuid": "old"},
+        "solana": {"signature": "sig"},
+    }
+    store = DictStore()
+    store.d[key] = existing
+    called = []
+    def fake_rekor(doc, pem):
+        called.append("rekor")
+        return {"uuid": "new"}
+    def fake_solana(memo, seed_hex):
+        called.append("solana")
+        return {"signature": "s"}
+    env = {"SOLANA_DEVNET_SEED": gen_ed_seed().hex(), "REKOR_SIGNING_KEY": gen_ec_pem().decode()}
+    rec = write_record(_result(), store=store, now=lambda: 0, rekor=fake_rekor, solana=fake_solana, environ=env)
+    assert rec is existing
     assert called == []
