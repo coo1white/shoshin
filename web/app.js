@@ -1,5 +1,5 @@
 // @ts-check
-const API = "https://REPLACE.modal.run";
+const API = "https://yokoten-doctor--yokoten-doctor-fastapi-app.us-east.modal.run";
 
 import { PROGRESS, markLabel, viewModel } from "./view.js";
 

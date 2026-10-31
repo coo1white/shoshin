@@ -264,8 +264,9 @@ streamed events (server-sent events) back to the browser
   stated exception to the owner's "no new Python in TS projects" rule, kept
   to `server/`. Modal credits: claimed, valid during the hackathon only.
 - Deploy: `modal deploy server/app.py` uploads that one file, so `web_image` adds
-  the sibling modules with `add_local_file`. The page holds a placeholder API
-  address until the open question on the public address is settled.
+  the sibling modules with `add_local_file`. Modal builds the web address from
+  the workspace name, so the workspace is named `yokoten-doctor`, and the page
+  calls that address directly with no proxy.
 - Secrets live only in the server's secret store, never in the repo, never in
   the browser, never inside the sandbox, never in a Muse prompt:
   `BASETEN_API_KEY`.
