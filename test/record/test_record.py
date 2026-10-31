@@ -274,7 +274,6 @@ def test_write_memo_two_calls_in_order_with_right_params():
     seed = gen_ed_seed()
     seed_hex = seed.hex()
     memo = "hello"
-    # prepare blockhash that decodes to 32 bytes
     fake_blockhash_bytes = b"\x55" * 32
     fake_blockhash_b58 = base58_encode(fake_blockhash_bytes)
     sig_b58 = base58_encode(b"\x99" * 32)
@@ -282,20 +281,21 @@ def test_write_memo_two_calls_in_order_with_right_params():
     def fake_rpc(method, params, timeout=15):
         calls.append((method, params))
         if method == "getLatestBlockhash":
-            # check params
             assert params == [{"commitment": "confirmed"}]
             return {"result": {"value": {"blockhash": fake_blockhash_b58}}}
         elif method == "sendTransaction":
-            assert method == "sendTransaction"
             assert isinstance(params[0], str)
             assert params[1] == {"encoding": "base64", "preflightCommitment": "confirmed", "maxRetries": 2}
             return {"result": sig_b58}
+        elif method == "getSignatureStatuses":
+            assert params == [[sig_b58], {"searchTransactionHistory": False}]
+            return {"result": {"value": [{"confirmationStatus": "confirmed", "err": None}]}}
         else:
             raise AssertionError("unknown method")
     res = write_memo(memo, seed_hex, rpc=fake_rpc)
-    assert len(calls) == 2
     assert calls[0][0] == "getLatestBlockhash"
     assert calls[1][0] == "sendTransaction"
+    assert calls[2][0] == "getSignatureStatuses"
     assert res["signature"] == sig_b58
     assert res["url"] == f"https://explorer.solana.com/tx/{sig_b58}?cluster=devnet"
 
@@ -327,10 +327,177 @@ def test_write_memo_good_reply_gives_devnet_link():
     def fake_rpc(method, params, timeout=15):
         if method == "getLatestBlockhash":
             return {"result": {"value": {"blockhash": fake_blockhash_b58}}}
-        return {"result": sig_b58}
+        if method == "sendTransaction":
+            return {"result": sig_b58}
+        if method == "getSignatureStatuses":
+            return {"result": {"value": [{"confirmationStatus": "confirmed", "err": None}]}}
+        raise AssertionError("unknown method")
     res = write_memo("hi", seed_hex, rpc=fake_rpc)
     assert "?cluster=devnet" in res["url"]
     assert sig_b58 in res["url"]
+
+def test_write_memo_null_then_confirmed_succeeds_after_two_polls():
+    from record.solana import write_memo
+    seed_hex = gen_ed_seed().hex()
+    fake_blockhash_b58 = base58_encode(b"\x10" * 32)
+    sig_b58 = base58_encode(b"\x11" * 32)
+    polls = []
+    def fake_rpc(method, params, timeout=15):
+        if method == "getLatestBlockhash":
+            return {"result": {"value": {"blockhash": fake_blockhash_b58}}}
+        if method == "sendTransaction":
+            return {"result": sig_b58}
+        if method == "getSignatureStatuses":
+            polls.append(1)
+            if len(polls) == 1:
+                assert params == [[sig_b58], {"searchTransactionHistory": False}]
+                return {"result": {"value": [None]}}
+            else:
+                return {"result": {"value": [{"confirmationStatus": "confirmed", "err": None}]}}
+        raise AssertionError(method)
+    t = [0.0]
+    def fake_now():
+        return t[0]
+    def fake_sleep(s):
+        t[0] += s
+    res = write_memo("hi", seed_hex, rpc=fake_rpc, sleep=fake_sleep, now=fake_now, wait_seconds=20)
+    assert res["signature"] == sig_b58
+    assert len(polls) == 2
+
+def test_write_memo_finalized_succeeds():
+    from record.solana import write_memo
+    seed_hex = gen_ed_seed().hex()
+    fake_blockhash_b58 = base58_encode(b"\x12" * 32)
+    sig_b58 = base58_encode(b"\x13" * 32)
+    def fake_rpc(method, params, timeout=15):
+        if method == "getLatestBlockhash":
+            return {"result": {"value": {"blockhash": fake_blockhash_b58}}}
+        if method == "sendTransaction":
+            return {"result": sig_b58}
+        if method == "getSignatureStatuses":
+            return {"result": {"value": [{"confirmationStatus": "finalized", "err": None}]}}
+        raise AssertionError(method)
+    t = [0.0]
+    def fake_now():
+        return t[0]
+    def fake_sleep(s):
+        t[0] += s
+    res = write_memo("hi", seed_hex, rpc=fake_rpc, sleep=fake_sleep, now=fake_now, wait_seconds=20)
+    assert res["signature"] == sig_b58
+
+def test_write_memo_processed_alone_not_enough_reaches_limit():
+    from record.solana import write_memo
+    seed_hex = gen_ed_seed().hex()
+    fake_blockhash_b58 = base58_encode(b"\x14" * 32)
+    sig_b58 = base58_encode(b"\x15" * 32)
+    def fake_rpc(method, params, timeout=15):
+        if method == "getLatestBlockhash":
+            return {"result": {"value": {"blockhash": fake_blockhash_b58}}}
+        if method == "sendTransaction":
+            return {"result": sig_b58}
+        if method == "getSignatureStatuses":
+            return {"result": {"value": [{"confirmationStatus": "processed", "err": None}]}}
+        raise AssertionError(method)
+    t = [0.0]
+    def fake_now():
+        return t[0]
+    def fake_sleep(s):
+        t[0] += s
+    with pytest.raises(RecordFailed):
+        write_memo("hi", seed_hex, rpc=fake_rpc, sleep=fake_sleep, now=fake_now, wait_seconds=3)
+    assert t[0] >= 3
+
+def test_write_memo_err_raises_at_once():
+    from record.solana import write_memo
+    seed_hex = gen_ed_seed().hex()
+    fake_blockhash_b58 = base58_encode(b"\x16" * 32)
+    sig_b58 = base58_encode(b"\x17" * 32)
+    polls = []
+    def fake_rpc(method, params, timeout=15):
+        if method == "getLatestBlockhash":
+            return {"result": {"value": {"blockhash": fake_blockhash_b58}}}
+        if method == "sendTransaction":
+            return {"result": sig_b58}
+        if method == "getSignatureStatuses":
+            polls.append(1)
+            return {"result": {"value": [{"confirmationStatus": "confirmed", "err": {"InstructionError": [0, "oops"]}}]}}
+        raise AssertionError(method)
+    t = [0.0]
+    def fake_now():
+        return t[0]
+    def fake_sleep(s):
+        t[0] += s
+    with pytest.raises(RecordFailed):
+        write_memo("hi", seed_hex, rpc=fake_rpc, sleep=fake_sleep, now=fake_now, wait_seconds=20)
+    assert len(polls) == 1
+
+def test_write_memo_never_confirmed_raises_at_limit():
+    from record.solana import write_memo
+    seed_hex = gen_ed_seed().hex()
+    fake_blockhash_b58 = base58_encode(b"\x18" * 32)
+    sig_b58 = base58_encode(b"\x19" * 32)
+    def fake_rpc(method, params, timeout=15):
+        if method == "getLatestBlockhash":
+            return {"result": {"value": {"blockhash": fake_blockhash_b58}}}
+        if method == "sendTransaction":
+            return {"result": sig_b58}
+        if method == "getSignatureStatuses":
+            return {"result": {"value": [None]}}
+        raise AssertionError(method)
+    t = [0.0]
+    def fake_now():
+        return t[0]
+    def fake_sleep(s):
+        t[0] += s
+    with pytest.raises(RecordFailed):
+        write_memo("hi", seed_hex, rpc=fake_rpc, sleep=fake_sleep, now=fake_now, wait_seconds=2)
+    assert t[0] >= 2
+
+def test_write_memo_poll_exception_then_confirmed_succeeds():
+    from record.solana import write_memo
+    seed_hex = gen_ed_seed().hex()
+    fake_blockhash_b58 = base58_encode(b"\x20" * 32)
+    sig_b58 = base58_encode(b"\x21" * 32)
+    calls = []
+    def fake_rpc(method, params, timeout=15):
+        if method == "getLatestBlockhash":
+            return {"result": {"value": {"blockhash": fake_blockhash_b58}}}
+        if method == "sendTransaction":
+            return {"result": sig_b58}
+        if method == "getSignatureStatuses":
+            calls.append(1)
+            if len(calls) == 1:
+                raise RuntimeError("network hiccup")
+            if len(calls) == 2:
+                return {"error": {"code": -32603, "message": "oops"}}
+            return {"result": {"value": [{"confirmationStatus": "confirmed", "err": None}]}}
+        raise AssertionError(method)
+    t = [0.0]
+    def fake_now():
+        return t[0]
+    def fake_sleep(s):
+        t[0] += s
+    res = write_memo("hi", seed_hex, rpc=fake_rpc, sleep=fake_sleep, now=fake_now, wait_seconds=20)
+    assert res["signature"] == sig_b58
+    assert len(calls) == 3
+
+def test_write_memo_send_failure_never_polls():
+    from record.solana import write_memo
+    seed_hex = gen_ed_seed().hex()
+    fake_blockhash_b58 = base58_encode(b"\x22" * 32)
+    polled = []
+    def fake_rpc(method, params, timeout=15):
+        if method == "getLatestBlockhash":
+            return {"result": {"value": {"blockhash": fake_blockhash_b58}}}
+        if method == "sendTransaction":
+            return {"error": {"code": 1, "message": "fail"}}
+        if method == "getSignatureStatuses":
+            polled.append(1)
+            return {"result": {"value": [None]}}
+        raise AssertionError(method)
+    with pytest.raises(RecordFailed):
+        write_memo("hi", seed_hex, rpc=fake_rpc)
+    assert polled == []
 
 # ---------------------------------------------------------------------------
 # write_record with fake writers and dict-backed store

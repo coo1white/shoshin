@@ -12,6 +12,7 @@ This counts how many rounds of fixes each task needed after the first code came 
 | 7. Limits and Pages | 3 | test, commit check, test |
 | 8. Public record | 2 | review, review |
 | Page polish | 1 | review |
+| Review rules and build log | 0 | none |
 
 16 rounds over 8 tasks: a mean of 2. Found by review 7, tests 5, the commit check 2, real runs 2.
 

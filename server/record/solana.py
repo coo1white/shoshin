@@ -1,5 +1,6 @@
 import base64
 import json
+import time
 import urllib.request
 import urllib.error
 
@@ -22,7 +23,6 @@ def base58_encode(data: bytes) -> str:
     while n > 0:
         n, r = divmod(n, 58)
         res = _B58_ALPHABET[r] + res
-    # leading zero bytes as 1
     pad = 0
     for b in data:
         if b == 0:
@@ -40,7 +40,6 @@ def base58_decode(text: str) -> bytes:
         if c not in _B58_IDX:
             raise ValueError("invalid base58")
         n = n * 58 + _B58_IDX[c]
-    # leading ones as zero bytes
     pad = 0
     for c in text:
         if c == "1":
@@ -81,7 +80,6 @@ def build_memo_message(fee_payer: bytes, recent_blockhash: bytes, memo: bytes) -
     keys_len = compact_u16(2)
     keys = fee_payer + memo_program
     bh = recent_blockhash
-    # instruction
     program_index = bytes([1])
     account_indexes = bytes([0])
     inst_data = (
@@ -113,17 +111,14 @@ def rpc_call(method, params, timeout=15):
         return json.loads(text)
 
 
-def write_memo(memo, seed_hex, rpc=rpc_call) -> dict:
+def write_memo(memo, seed_hex, rpc=rpc_call, sleep=time.sleep, now=time.monotonic, wait_seconds=20) -> dict:
     if isinstance(memo, str):
         memo = memo.encode("utf-8")
     seed = bytes.fromhex(seed_hex)
     if len(seed) != 32:
         raise RecordFailed("bad seed")
-    # derive fee payer
     private_key = ed25519.Ed25519PrivateKey.from_private_bytes(seed)
     fee_payer = private_key.public_key().public_bytes_raw()
-
-    # get blockhash
     resp = rpc("getLatestBlockhash", [{"commitment": "confirmed"}])
     if isinstance(resp, dict) and "error" in resp and resp["error"] is not None:
         raise RecordFailed("rpc error")
@@ -132,9 +127,7 @@ def write_memo(memo, seed_hex, rpc=rpc_call) -> dict:
     except Exception:
         raise RecordFailed("bad blockhash")
     recent_blockhash = base58_decode(blockhash_b58)
-    # pad or validate length
     if len(recent_blockhash) != 32:
-        # if decode gave wrong length, try to handle
         raise RecordFailed("bad blockhash length")
     message = build_memo_message(fee_payer, recent_blockhash, memo)
     signature, wire = sign_transaction(seed, message)
@@ -148,7 +141,39 @@ def write_memo(memo, seed_hex, rpc=rpc_call) -> dict:
         raise RecordFailed("bad sendTransaction")
     if not isinstance(sig_b58, str):
         raise RecordFailed("bad signature")
-    return {
-        "signature": sig_b58,
-        "url": f"https://explorer.solana.com/tx/{sig_b58}?cluster=devnet",
-    }
+    start = now()
+    while True:
+        try:
+            resp3 = rpc("getSignatureStatuses", [[sig_b58], {"searchTransactionHistory": False}])
+        except Exception:
+            resp3 = None
+            is_error = True
+        else:
+            is_error = isinstance(resp3, dict) and "error" in resp3 and resp3["error"] is not None
+        if not is_error and resp3 is not None:
+            try:
+                value = resp3["result"]["value"][0]
+            except Exception:
+                value = None
+                should_continue = True
+            else:
+                if value is None:
+                    should_continue = True
+                else:
+                    err = value.get("err")
+                    if err is not None:
+                        raise RecordFailed("transaction err")
+                    cs = value.get("confirmationStatus")
+                    if cs in ("confirmed", "finalized"):
+                        return {
+                            "signature": sig_b58,
+                            "url": f"https://explorer.solana.com/tx/{sig_b58}?cluster=devnet",
+                        }
+                    should_continue = True
+        else:
+            should_continue = True
+        if should_continue:
+            elapsed = now() - start
+            if elapsed >= wait_seconds:
+                raise RecordFailed("not confirmed")
+            sleep(1)
