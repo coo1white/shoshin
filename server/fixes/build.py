@@ -1,0 +1,131 @@
+import logging
+import time
+
+from .muse import ask_muse as _ask_muse_default
+from .select_files import fill_owner, merge_this_project
+
+logger = logging.getLogger(__name__)
+
+
+def muse_cache_key(owner, repo, commit, version) -> str:
+    return f"{owner}/{repo}@{commit}@{version}".lower()
+
+
+def build_fixes(result, ask=_ask_muse_default, cache=None, now=time.time) -> dict:
+    try:
+        fix_files = result.get("fix_files") if isinstance(result, dict) else None
+        too_big = result.get("too_big") if isinstance(result, dict) else False
+        muse_facts = result.get("muse_facts") if isinstance(result, dict) else None
+        owner = result.get("owner") if isinstance(result, dict) else ""
+        repo = result.get("repo") if isinstance(result, dict) else ""
+        commit = result.get("commit") if isinstance(result, dict) else ""
+        yokoten_version = result.get("yokoten_version") if isinstance(result, dict) else ""
+
+        has_agents = False
+        if isinstance(fix_files, list):
+            for f in fix_files:
+                if isinstance(f, dict) and f.get("path") == "AGENTS.md":
+                    has_agents = True
+                    break
+        if not has_agents or too_big:
+            # no muse needed
+            files_out = []
+            if isinstance(fix_files, list):
+                for f in fix_files:
+                    if isinstance(f, dict):
+                        files_out.append({
+                            "path": f.get("path"),
+                            "content": f.get("content"),
+                            "source": "yokoten",
+                        })
+            return {"files": files_out, "summary": "", "muse": "not needed"}
+
+        # need muse
+        cache_key = muse_cache_key(owner or "", repo or "", commit or "", yokoten_version or "")
+        cached = None
+        use_cached = False
+        cached_entry = None
+        if cache is not None:
+            try:
+                cached_entry = cache.get(cache_key, None)
+            except Exception as e:
+                logger.error(type(e).__name__)
+                cached_entry = None
+            if isinstance(cached_entry, dict):
+                at = cached_entry.get("at")
+                summary = cached_entry.get("summary")
+                this_project = cached_entry.get("this_project")
+                if isinstance(at, (int, float)) and isinstance(summary, str) and isinstance(this_project, str):
+                    try:
+                        cur = now()
+                    except Exception:
+                        cur = time.time()
+                    if cur - at < 24 * 3600:
+                        use_cached = True
+                        cached = cached_entry
+
+        reply = None
+        if use_cached:
+            reply = {"summary": cached["summary"], "this_project": cached["this_project"]}
+        else:
+            try:
+                reply = ask(muse_facts)
+            except Exception as e:
+                logger.error(type(e).__name__)
+                reply = None
+            if reply is not None:
+                # store in cache
+                if cache is not None:
+                    try:
+                        cur2 = now()
+                    except Exception:
+                        cur2 = time.time()
+                    entry = {"at": cur2, "summary": reply.get("summary"), "this_project": reply.get("this_project")}
+                    try:
+                        cache.put(cache_key, entry)
+                    except Exception as e:
+                        logger.error(type(e).__name__)
+
+        files_out = []
+        summary_out = ""
+        muse_status = "failed"
+        if reply is not None and isinstance(reply.get("summary"), str) and isinstance(reply.get("this_project"), str):
+            summary_out = reply["summary"]
+            muse_status = "ok"
+            # merge into AGENTS.md
+            for f in fix_files:
+                if not isinstance(f, dict):
+                    continue
+                path = f.get("path")
+                content = f.get("content")
+                if path == "AGENTS.md":
+                    try:
+                        merged = merge_this_project(content or "", reply["this_project"])
+                    except Exception as e:
+                        logger.error(type(e).__name__)
+                        merged = content
+                    files_out.append({"path": path, "content": merged, "source": "yokoten and Muse"})
+                else:
+                    files_out.append({"path": path, "content": content, "source": "yokoten"})
+        else:
+            # failed, keep as is
+            for f in fix_files:
+                if isinstance(f, dict):
+                    files_out.append({"path": f.get("path"), "content": f.get("content"), "source": "yokoten"})
+            summary_out = ""
+            muse_status = "failed"
+
+        return {"files": files_out, "summary": summary_out, "muse": muse_status}
+    except Exception as e:
+        logger.error(type(e).__name__)
+        # never raise
+        try:
+            fix_files = result.get("fix_files") if isinstance(result, dict) else []
+            files_out = []
+            if isinstance(fix_files, list):
+                for f in fix_files:
+                    if isinstance(f, dict):
+                        files_out.append({"path": f.get("path"), "content": f.get("content"), "source": "yokoten"})
+            return {"files": files_out, "summary": "", "muse": "failed"}
+        except Exception:
+            return {"files": [], "summary": "", "muse": "failed"}

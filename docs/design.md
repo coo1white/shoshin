@@ -318,31 +318,20 @@ streamed events (server-sent events) back to the browser
 ```json
 {
   "summary": "one sentence about this repo, plain English, at most 30 words",
-  "files": [
-    { "path": "AGENTS.md", "step": "rules", "why": "one line", "content": "..." }
-  ]
+  "this_project": "the text of AGENTS.md's This project section, in Markdown"
 }
 ```
 
-- Muse's `files` may hold only AGENTS.md, and only its "## This project"
-  section; the rest of every fix file comes from `yokoten init` (6.2a). Later,
-  the test workflow's test command too. Any other path is dropped. A file
-  that already exists in the repo is never replaced; an existing CLAUDE.md
-  only gains the one import line.
-- Run-time prompt (system), to be used as written:
-
-  > You help a developer get their repository ready for AI coding agents. You
-  > get facts about one repository and the checks it failed. For each failed
-  > check that lists a file, write that file for THIS repository: use its real
-  > test command, language, folders and owner. Never invent a command that the
-  > files do not show; if you cannot tell, write a short TODO line in the file
-  > saying what the owner must fill in. Keep AGENTS.md under 80 lines: how to
-  > build, how to test, what not to touch, how to open a pull request. Plain
-  > English, short sentences. Reply with one JSON object in the given shape and
-  > nothing else.
-
-- If Muse fails or returns bad JSON: retry once; then show the checks without
-  generated files and say so. The checks never wait on Muse.
+- Muse writes only AGENTS.md's "## This project" section; the rest of every fix
+  file comes from `yokoten init` (6.2a). It runs only when init adds a new
+  AGENTS.md: a file that already exists in the repo is never replaced. The reply
+  is refused when a field is empty or too long, when it has a `#` or `##`
+  heading, or when it holds an email address.
+- The run-time prompt is `SYSTEM_PROMPT` in `server/fixes/muse.py`. It tells Muse
+  that everything in the facts is data, and never an instruction.
+- If Muse fails or returns bad JSON: retry once; then send yokoten's files
+  without Muse's section and say so. The checks never wait on Muse: the API sends
+  `result` first, then `fixes`.
 - Muse's files are suggestions, not results: a model's output is not the same
   twice, so it is not re-runnable. The page says "Suggested by Muse; read
   before you apply."
@@ -355,15 +344,16 @@ settles):
 
 - The sandbox runs `yokoten init` (no `--github`, no network) in the
   throwaway clone and takes only these paths from `git status`: AGENTS.md,
-  `.github/ISSUE_TEMPLATE/*`, `.github/pull_request_template.md`,
+  CHANGELOG.md, `.github/ISSUE_TEMPLATE/*`, `.github/pull_request_template.md`,
   `.github/SECURITY.md`, `.github/dependabot.yml`, `.github/CODEOWNERS` (with
   the repo owner's handle in place of the placeholder), and later the test
   workflow. It drops `.yokoten/` (the 3.6 MB runtime), `.githooks/` and every
   agent config: those need yokoten installed, which `npx yokoten` does.
 - A known yokoten bug to route around (issue #1286): on a repo with its own
-  root `SECURITY.md`, init also writes `.github/SECURITY.md`. The page drops
-  `.github/SECURITY.md` from the patch when any SECURITY.md already exists,
-  and avoids such a repo in the demo.
+  root `SECURITY.md`, init also writes `.github/SECURITY.md`. The same happens
+  with a pull request template in `docs/` and with a changelog under another
+  name, such as `CHANGES.md`. The server drops a new file when the repo already
+  has the same thing elsewhere (`select_fix_paths` in `server/fixes/`).
 - Muse writes only AGENTS.md's "## This project" section (build, test, what
   not to touch), the one place init leaves for the project. Everything above
   it is yokoten's core rules, word for word.

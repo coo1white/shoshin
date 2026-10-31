@@ -1,14 +1,51 @@
 import json
-
+import logging
 import modal
+from fixes.select_files import choose_muse_paths, cap_files, select_fix_paths, is_private_path, fill_owner
+from result import summarize
 
 YOKOTEN_VERSION = "0.2.0"
+
+logger = logging.getLogger(__name__)
 
 image = (
     modal.Image.from_registry("node:22-slim")
     .apt_install("git", "ca-certificates")
     .run_commands(f"npm install -g yokoten@{YOKOTEN_VERSION}")
 )
+
+READ_FILES_SCRIPT = r"""
+const fs=require('fs');
+const path=require('path');
+const args=JSON.parse(process.argv[1]);
+const limit=args.limit;
+const out={};
+for(const p of args.paths){
+  try{
+    if(p.includes('\\')||p.split('/').includes('..')) continue;
+    const full=path.join('/tmp/repo',p);
+    const resolved=path.resolve(full);
+    if(!resolved.startsWith('/tmp/repo/') && resolved!=='/tmp/repo') continue;
+    if(fs.realpathSync(resolved)!==resolved && !fs.realpathSync(resolved).startsWith('/tmp/repo/')) continue;
+    // also ensure realpath is inside /tmp/repo
+    try{
+      const real=fs.realpathSync(resolved);
+      if(!real.startsWith('/tmp/repo/') && real!=='/tmp/repo') continue;
+    }catch(e){ continue; }
+    let st;
+    try{ st=fs.lstatSync(resolved); }catch(e){ continue; }
+    if(!st.isFile()) continue;
+    const buf=Buffer.alloc(limit+1);
+    const fd=fs.openSync(resolved,'r');
+    let bytes=0;
+    try{ bytes=fs.readSync(fd,buf,0,limit+1,0); }finally{ fs.closeSync(fd); }
+    if(bytes>limit) bytes=limit;
+    const txt=buf.slice(0,bytes).toString('utf8');
+    out[p]=txt;
+  }catch(e){}
+}
+process.stdout.write(JSON.stringify(out));
+"""
 
 
 class SandboxFailed(Exception):
@@ -24,6 +61,112 @@ def _read_process(proc):
     if isinstance(stderr, bytes):
         stderr = stderr.decode("utf-8", errors="replace")
     return stdout, stderr, proc.returncode
+
+
+def _read_files(sb, paths, limit) -> dict:
+    if not paths:
+        return {}
+    args = json.dumps({"paths": paths, "limit": limit})
+    p = sb.exec("env", "-C", "/tmp/repo", "node", "-e", READ_FILES_SCRIPT, args, timeout=20)
+    stdout, _, rc = _read_process(p)
+    if rc != 0:
+        return {}
+    try:
+        data = json.loads(stdout)
+        if not isinstance(data, dict):
+            return {}
+        return data
+    except Exception:
+        return {}
+
+
+def _collect_fix_data(sb, owner, repo, doctor, check) -> dict:
+    fix_files = []
+    muse_facts = {}
+    too_big = False
+    try:
+        p = sb.exec("git", "-C", "/tmp/repo", "ls-files", timeout=10)
+        stdout_ls, _, rc_ls = _read_process(p)
+        tracked = []
+        if rc_ls == 0:
+            tracked = [line for line in stdout_ls.splitlines() if line]
+        else:
+            tracked = []
+        if len(tracked) > 20000:
+            too_big = True
+        findings = []
+        try:
+            findings = check.get("findings") or []
+        except Exception:
+            findings = []
+        # muse_facts
+        filtered_for_list = [t for t in tracked if not is_private_path(t)]
+        file_list = filtered_for_list[:500]
+        # open_checks from summarize(doctor)["steps"]
+        open_checks = []
+        try:
+            steps = summarize(doctor)["steps"]
+            for s in steps:
+                if not isinstance(s, dict):
+                    continue
+                mark = s.get("mark")
+                if mark == "done" or mark == "not now":
+                    continue
+                open_checks.append({"id": s.get("id"), "title": s.get("title"), "what": s.get("what")})
+        except Exception:
+            open_checks = []
+        chosen = choose_muse_paths(tracked, findings)
+        # read files: CHANGELOG.md with 3KB, rest with 20KB, then cap at 120KB keeping order
+        changelog_paths = [c for c in chosen if c == "CHANGELOG.md"]
+        other_paths = [c for c in chosen if c != "CHANGELOG.md"]
+        read_files = {}
+        if other_paths:
+            data = _read_files(sb, other_paths, 20 * 1024)
+            for c in other_paths:
+                if c in data:
+                    read_files[c] = data[c]
+        if changelog_paths:
+            data2 = _read_files(sb, changelog_paths, 3 * 1024)
+            for c in changelog_paths:
+                if c in data2:
+                    read_files[c] = data2[c]
+        capped = cap_files(read_files, 120 * 1024)
+        muse_facts = {
+            "owner": owner,
+            "repo": repo,
+            "file_list": file_list,
+            "files": capped,
+            "open_checks": open_checks,
+        }
+        # yokoten init and fix_files
+        p = sb.exec("env", "-C", "/tmp/repo", "yokoten", "init", timeout=30)
+        _, _, rc_init = _read_process(p)
+        if rc_init == 0:
+            p = sb.exec("git", "-C", "/tmp/repo", "status", "--porcelain", "--untracked-files=all", timeout=10)
+            stdout_st, _, rc_st = _read_process(p)
+            new_paths = []
+            if rc_st == 0:
+                for line in stdout_st.splitlines():
+                    if line.startswith("?? "):
+                        path_part = line[3:]
+                        if path_part.startswith('"'):
+                            continue
+                        new_paths.append(path_part)
+            selected = select_fix_paths(new_paths, tracked)
+            if selected:
+                data_f = _read_files(sb, selected, 64 * 1024)
+                for sel in selected:
+                    if sel in data_f:
+                        content = data_f[sel]
+                        if sel == ".github/CODEOWNERS":
+                            content = fill_owner(content, owner)
+                        fix_files.append({"path": sel, "content": content})
+    except Exception as e:
+        logger.error(type(e).__name__)
+        fix_files = []
+        muse_facts = {}
+        too_big = False
+    return {"fix_files": fix_files, "muse_facts": muse_facts, "too_big": too_big}
 
 
 def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
@@ -45,19 +188,15 @@ def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
         outbound_cidr_allowlist=[],
     )
     try:
-        # 2. mkdir
         p = sb.exec("mkdir", "-p", "/tmp/home", "/tmp/work", timeout=10)
         _, _, rc = _read_process(p)
         if rc != 0:
             raise SandboxFailed("Could not prepare sandbox.")
-
         if on_progress is not None:
             try:
                 on_progress("copying")
             except Exception:
                 pass
-
-        # 3. clone
         clone_url = f"https://github.com/{owner}/{repo}.git"
         p = sb.exec(
             "git",
@@ -75,15 +214,11 @@ def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
         _, stderr, rc = _read_process(p)
         if rc != 0:
             raise SandboxFailed(f"Could not clone repo: {stderr.strip()}")
-
-        # 4. commit
         p = sb.exec("git", "-C", "/tmp/repo", "rev-parse", "HEAD", timeout=10)
         stdout, stderr, rc = _read_process(p)
         if rc != 0:
             raise SandboxFailed(f"Could not read commit: {stderr.strip()}")
         commit = stdout.strip()
-
-        # 5. cut network
         try:
             sb._experimental_set_outbound_network_policy(
                 outbound_domain_allowlist=[],
@@ -91,14 +226,11 @@ def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
             )
         except Exception as e:
             raise SandboxFailed("Could not lock down network before running checks.") from e
-
         if on_progress is not None:
             try:
                 on_progress("checking")
             except Exception:
                 pass
-
-        # about: description from installed package
         about = ""
         try:
             p = sb.exec(
@@ -110,15 +242,12 @@ def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
             stdout_a, _, rc_a = _read_process(p)
             if rc_a == 0:
                 about = stdout_a.strip()
-                # node -p prints with newline; ensure string
                 if about is None:
                     about = ""
             else:
                 about = ""
         except Exception:
             about = ""
-
-        # 6. run yokoten doctor and check (no shell, workdir via env -C)
         p = sb.exec(
             "env",
             "-C",
@@ -136,7 +265,6 @@ def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
             doctor = json.loads(stdout_d)
         except Exception as e:
             raise SandboxFailed(f"Could not parse doctor output: {e}") from e
-
         p = sb.exec(
             "env",
             "-C",
@@ -153,9 +281,7 @@ def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
             check = json.loads(stdout_c)
         except Exception as e:
             raise SandboxFailed(f"Could not parse check output: {e}") from e
-
         yokoten_version = doctor.get("version", YOKOTEN_VERSION)
-
         rerun = {
             "doctor": (
                 f"git clone https://github.com/{owner}/{repo} && "
@@ -165,7 +291,10 @@ def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
             ),
             "check": f'HOME="$(mktemp -d)" npx yokoten@{yokoten_version} check --json',
         }
-
+        collected = _collect_fix_data(sb, owner, repo, doctor, check)
+        fix_files = collected["fix_files"]
+        muse_facts = collected["muse_facts"]
+        too_big = collected["too_big"]
         return {
             "owner": owner,
             "repo": repo,
@@ -175,6 +304,9 @@ def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
             "doctor": doctor,
             "check": check,
             "rerun": rerun,
+            "fix_files": fix_files,
+            "muse_facts": muse_facts,
+            "too_big": too_big,
         }
     finally:
         try:
