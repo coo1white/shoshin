@@ -24,8 +24,8 @@ describe('static host portability', () => {
     }
   });
 
-  test('web/ holds only .html, .js and .css files', () => {
-    const allowed = new Set(['.html', '.js', '.css']);
+  test('web/ holds only .html, .js, .css and .svg files', () => {
+    const allowed = new Set(['.html', '.js', '.css', '.svg']);
     function walk(dir) {
       const entries = fs.readdirSync(dir, { withFileTypes: true });
       for (const e of entries) {
@@ -39,6 +39,62 @@ describe('static host portability', () => {
       }
     }
     walk(webDir);
+  });
+
+  test('every SVG in web/ holds no <script and no on...= attribute', () => {
+    function walk(dir) {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      const svgs = [];
+      for (const e of entries) {
+        const full = path.join(dir, e.name);
+        if (e.isDirectory()) {
+          svgs.push(...walk(full));
+        } else if (e.isFile() && path.extname(e.name).toLowerCase() === '.svg') {
+          svgs.push(full);
+        }
+      }
+      return svgs;
+    }
+    const svgFiles = walk(webDir);
+    for (const file of svgFiles) {
+      const content = fs.readFileSync(file, 'utf8');
+      const lower = content.toLowerCase();
+      assert.equal(lower.includes('<script'), false, `SVG should not contain <script: ${path.relative(webDir, file)}`);
+      assert.equal(/\bon\w+\s*=/i.test(content), false, `SVG should not contain on...= attribute: ${path.relative(webDir, file)}`);
+    }
+  });
+
+  test('web/index.html has a description meta tag, og:title, and a relative icon link', () => {
+    const html = fs.readFileSync(indexPath, 'utf8');
+    // description meta tag
+    const descRe = /<meta\s+[^>]*name\s*=\s*["']description["'][^>]*>/i;
+    const descMatch = html.match(descRe);
+    assert.ok(descMatch, 'description meta tag not found');
+    const descTag = descMatch[0];
+    const descContent = descTag.match(/content\s*=\s*["']([^"']+)["']/i);
+    assert.ok(descContent && descContent[1].trim().length > 0, 'description meta tag should have non-empty content');
+
+    // og:title
+    const ogRe = /<meta\s+[^>]*property\s*=\s*["']og:title["'][^>]*>/i;
+    const ogMatch = html.match(ogRe);
+    assert.ok(ogMatch, 'og:title meta tag not found');
+    const ogTag = ogMatch[0];
+    const ogContent = ogTag.match(/content\s*=\s*["']([^"']+)["']/i);
+    assert.ok(ogContent && ogContent[1].trim().length > 0, 'og:title meta tag should have non-empty content');
+
+    // relative icon link
+    const linkRe = /<link\s+[^>]*rel\s*=\s*["'][^"']*icon[^"']*["'][^>]*>/gi;
+    const iconMatches = [...html.matchAll(linkRe)];
+    assert.ok(iconMatches.length > 0, 'icon link not found');
+    for (const m of iconMatches) {
+      const tag = m[0];
+      const hrefMatch = tag.match(/href\s*=\s*["']([^"']+)["']/i);
+      assert.ok(hrefMatch, `icon link should have href: ${tag}`);
+      const href = hrefMatch[1];
+      assert.equal(href.startsWith('/'), false, `icon href should not start with /: ${href}`);
+      assert.equal(/^[a-zA-Z][a-zA-Z0-9+.\-]*:/.test(href), false, `icon href should not have a scheme: ${href}`);
+      assert.equal(href.startsWith('//'), false, `icon href should not be protocol-relative: ${href}`);
+    }
   });
 
   test('connect-src in meta tag equals API constant in web/app.js', () => {
@@ -63,5 +119,12 @@ describe('static host portability', () => {
     const api = apiMatch[1].trim();
 
     assert.equal(connectSrc, api, `connect-src (${connectSrc}) should equal API (${api})`);
+  });
+
+  test('web/app.js holds the words "How this was made", "Muse Spark Open" and "Claude Opus 5.5"', () => {
+    const app = fs.readFileSync(appPath, 'utf8');
+    assert.ok(app.includes('How this was made'), 'web/app.js should contain "How this was made"');
+    assert.ok(app.includes('Muse Spark Open'), 'web/app.js should contain "Muse Spark Open"');
+    assert.ok(app.includes('Claude Opus 5.5'), 'web/app.js should contain "Claude Opus 5.5"');
   });
 });

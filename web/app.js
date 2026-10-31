@@ -1,7 +1,7 @@
 // @ts-check
 const API = "https://yokoten-doctor--yokoten-doctor-fastapi-app.us-east.modal.run";
 
-import { PROGRESS, markLabel, viewModel } from "./view.js";
+import { PROGRESS, markLabel, viewModel, repoFromInput, repoFromQuery, splitCode, formatRecordTime } from "./view.js";
 import {
   fileLinkPlan,
   buildPatch,
@@ -23,6 +23,7 @@ let lastFixes = null;
 let isWaitingForFixes = false;
 let hasChecked = false;
 let lastRecord = null;
+let hasScrolledForResult = false;
 
 /** @type {Set<string>} */
 let openDetailsKeys = new Set();
@@ -31,11 +32,7 @@ function safeUrl(href) {
   if (typeof href !== "string") return null;
   if (href.startsWith("https://github.com/")) return href;
   if (href.startsWith("https://yokoten.app/")) return href;
-  if (href.startsWith("https://")) {
-    // docs value starting with https:// is allowed for docs links
-    // we treat any https:// as allowed for docs
-    return href;
-  }
+  if (href.startsWith("https://")) return href;
   return null;
 }
 
@@ -48,7 +45,6 @@ function createLink(href, text) {
     a.target = "_blank";
     a.rel = "noopener noreferrer";
   } else {
-    // show as text
     const span = document.createElement("span");
     span.textContent = text + " (" + href + ")";
     return span;
@@ -77,6 +73,8 @@ function markFixesLost() {
 function addCopyButton(label, text, codeEl) {
   const btn = document.createElement("button");
   btn.textContent = label;
+  btn.className = "button-quiet";
+  btn.type = "button";
   btn.addEventListener("click", () => {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(
@@ -129,6 +127,20 @@ function restoreDetailsState(root) {
   }
 }
 
+function renderRichText(text, parent) {
+  if (text == null || text === "") return;
+  const parts = splitCode(text);
+  for (const p of parts) {
+    if (p.isCode) {
+      const c = document.createElement("code");
+      c.textContent = p.text;
+      parent.appendChild(c);
+    } else {
+      parent.appendChild(document.createTextNode(p.text));
+    }
+  }
+}
+
 function createFixCard(owner, repo, branch, file) {
   const card = document.createElement("div");
   card.className = "fix-card";
@@ -163,7 +175,6 @@ function createFixCard(owner, repo, branch, file) {
   details.appendChild(preWrap);
   card.appendChild(details);
 
-  // claude import message - show in AGENTS.md card, above buttons
   if (file.path === "AGENTS.md" && lastFixes) {
     const msg = claudeImportMessage(lastFixes);
     if (msg) {
@@ -186,6 +197,7 @@ function createFixCard(owner, repo, branch, file) {
     const wrap = document.createElement("div");
     wrap.className = "fix-card-actions";
     const copyBtn = addCopyButton("1. Copy the text", file.content, code);
+    copyBtn.className = "button-link";
     wrap.appendChild(copyBtn);
     const link = createLink(plan.href, "2. Open GitHub and paste");
     link.className = "button-link";
@@ -200,19 +212,49 @@ function createFixCard(owner, repo, branch, file) {
   return card;
 }
 
+function appendLabeledSection(parent, labelText, value) {
+  if (value == null || value === "") return;
+  const block = document.createElement("div");
+  block.className = "field-block";
+  const label = document.createElement("p");
+  label.className = "field-label small muted";
+  label.textContent = labelText;
+  block.appendChild(label);
+  const p = document.createElement("p");
+  renderRichText(value, p);
+  block.appendChild(p);
+  parent.appendChild(block);
+}
+
+function maybeUpdateUrl(inputText) {
+  const repo = repoFromInput(inputText);
+  if (repo) {
+    const next = "?repo=" + encodeURIComponent(repo);
+    try {
+      history.replaceState(null, "", next);
+    } catch {}
+  }
+}
+
+function scrollResultIntoView() {
+  const el = document.getElementById("result-panel");
+  if (!el) return;
+  const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const behavior = prefersReduced ? "auto" : "smooth";
+  try {
+    el.scrollIntoView({ behavior, block: "start" });
+  } catch {}
+}
+
 function render() {
-  // capture open details before clearing
   if (appEl) captureDetailsState(appEl);
   if (!appEl) return;
-  // clear
   while (appEl.firstChild) appEl.removeChild(appEl.firstChild);
 
-  // Header
   const h1 = document.createElement("h1");
   h1.textContent = "Is your repo ready for AI agents?";
   appEl.appendChild(h1);
 
-  // Input section always visible
   const formWrap = document.createElement("div");
   formWrap.className = "panel";
   const label = document.createElement("label");
@@ -220,64 +262,71 @@ function render() {
   label.setAttribute("for", "repo-input");
   formWrap.appendChild(label);
 
+  const form = document.createElement("form");
+  form.className = "input-row";
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    startCheck();
+  });
+
   const input = document.createElement("input");
   input.type = "text";
   input.id = "repo-input";
   input.placeholder = "https://github.com/owner/repo";
   input.value = inputValue;
+  input.autocomplete = "off";
   input.addEventListener("input", (e) => {
     inputValue = /** @type {HTMLInputElement} */ (e.target).value;
   });
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      startCheck();
-    }
-  });
-  formWrap.appendChild(input);
+  form.appendChild(input);
 
   const btn = document.createElement("button");
   btn.textContent = "Check";
-  btn.addEventListener("click", startCheck);
+  btn.type = "submit";
   if (state === "working") btn.disabled = true;
-  formWrap.appendChild(btn);
+  form.appendChild(btn);
+  formWrap.appendChild(form);
 
-  const info = document.createElement("p");
-  info.className = "small muted";
-  info.textContent = "We copy the public files of this repo into a throwaway sandbox, run yokoten on them, and keep nothing. Public repos only.";
-  formWrap.appendChild(info);
+  const showExtra = state === "empty";
+  if (showExtra) {
+    const info = document.createElement("p");
+    info.className = "small muted";
+    info.textContent = "We copy the public files of this repo into a throwaway sandbox, run yokoten on them, and keep nothing. Public repos only.";
+    formWrap.appendChild(info);
 
-  const tryP = document.createElement("p");
-  tryP.className = "small";
-  const tryLabel = document.createElement("span");
-  tryLabel.textContent = "Try one: ";
-  tryP.appendChild(tryLabel);
-  const examples = [
-    { label: "Uniswap/v4-core", url: "https://github.com/Uniswap/v4-core" },
-    { label: "OpenZeppelin/openzeppelin-contracts", url: "https://github.com/OpenZeppelin/openzeppelin-contracts" },
-    { label: "jup-ag/jupiter-quote-api-node", url: "https://github.com/jup-ag/jupiter-quote-api-node" },
-  ];
-  examples.forEach((ex, idx) => {
-    const link = document.createElement("a");
-    link.href = "#";
-    link.textContent = ex.label;
-    link.addEventListener("click", (ev) => {
-      ev.preventDefault();
-      inputValue = ex.url;
-      startCheck();
+    const tryP = document.createElement("p");
+    tryP.className = "small";
+    const tryLabel = document.createElement("span");
+    tryLabel.textContent = "Try one: ";
+    tryP.appendChild(tryLabel);
+    const examples = [
+      { label: "Uniswap/v4-core", url: "https://github.com/Uniswap/v4-core" },
+      { label: "OpenZeppelin/openzeppelin-contracts", url: "https://github.com/OpenZeppelin/openzeppelin-contracts" },
+      { label: "jup-ag/jupiter-quote-api-node", url: "https://github.com/jup-ag/jupiter-quote-api-node" },
+    ];
+    examples.forEach((ex, idx) => {
+      const link = document.createElement("a");
+      link.href = "#";
+      link.textContent = ex.label;
+      link.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        inputValue = ex.url;
+        startCheck();
+      });
+      tryP.appendChild(link);
+      if (idx < examples.length - 1) {
+        const sep = document.createElement("span");
+        sep.textContent = ", ";
+        tryP.appendChild(sep);
+      }
     });
-    tryP.appendChild(link);
-    if (idx < examples.length - 1) {
-      const sep = document.createElement("span");
-      sep.textContent = ", ";
-      tryP.appendChild(sep);
-    }
-  });
-  formWrap.appendChild(tryP);
+    formWrap.appendChild(tryP);
 
-  const noRepoP = document.createElement("p");
-  noRepoP.className = "small muted";
-  noRepoP.textContent = "An AI coding agent can run commands, change files and push code. These checks show whether a repo tells it the rules.";
-  formWrap.appendChild(noRepoP);
+    const noRepoP = document.createElement("p");
+    noRepoP.className = "small muted";
+    noRepoP.textContent = "An AI coding agent can run commands, change files and push code. These checks show whether a repo tells it the rules.";
+    formWrap.appendChild(noRepoP);
+  }
 
   appEl.appendChild(formWrap);
 
@@ -285,10 +334,7 @@ function render() {
     const err = document.createElement("p");
     err.setAttribute("role", "alert");
     err.textContent = errorMessage;
-    err.style.color = "var(--fg)";
-    err.style.border = "1px solid var(--border)";
-    err.style.padding = "0.5rem";
-    err.style.borderRadius = "6px";
+    err.className = "error-box";
     appEl.appendChild(err);
   }
 
@@ -317,18 +363,69 @@ function render() {
     const vm = viewModel(lastResult);
     const term = document.createElement("div");
     term.className = "terminal";
+    term.id = "result-panel";
 
-    // 1. secrets warning first
+    const repoNameRow = document.createElement("div");
+    repoNameRow.className = "repo-row";
+    const repoName = document.createElement("h2");
+    repoName.textContent = `${lastResult.owner}/${lastResult.repo}`;
+    repoNameRow.appendChild(repoName);
+    const copyLinkBtn = document.createElement("button");
+    copyLinkBtn.type = "button";
+    copyLinkBtn.textContent = "Copy link to this result";
+    copyLinkBtn.className = "button-quiet";
+    const currentUrl = window.location.href;
+    copyLinkBtn.addEventListener("click", () => {
+      const fakeCode = document.createElement("code");
+      fakeCode.textContent = currentUrl;
+      const btn = copyLinkBtn;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(currentUrl).then(() => {
+          btn.textContent = "Copied";
+          setTimeout(() => { btn.textContent = "Copy link to this result"; }, 2000);
+        }).catch(() => {
+          fallbackSelect(fakeCode);
+          btn.textContent = "Press Ctrl+C to copy";
+        });
+      } else {
+        fallbackSelect(fakeCode);
+        copyLinkBtn.textContent = "Press Ctrl+C to copy";
+      }
+    });
+    repoNameRow.appendChild(copyLinkBtn);
+    term.appendChild(repoNameRow);
+
+    // Score
+    const scoreLine = document.createElement("p");
+    scoreLine.className = "score-line";
+    scoreLine.textContent = vm.score.text;
+    term.appendChild(scoreLine);
+
+    const prog = document.createElement("progress");
+    prog.max = vm.score.total;
+    prog.value = vm.score.done;
+    prog.setAttribute("aria-label", vm.score.text);
+    term.appendChild(prog);
+
+    // Muse summary under score if present
+    if (lastFixes && lastFixes.summary && lastFixes.summary.trim() !== "") {
+      const sumP = document.createElement("p");
+      sumP.textContent = lastFixes.summary;
+      term.appendChild(sumP);
+      const small = document.createElement("p");
+      small.className = "small muted";
+      small.textContent = "Summary by Muse.";
+      term.appendChild(small);
+    }
+
+    // Private findings warning below score
     if (vm.secretCount && vm.secretCount > 0) {
       const warn = document.createElement("div");
       warn.className = "warning";
       const warnTitle = document.createElement("p");
       const strong = document.createElement("strong");
-      if (vm.secretCount === 1) {
-        strong.textContent = "yokoten found 1 thing that looks private in this repo";
-      } else {
-        strong.textContent = `yokoten found ${vm.secretCount} things that look private in this repo`;
-      }
+      if (vm.secretCount === 1) strong.textContent = "yokoten found 1 thing that looks private in this repo";
+      else strong.textContent = `yokoten found ${vm.secretCount} things that look private in this repo`;
       warnTitle.appendChild(strong);
       warn.appendChild(warnTitle);
       const details = document.createElement("details");
@@ -338,32 +435,28 @@ function render() {
       details.appendChild(summaryEl);
       for (const g of vm.secretGroups) {
         const item = document.createElement("div");
+        item.className = "secret-group";
         if (g.what) {
           const what = document.createElement("p");
-          what.textContent = g.what;
+          renderRichText(g.what, what);
           item.appendChild(what);
         }
         if (g.why) {
           const why = document.createElement("p");
-          why.textContent = g.why;
+          renderRichText(g.why, why);
           item.appendChild(why);
         }
         if (g.fix) {
           const fix = document.createElement("p");
-          fix.textContent = g.fix;
+          renderRichText(g.fix, fix);
           item.appendChild(fix);
         }
         const list = document.createElement("ul");
-        list.className = "mono";
-        list.style.wordBreak = "break-all";
-        list.style.overflowWrap = "anywhere";
-        list.style.whiteSpace = "pre-wrap";
+        list.className = "mono secret-list";
         for (const place of g.places) {
           const li = document.createElement("li");
           li.textContent = place;
           li.className = "mono";
-          li.style.wordBreak = "break-all";
-          li.style.overflowWrap = "anywhere";
           list.appendChild(li);
         }
         item.appendChild(list);
@@ -373,40 +466,30 @@ function render() {
       term.appendChild(warn);
     }
 
-    // 2. repo name, then headline
-    const repoName = document.createElement("h2");
-    repoName.textContent = `${lastResult.owner}/${lastResult.repo}`;
-    term.appendChild(repoName);
-    const headlineEl = document.createElement("p");
-    headlineEl.textContent = vm.headline;
-    term.appendChild(headlineEl);
-
-    // 3. next step
-    let nextWrap = null;
+    // Next step
     if (vm.next) {
-      nextWrap = document.createElement("div");
+      const nextWrap = document.createElement("div");
+      nextWrap.className = "next-step";
+      const nextHeading = document.createElement("p");
+      nextHeading.className = "section-label small muted";
+      nextHeading.textContent = "Next step";
+      nextWrap.appendChild(nextHeading);
       const nextTitle = document.createElement("h3");
       nextTitle.textContent = vm.next.title;
       nextWrap.appendChild(nextTitle);
       const idEl = document.createElement("p");
-      idEl.className = "id";
-      idEl.textContent = vm.next.id;
+      idEl.className = "small muted";
+      const idLabel = document.createElement("span");
+      idLabel.textContent = "Step id: ";
+      idEl.appendChild(idLabel);
+      const idMono = document.createElement("span");
+      idMono.className = "mono";
+      idMono.textContent = vm.next.id;
+      idEl.appendChild(idMono);
       nextWrap.appendChild(idEl);
-      if (vm.next.what) {
-        const whatEl = document.createElement("p");
-        whatEl.textContent = vm.next.what;
-        nextWrap.appendChild(whatEl);
-      }
-      if (vm.next.why) {
-        const whyEl = document.createElement("p");
-        whyEl.textContent = vm.next.why;
-        nextWrap.appendChild(whyEl);
-      }
-      if (vm.next.fix) {
-        const fixEl = document.createElement("p");
-        fixEl.textContent = vm.next.fix;
-        nextWrap.appendChild(fixEl);
-      }
+      appendLabeledSection(nextWrap, "What we found", vm.next.what);
+      appendLabeledSection(nextWrap, "Why it matters", vm.next.why);
+      appendLabeledSection(nextWrap, "How to fix it", vm.next.fix);
       if (vm.next.docs) {
         const docsP = document.createElement("p");
         const link = createLink(vm.next.docs, vm.next.docs);
@@ -420,7 +503,7 @@ function render() {
         summaryEl.textContent = "How this was judged";
         details.appendChild(summaryEl);
         const howP = document.createElement("p");
-        howP.textContent = vm.next.how;
+        renderRichText(vm.next.how, howP);
         details.appendChild(howP);
         nextWrap.appendChild(details);
       }
@@ -431,7 +514,7 @@ function render() {
       term.appendChild(doneP);
     }
 
-    // Fix it section: after next step block and before Show all checks
+    // Fix it section
     const fixSection = document.createElement("div");
     fixSection.className = "fix-section";
     const fixTitle = document.createElement("h3");
@@ -443,36 +526,27 @@ function render() {
       waitingP.textContent = "Writing the fix files…";
       fixSection.appendChild(waitingP);
     } else if (lastFixes) {
-      // lost case
       if (lastFixes.muse === "lost") {
         const lostP = document.createElement("p");
         lostP.textContent = "The fix files did not arrive. Please run the check again.";
         fixSection.appendChild(lostP);
       } else {
-        if (lastFixes.summary && lastFixes.summary.trim() !== "") {
-          const sumP = document.createElement("p");
-          sumP.textContent = lastFixes.summary;
-          fixSection.appendChild(sumP);
-          const small = document.createElement("p");
-          small.className = "small muted";
-          small.textContent = "Summary by Muse.";
-          fixSection.appendChild(small);
-        }
+        const files = lastFixes.files || [];
+        const hasOpenInstallOnly = vm.installOnly.length > 0;
         const msg = fixMessage(lastFixes);
-        if (msg) {
+        const shouldShowFixMessage = !(files.length === 0 && hasOpenInstallOnly);
+        if (msg && shouldShowFixMessage) {
           const msgP = document.createElement("p");
           msgP.textContent = msg;
           fixSection.appendChild(msgP);
         }
-        const files = lastFixes.files || [];
         if (files.length > 0) {
           const notice = document.createElement("p");
           notice.textContent = "Nothing changes until you click Commit on GitHub. We have no access to your repo.";
           fixSection.appendChild(notice);
-
           const owner = lastResult.owner;
           const repo = lastResult.repo;
-          const branch = lastResult.default_branch || null;
+          const branch = lastResult.default_branch || lastResult.branch || null;
           const ordered = orderFiles(files);
           if (ordered.first) {
             const card = createFixCard(owner, repo, branch, ordered.first);
@@ -490,16 +564,15 @@ function render() {
             }
             fixSection.appendChild(detailsRest);
           }
-
-          // Use the terminal instead
           const termDetails = document.createElement("details");
           termDetails.setAttribute("data-key", "use-terminal");
           const termSum = document.createElement("summary");
           termSum.textContent = "Use the terminal instead";
           termDetails.appendChild(termSum);
-
           const dlBtn = document.createElement("button");
           dlBtn.textContent = "Download the patch";
+          dlBtn.className = "button-quiet";
+          dlBtn.type = "button";
           dlBtn.addEventListener("click", () => {
             const patch = buildPatch(files);
             const blob = new Blob([patch], { type: "text/plain" });
@@ -513,11 +586,9 @@ function render() {
             setTimeout(() => URL.revokeObjectURL(url), 1000);
           });
           termDetails.appendChild(dlBtn);
-
           const putP = document.createElement("p");
           putP.textContent = "Put the file in your repo's folder, then run:";
           termDetails.appendChild(putP);
-
           const wrap = document.createElement("div");
           wrap.className = "code-wrap";
           const pre2 = document.createElement("pre");
@@ -528,15 +599,44 @@ function render() {
           const copyBtn3 = addCopyButton("Copy", PATCH_COMMANDS, code2);
           wrap.appendChild(copyBtn3);
           termDetails.appendChild(wrap);
-
           fixSection.appendChild(termDetails);
+        }
+        // install-only steps inside Fix it
+        if (hasOpenInstallOnly) {
+          const intro = document.createElement("p");
+          intro.textContent = "These need yokoten in your repo:";
+          fixSection.appendChild(intro);
+          const ul = document.createElement("ul");
+          for (const s of vm.installOnly) {
+            const li = document.createElement("li");
+            li.textContent = s.title;
+            ul.appendChild(li);
+          }
+          fixSection.appendChild(ul);
+          const wrap = document.createElement("div");
+          wrap.className = "code-wrap";
+          const pre = document.createElement("pre");
+          const code = document.createElement("code");
+          const cmd = "npx yokoten init";
+          code.textContent = cmd;
+          pre.appendChild(code);
+          wrap.appendChild(pre);
+          const copyBtn = addCopyButton("Copy", cmd, code);
+          wrap.appendChild(copyBtn);
+          fixSection.appendChild(wrap);
+        }
+        if (files.length === 0 && !hasOpenInstallOnly) {
+          if (lastFixes.muse !== "failed") {
+            const nothingP = document.createElement("p");
+            nothingP.textContent = "Nothing to fix here.";
+            fixSection.appendChild(nothingP);
+          }
         }
       }
     }
-
     term.appendChild(fixSection);
 
-    // 4. Show all checks
+    // Show all checks
     if (vm.others.length > 0) {
       const detailsAll = document.createElement("details");
       detailsAll.setAttribute("data-key", "show-all-checks");
@@ -545,17 +645,33 @@ function render() {
       detailsAll.appendChild(sumAll);
       vm.others.forEach((st) => {
         const stWrap = document.createElement("div");
+        stWrap.className = "check-item";
         const titleEl = document.createElement("h4");
         titleEl.textContent = st.title;
         stWrap.appendChild(titleEl);
         const idEl2 = document.createElement("p");
-        idEl2.className = "id";
-        idEl2.textContent = st.id;
+        idEl2.className = "small muted";
+        const lbl = document.createElement("span");
+        lbl.textContent = "Step id: ";
+        idEl2.appendChild(lbl);
+        const mono = document.createElement("span");
+        mono.className = "mono";
+        mono.textContent = st.id;
+        idEl2.appendChild(mono);
         stWrap.appendChild(idEl2);
         const labelEl = document.createElement("p");
         labelEl.className = "small muted";
         labelEl.textContent = st.label;
         stWrap.appendChild(labelEl);
+        appendLabeledSection(stWrap, "What we found", st.what);
+        appendLabeledSection(stWrap, "Why it matters", st.why);
+        appendLabeledSection(stWrap, "How to fix it", st.fix);
+        if (st.docs) {
+          const docsP = document.createElement("p");
+          const link = createLink(st.docs, st.docs);
+          docsP.appendChild(link);
+          stWrap.appendChild(docsP);
+        }
         if (st.how) {
           const detHow = document.createElement("details");
           detHow.setAttribute("data-key", "how-" + st.id);
@@ -563,7 +679,7 @@ function render() {
           sumHow.textContent = "How this was judged";
           detHow.appendChild(sumHow);
           const howP2 = document.createElement("p");
-          howP2.textContent = st.how;
+          renderRichText(st.how, howP2);
           detHow.appendChild(howP2);
           stWrap.appendChild(detHow);
         }
@@ -572,26 +688,15 @@ function render() {
       term.appendChild(detailsAll);
     }
 
-    // 5. installOnly
-    if (vm.installOnly.length > 0) {
-      const instP = document.createElement("p");
-      instP.textContent = "Fixed when you install yokoten: " + vm.installOnly.map((s) => s.title).join(", ");
-      term.appendChild(instP);
-      const codePre = document.createElement("pre");
-      const code = document.createElement("code");
-      code.textContent = "npx yokoten init";
-      codePre.appendChild(code);
-      term.appendChild(codePre);
-    }
-
-    // 7. Check it yourself
+    // Check it yourself
     const checkYourself = document.createElement("div");
+    checkYourself.className = "check-yourself";
     const hCheck = document.createElement("h3");
     hCheck.textContent = "Check it yourself";
     checkYourself.appendChild(hCheck);
     const checkedBy = document.createElement("p");
     checkedBy.className = "small";
-    checkedBy.textContent = `Checked by yokoten ${vm.evidence.version} at commit ${vm.evidence.shortCommit}`;
+    checkedBy.textContent = `Checked by yokoten ${vm.evidence.version} at commit ${vm.evidence.shortCommit}.`;
     checkYourself.appendChild(checkedBy);
 
     function addCodeBlockWithCopy(text) {
@@ -607,35 +712,69 @@ function render() {
       return wrap;
     }
 
+    const rv = recordView(lastRecord);
+    if (rv) {
+      const timeStr = formatRecordTime(rv.recordedAt);
+      const recordedLine = document.createElement("p");
+      recordedLine.className = "small";
+      recordedLine.textContent = `Hash recorded publicly on ${timeStr}:`;
+      checkYourself.appendChild(recordedLine);
+      const linksP = document.createElement("p");
+      let needSep = false;
+      if (rv.rekorUrl) {
+        const a = createLink(rv.rekorUrl, "Rekor entry");
+        linksP.appendChild(a);
+        needSep = true;
+      }
+      if (rv.solanaUrl) {
+        if (needSep) linksP.appendChild(document.createTextNode(" "));
+        const a2 = createLink(rv.solanaUrl, "Solana devnet memo");
+        linksP.appendChild(a2);
+      }
+      if (rv.rekorUrl || rv.solanaUrl) checkYourself.appendChild(linksP);
+      if (rv.solanaUrl) {
+        const devnetNote = document.createElement("p");
+        devnetNote.className = "small muted";
+        devnetNote.textContent = "Devnet is a test network. It can be reset, and it holds no real money.";
+        checkYourself.appendChild(devnetNote);
+      }
+    }
+
+    const detailsRun = document.createElement("details");
+    detailsRun.setAttribute("data-key", "run-same-check");
+    const sumRun = document.createElement("summary");
+    sumRun.textContent = "Run the same check yourself";
+    detailsRun.appendChild(sumRun);
     if (vm.evidence.doctorCommand) {
-      checkYourself.appendChild(addCodeBlockWithCopy(vm.evidence.doctorCommand));
+      detailsRun.appendChild(addCodeBlockWithCopy(vm.evidence.doctorCommand));
     }
     if (vm.evidence.checkCommand) {
-      checkYourself.appendChild(addCodeBlockWithCopy(vm.evidence.checkCommand));
+      detailsRun.appendChild(addCodeBlockWithCopy(vm.evidence.checkCommand));
       const note = document.createElement("p");
       note.className = "small muted";
       note.textContent = "Run this one in a clean home folder: on your own machine, check also looks for your own private marks, which this page never had.";
-      checkYourself.appendChild(note);
+      detailsRun.appendChild(note);
     }
-    // Public record section
-    const rv = recordView(lastRecord);
+    checkYourself.appendChild(detailsRun);
+
+    const detailsCompare = document.createElement("details");
+    detailsCompare.setAttribute("data-key", "compare-hash");
+    const sumCompare = document.createElement("summary");
+    sumCompare.textContent = "Compare the hash";
+    detailsCompare.appendChild(sumCompare);
     if (rv) {
-      const prTitle = document.createElement("h4");
-      prTitle.textContent = "Public record";
-      checkYourself.appendChild(prTitle);
-      const prDesc = document.createElement("p");
-      prDesc.textContent = "A hash of this result is in a public log. Download the result, hash it, and compare. The record holds no file contents.";
-      checkYourself.appendChild(prDesc);
+      const dlDesc = document.createElement("p");
+      dlDesc.className = "small";
+      dlDesc.textContent = "Download the result file and compare its hash:";
+      detailsCompare.appendChild(dlDesc);
       const hashP = document.createElement("p");
-      const hashMono = document.createElement("code");
-      hashMono.textContent = rv.sha256;
-      hashP.appendChild(hashMono);
-      checkYourself.appendChild(hashP);
-      const recordedP = document.createElement("p");
-      recordedP.textContent = rv.recordedAt;
-      checkYourself.appendChild(recordedP);
+      hashP.className = "mono";
+      hashP.textContent = rv.sha256;
+      detailsCompare.appendChild(hashP);
       const dlBtn = document.createElement("button");
       dlBtn.textContent = "Download the result";
+      dlBtn.className = "button-quiet";
+      dlBtn.type = "button";
       dlBtn.addEventListener("click", () => {
         const blob = new Blob([rv.documentText], { type: "application/json;charset=utf-8" });
         const url = URL.createObjectURL(blob);
@@ -647,7 +786,7 @@ function render() {
         a.remove();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
       });
-      checkYourself.appendChild(dlBtn);
+      detailsCompare.appendChild(dlBtn);
       const verifyWrap = document.createElement("div");
       verifyWrap.className = "code-wrap";
       const preV = document.createElement("pre");
@@ -657,32 +796,22 @@ function render() {
       verifyWrap.appendChild(preV);
       const copyV = addCopyButton("Copy", rv.verifyCommand, codeV);
       verifyWrap.appendChild(copyV);
-      checkYourself.appendChild(verifyWrap);
-      if (rv.rekorUrl) {
-        const p = document.createElement("p");
-        const a = createLink(rv.rekorUrl, "Rekor entry");
-        p.appendChild(a);
-        checkYourself.appendChild(p);
-      }
-      if (rv.solanaUrl) {
-        const p2 = document.createElement("p");
-        const a2 = createLink(rv.solanaUrl, "Solana devnet memo");
-        p2.appendChild(a2);
-        const small = document.createElement("span");
-        small.textContent = " Devnet is a test network. It can be reset, and it holds no real money.";
-        small.className = "small";
-        p2.appendChild(small);
-        checkYourself.appendChild(p2);
-      }
-      if (rv.message) {
-        const msgP = document.createElement("p");
-        msgP.textContent = rv.message;
-        checkYourself.appendChild(msgP);
-      }
+      detailsCompare.appendChild(verifyWrap);
+    } else {
+      const noRec = document.createElement("p");
+      noRec.className = "small muted";
+      noRec.textContent = "No public record is available for this result.";
+      detailsCompare.appendChild(noRec);
     }
+    checkYourself.appendChild(detailsCompare);
+    if (rv && rv.message) {
+      const msgP = document.createElement("p");
+      msgP.textContent = rv.message;
+      checkYourself.appendChild(msgP);
+    }
+
     term.appendChild(checkYourself);
 
-    // 8. Closing about + npx yokoten link
     if (lastResult.about) {
       const aboutP = document.createElement("p");
       aboutP.className = "small";
@@ -694,35 +823,29 @@ function render() {
     codeNpx.textContent = "npx yokoten";
     closingP.appendChild(codeNpx);
     closingP.appendChild(document.createTextNode(" "));
-    const yokLink = document.createElement("a");
-    yokLink.href = "https://yokoten.app/";
-    yokLink.textContent = "https://yokoten.app/";
-    yokLink.target = "_blank";
-    yokLink.rel = "noopener noreferrer";
+    const yokLink = createLink("https://yokoten.app/", "https://yokoten.app/");
     closingP.appendChild(yokLink);
     term.appendChild(closingP);
 
     appEl.appendChild(term);
-
-    const footer = document.createElement("footer");
-    footer.className = "footer small muted";
-    const footText1 = document.createTextNode("A wrong check result or a broken page? Tell yokoten: ");
-    footer.appendChild(footText1);
-    const footLink1 = document.createElement("a");
-    footLink1.href = "https://github.com/yokoten-labs/yokoten/issues";
-    footLink1.textContent = "github.com/yokoten-labs/yokoten/issues";
-    footLink1.target = "_blank";
-    footLink1.rel = "noopener noreferrer";
-    footer.appendChild(footLink1);
-    footer.appendChild(document.createTextNode("."));
-    appEl.appendChild(footer);
   }
+
+  const footer = document.createElement("footer");
+  footer.className = "footer small muted";
+  const howMade = document.createElement("p");
+  howMade.textContent = "How this was made: Muse Spark Open wrote the code and writes each repo's project section. Claude Opus 5.5 wrote the design and task briefs, reviewed the code, and set the API address. yokoten is an existing tool, used as a dependency.";
+  footer.appendChild(howMade);
+  const tellP = document.createElement("p");
+  tellP.appendChild(document.createTextNode("A wrong check result or a broken page? Tell yokoten: "));
+  const footLink1 = createLink("https://github.com/yokoten-labs/yokoten/issues", "github.com/yokoten-labs/yokoten/issues");
+  tellP.appendChild(footLink1);
+  tellP.appendChild(document.createTextNode("."));
+  footer.appendChild(tellP);
+  appEl.appendChild(footer);
   restoreDetailsState(appEl);
   if (errorMessage && hasChecked) {
     const inputEl = document.getElementById("repo-input");
-    if (inputEl) {
-      inputEl.focus();
-    }
+    if (inputEl) inputEl.focus();
   }
 }
 
@@ -736,12 +859,14 @@ async function startCheck() {
     render();
     return;
   }
+  maybeUpdateUrl(url);
   state = "working";
   currentProgress = [];
   lastResult = null;
   lastFixes = null;
   lastRecord = null;
   isWaitingForFixes = false;
+  hasScrolledForResult = false;
   openDetailsKeys.clear();
   hasChecked = true;
   render();
@@ -752,13 +877,9 @@ async function startCheck() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url }),
     });
-    if (!resp.ok && !resp.body) {
-      throw new Error("network");
-    }
+    if (!resp.ok && !resp.body) throw new Error("network");
     const reader = resp.body ? resp.body.getReader() : null;
-    if (!reader) {
-      throw new Error("no body");
-    }
+    if (!reader) throw new Error("no body");
     const decoder = new TextDecoder();
     let buffer = "";
     let hasResultOrError = false;
@@ -783,16 +904,19 @@ async function startCheck() {
         try { data = JSON.parse(dataStr); } catch { data = {}; }
         if (eventName === "progress") {
           const step = data.step;
-          if (step) {
-            currentProgress.push(step);
-            render();
-          }
+          if (step) { currentProgress.push(step); render(); }
         } else if (eventName === "result") {
           hasResultOrError = true;
           lastResult = data;
           state = "result";
           isWaitingForFixes = true;
           render();
+          if (!hasScrolledForResult) {
+            hasScrolledForResult = true;
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => scrollResultIntoView());
+            });
+          }
         } else if (eventName === "fixes") {
           if (!lastResult) continue;
           lastFixes = data;
@@ -817,15 +941,24 @@ async function startCheck() {
       markFixesLost();
     }
   } catch (e) {
-    if (lastResult) {
-      markFixesLost();
-      return;
-    }
+    if (lastResult) { markFixesLost(); return; }
     errorMessage = "The connection dropped. Please try again.";
     state = "empty";
     render();
   }
 }
 
-// initial render
 render();
+
+// Share: on load check query
+try {
+  const fromQ = repoFromQuery(window.location.search);
+  if (fromQ) {
+    const full = "https://github.com/" + fromQ;
+    inputValue = full;
+    // update input element if rendered
+    const el = document.getElementById("repo-input");
+    if (el) el.value = full;
+    startCheck();
+  }
+} catch {}

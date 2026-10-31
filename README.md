@@ -43,6 +43,10 @@ For the full check on your own machine, run `npx yokoten`.
 
 ## Disclosure
 
-yokoten is a pre-existing tool, used here as an npm dependency
-(`yokoten@0.2.0`). No yokoten code is copied into this repo. Muse
-wrote the code in this repo. Claude planned it and reviewed it.
+This entry was built during the hackathon, with these tools:
+
+- **Muse Spark Open** (`muse-spark-open-1026`, on Baseten) wrote the code in this repo, from task briefs. At run time it writes each repo's "This project" section.
+- **Claude Opus 5.5** (Claude Code) wrote `docs/design.md` and the task briefs in `docs/tasks/`, reviewed the code, ran the tests and deploys, and made the commits. It chose what to build and how with the owner, so the briefs are detailed. It typed a few lines by hand: the API address in `web/app.js`, and small edits to docs.
+- **yokoten** (`yokoten@0.2.0`) is a tool that existed before the hackathon. It is an npm dependency, and no yokoten code is copied here. The checks on the page are yokoten's.
+
+A `Co-Authored-By` line names Muse on commits whose code it wrote. Claude's part is stated here instead of in those lines, and some commit messages also name it. Commit messages were edited once, before the first push, to change those lines.

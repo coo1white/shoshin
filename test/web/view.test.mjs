@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { viewModel, markLabel } from "../../web/view.js";
+import { viewModel, markLabel, splitCode, formatRecordTime, repoFromInput, repoFromQuery } from "../../web/view.js";
 
 test("viewModel: headline text, next, others leave out next and install-only, evidence short commit", () => {
   const result = {
@@ -151,4 +151,90 @@ test("viewModel: grouping preserves first-seen order with many ids", () => {
   assert.equal(vm.secretGroups[1].what, "wa");
   assert.equal(vm.secretGroups[2].what, "wc");
   assert.deepEqual(vm.secretGroups[2].places, ["c.txt"]);
+});
+
+test("viewModel returns score with done, total and the text 4 of 13 file checks are done", () => {
+  const result = {
+    summary: { done: 4, total: 13, next: null, steps: [], install_only: [] },
+    secrets: [],
+  };
+  const vm = viewModel(result);
+  assert.equal(vm.score.done, 4);
+  assert.equal(vm.score.total, 13);
+  assert.equal(vm.score.text, "4 of 13 file checks are done");
+});
+
+test("splitCode: plain text", () => {
+  assert.deepEqual(splitCode("hello world"), [{ text: "hello world", isCode: false }]);
+});
+
+test("splitCode: one code part", () => {
+  assert.deepEqual(splitCode("a `code` b"), [
+    { text: "a ", isCode: false },
+    { text: "code", isCode: true },
+    { text: " b", isCode: false },
+  ]);
+});
+
+test("splitCode: two code parts", () => {
+  assert.deepEqual(splitCode("`one` and `two`"), [
+    { text: "one", isCode: true },
+    { text: " and ", isCode: false },
+    { text: "two", isCode: true },
+  ]);
+});
+
+test("splitCode: an unmatched backtick stays as text", () => {
+  assert.deepEqual(splitCode("a `unclosed"), [{ text: "a `unclosed", isCode: false }]);
+  assert.deepEqual(splitCode("text `code"), [{ text: "text `code", isCode: false }]);
+});
+
+test("splitCode: an empty string", () => {
+  assert.deepEqual(splitCode(""), []);
+});
+
+test("formatRecordTime: 2026-10-31T05:45:28Z gives 2026-10-31 05:45 UTC", () => {
+  assert.equal(formatRecordTime("2026-10-31T05:45:28Z"), "2026-10-31 05:45 UTC");
+});
+
+test("formatRecordTime: text it cannot read comes back unchanged", () => {
+  assert.equal(formatRecordTime("not-a-date"), "not-a-date");
+  assert.equal(formatRecordTime("hello"), "hello");
+});
+
+test("repoFromInput: valid cases", () => {
+  assert.equal(repoFromInput("owner/repo"), "owner/repo");
+  assert.equal(repoFromInput("https://github.com/owner/repo"), "owner/repo");
+  assert.equal(repoFromInput("https://github.com/owner/repo.git"), "owner/repo");
+  assert.equal(repoFromInput("owner/repo/"), "owner/repo");
+  assert.equal(repoFromInput("https://github.com/owner/repo/"), "owner/repo");
+  assert.equal(repoFromInput("  owner/repo  "), "owner/repo");
+  assert.equal(repoFromInput("  https://github.com/owner/repo  "), "owner/repo");
+  assert.equal(repoFromInput("https://github.com/owner/repo.git/"), "owner/repo");
+});
+
+test("repoFromInput: null for invalid cases", () => {
+  assert.equal(repoFromInput("../etc/passwd"), null);
+  assert.equal(repoFromInput("owner"), null);
+  assert.equal(repoFromInput("a/b/c"), null);
+  assert.equal(repoFromInput("https://evil.example/owner/repo"), null);
+  assert.equal(repoFromInput("owner/.."), null);
+  assert.equal(repoFromInput("<script>/x"), null);
+  assert.equal(repoFromInput(""), null);
+  assert.equal(repoFromInput("   "), null);
+});
+
+test("repoFromQuery: valid cases", () => {
+  assert.equal(repoFromQuery("?repo=owner%2Frepo"), "owner/repo");
+  assert.equal(repoFromQuery("?repo=owner/repo"), "owner/repo");
+  assert.equal(repoFromQuery("repo=owner%2Frepo"), "owner/repo");
+});
+
+test("repoFromQuery: null for invalid cases", () => {
+  assert.equal(repoFromQuery("?foo=bar"), null);
+  assert.equal(repoFromQuery("?repo="), null);
+  assert.equal(repoFromQuery("?repo=../x"), null);
+  assert.equal(repoFromQuery("?repo=owner/repo/more"), null);
+  assert.equal(repoFromQuery(""), null);
+  assert.equal(repoFromQuery("?repo=../x"), null);
 });

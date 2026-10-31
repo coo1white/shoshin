@@ -27,7 +27,6 @@ for(const p of args.paths){
     const resolved=path.resolve(full);
     if(!resolved.startsWith('/tmp/repo/') && resolved!=='/tmp/repo') continue;
     if(fs.realpathSync(resolved)!==resolved && !fs.realpathSync(resolved).startsWith('/tmp/repo/')) continue;
-    // also ensure realpath is inside /tmp/repo
     try{
       const real=fs.realpathSync(resolved);
       if(!real.startsWith('/tmp/repo/') && real!=='/tmp/repo') continue;
@@ -95,7 +94,6 @@ def _collect_fix_data(sb, owner, repo, doctor, check) -> dict:
             tracked = []
         if len(tracked) > 20000:
             too_big = True
-        # compute claude_file before yokoten init
         if "CLAUDE.md" in tracked:
             claude_file = "CLAUDE.md"
         elif ".claude/CLAUDE.md" in tracked:
@@ -107,10 +105,8 @@ def _collect_fix_data(sb, owner, repo, doctor, check) -> dict:
             findings = check.get("findings") or []
         except Exception:
             findings = []
-        # muse_facts
         filtered_for_list = [t for t in tracked if not is_private_path(t)]
         file_list = filtered_for_list[:500]
-        # open_checks from summarize(doctor)["steps"]
         open_checks = []
         try:
             steps = summarize(doctor)["steps"]
@@ -124,7 +120,6 @@ def _collect_fix_data(sb, owner, repo, doctor, check) -> dict:
         except Exception:
             open_checks = []
         chosen = choose_muse_paths(tracked, findings)
-        # read files: CHANGELOG.md with 3KB, rest with 20KB, then cap at 120KB keeping order
         changelog_paths = [c for c in chosen if c == "CHANGELOG.md"]
         other_paths = [c for c in chosen if c != "CHANGELOG.md"]
         read_files = {}
@@ -146,7 +141,6 @@ def _collect_fix_data(sb, owner, repo, doctor, check) -> dict:
             "files": capped,
             "open_checks": open_checks,
         }
-        # yokoten init and fix_files
         p = sb.exec("env", "-C", "/tmp/repo", "yokoten", "init", timeout=30)
         _, _, rc_init = _read_process(p)
         if rc_init == 0:
@@ -295,12 +289,12 @@ def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
             raise SandboxFailed(f"Could not parse check output: {e}") from e
         yokoten_version = doctor.get("version", YOKOTEN_VERSION)
         rerun = {
-            "doctor": (
-                f"git clone https://github.com/{owner}/{repo} && "
-                f"cd {repo} && "
-                f"git checkout {commit} && "
-                f"npx yokoten@{yokoten_version} doctor --files --json"
-            ),
+            "doctor": "\n".join([
+                f"git clone --filter=blob:none https://github.com/{owner}/{repo}",
+                f"cd {repo}",
+                f"git checkout {commit}",
+                f"npx yokoten@{yokoten_version} doctor --files --json",
+            ]),
             "check": f'HOME="$(mktemp -d)" npx yokoten@{yokoten_version} check --json',
         }
         collected = _collect_fix_data(sb, owner, repo, doctor, check)
