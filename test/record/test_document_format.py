@@ -1,7 +1,7 @@
 import hashlib
 import json
 
-from server.record.document import document_hash, make_document
+from record.document import document_hash, make_document
 
 
 def test_document_has_one_line_per_field():
