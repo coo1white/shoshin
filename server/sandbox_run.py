@@ -26,7 +26,7 @@ def _read_process(proc):
     return stdout, stderr, proc.returncode
 
 
-def run_in_sandbox(owner: str, repo: str) -> dict:
+def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
     app = modal.App.lookup("yokoten-doctor", create_if_missing=True)
     sb = modal.Sandbox.create(
         app=app,
@@ -50,6 +50,12 @@ def run_in_sandbox(owner: str, repo: str) -> dict:
         _, _, rc = _read_process(p)
         if rc != 0:
             raise SandboxFailed("Could not prepare sandbox.")
+
+        if on_progress is not None:
+            try:
+                on_progress("copying")
+            except Exception:
+                pass
 
         # 3. clone
         clone_url = f"https://github.com/{owner}/{repo}.git"
@@ -85,6 +91,32 @@ def run_in_sandbox(owner: str, repo: str) -> dict:
             )
         except Exception as e:
             raise SandboxFailed("Could not lock down network before running checks.") from e
+
+        if on_progress is not None:
+            try:
+                on_progress("checking")
+            except Exception:
+                pass
+
+        # about: description from installed package
+        about = ""
+        try:
+            p = sb.exec(
+                "node",
+                "-p",
+                "require('/usr/local/lib/node_modules/yokoten/package.json').description",
+                timeout=10,
+            )
+            stdout_a, _, rc_a = _read_process(p)
+            if rc_a == 0:
+                about = stdout_a.strip()
+                # node -p prints with newline; ensure string
+                if about is None:
+                    about = ""
+            else:
+                about = ""
+        except Exception:
+            about = ""
 
         # 6. run yokoten doctor and check (no shell, workdir via env -C)
         p = sb.exec(
@@ -139,6 +171,7 @@ def run_in_sandbox(owner: str, repo: str) -> dict:
             "repo": repo,
             "commit": commit,
             "yokoten_version": yokoten_version,
+            "about": about,
             "doctor": doctor,
             "check": check,
             "rerun": rerun,

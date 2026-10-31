@@ -88,10 +88,11 @@ and a small Python service in `server/` that runs on Modal. The design is in
 
 ### Build
 
-- Web: static files in `web/` (`index.html`, `app.ts`, `style.css`). There is
-  no build step yet; open or serve `web/` as static files.
-- Server: Python in `server/`. Its only runtime dependency is `modal`, listed
-  in `server/requirements.txt`. There is no server entry point yet.
+- Web: static files in `web/` (`index.html`, `app.js`, `view.js`, `style.css`).
+  There is no build step; serve `web/` as static files.
+- Server: Python in `server/`. Its runtime dependencies are `modal` and
+  `fastapi`, listed in `server/requirements.txt`. The entry point is
+  `server/app.py`; `modal deploy server/app.py` deploys it.
 
 ### Test
 

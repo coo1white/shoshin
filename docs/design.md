@@ -255,13 +255,17 @@ streamed events (server-sent events) back to the browser
   time. The version used is written into every result. yokoten v0.2.0 ships
   before 2026-11-02 UTC with the misread fixes (issue #1167, issue #1169) and
   a contract test that pins the `doctor --all --json` shape.
-- Language (decided 2026-10-29): TypeScript for the web page and its tests;
-  a small Python app on Modal for the server (receive the URL, start the
-  sandbox, call Muse, stream back). Modal's web endpoints and Functions are
-  Python only; its JS SDK (npm `modal`) can drive sandboxes but cannot define
+- Language (decided 2026-10-30, replaces the TypeScript page of 2026-10-29):
+  plain JavaScript with `// @ts-check` for the web page and its tests, so there
+  is no build step; a small Python app on Modal for the server (receive the URL,
+  start the sandbox, call Muse, stream back). Modal's web endpoints and Functions
+  are Python only; its JS SDK (npm `modal`) can drive sandboxes but cannot define
   an endpoint, so a TypeScript server would need a second host. This is a
   stated exception to the owner's "no new Python in TS projects" rule, kept
   to `server/`. Modal credits: claimed, valid during the hackathon only.
+- Deploy: `modal deploy server/app.py` uploads that one file, so `web_image` adds
+  the sibling modules with `add_local_file`. The page holds a placeholder API
+  address until the open question on the public address is settled.
 - Secrets live only in the server's secret store, never in the repo, never in
   the browser, never inside the sandbox, never in a Muse prompt:
   `BASETEN_API_KEY`.
@@ -480,8 +484,9 @@ first.
 ## 8. Repo layout
 
 ```
-web/index.html, web/app.ts, web/style.css
-web/patch.ts             6.3
+web/index.html, web/style.css
+web/view.js              what to show, with no DOM; tested in Node
+web/app.js               DOM and network
 server/                  Modal app: API, sandbox run (6.1), Muse (6.2), record (6.5)
 test/web/                page states with saved doctor JSON, patch building
 test/server/             URL parsing, JSON validation, path filter, file-based list
@@ -496,7 +501,7 @@ Most tests run on saved JSON, with no network, no Modal and no Muse.
 1. Repo base: README (with "run your own copy": your own Modal and Baseten
    keys), MIT LICENSE, AGENTS.md, CI running the tests. The repo passes
    yokoten's own file-based steps (eat our own food, and it shows in the demo).
-   Server in Python on Modal, web in TypeScript (section 6).
+   Server in Python on Modal, web in plain JavaScript (section 6).
 2. The sandbox run (6.1), returning doctor and check JSON for a URL. No page,
    no Muse.
 3. The API with streaming, and the page states A, B, C with yokoten's results
