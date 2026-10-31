@@ -120,12 +120,26 @@ describe('static host portability', () => {
     assert.equal(connectSrc, api, `connect-src (${connectSrc}) should equal API (${api})`);
   });
 
-  test('dist/index.html holds the words "How this was made", "Muse Spark Open" and "Claude Opus 5.5"', () => {
+  test('dist/index.html holds the page\'s strings: h1 is "What an AI agent finds in your repo. And what it doesn\'t." with its apostrophe in any HTML form, and "Real checks", "It does not scan for code vulnerabilities" and "devnet"', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
-    assert.ok(html.includes('How this was made'), 'dist/index.html should contain "How this was made"');
-    assert.ok(html.includes('Muse Spark Open'), 'dist/index.html should contain "Muse Spark Open"');
-    assert.ok(html.includes('Claude Opus 5.5'), 'dist/index.html should contain "Claude Opus 5.5"');
-    assert.ok(html.includes('from before this project'), 'dist/index.html should contain "from before this project"');
+    const h1Re = /<h1[^>]*>([\s\S]*?)<\/h1>/i;
+    const h1Match = html.match(h1Re);
+    assert.ok(h1Match, 'h1 not found in dist/index.html');
+    const raw = h1Match[1].trim();
+    const decoded = raw
+      .replace(/&#x27;/gi, "'")
+      .replace(/&#39;/g, "'")
+      .replace(/&apos;/g, "'")
+      .replace(/&#8217;/g, "'")
+      .replace(/&rsquo;/g, "'")
+      .replace(/&#x2019;/gi, "'")
+      .replace(/\u2019/g, "'")
+      .replace(/\s+/g, ' ')
+      .trim();
+    assert.equal(decoded, "What an AI agent finds in your repo. And what it doesn't.");
+    assert.ok(html.includes('Real checks'), 'dist/index.html should contain "Real checks"');
+    assert.ok(html.includes('It does not scan for code vulnerabilities'), 'dist/index.html should contain "It does not scan for code vulnerabilities"');
+    assert.ok(html.includes('devnet'), 'dist/index.html should contain "devnet"');
   });
 
   test('every imported name in web/src/client exists in its source file', () => {
@@ -166,38 +180,43 @@ describe('static host portability', () => {
 
   test('dist/index.html holds the h1, the label, the Check button, the three examples, the noscript sentence, and the sentence that starts "How this was made"', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
-    const h1Re = /<h1[^>]*>([^<]+)<\/h1>/i;
+    const h1Re = /<h1[^>]*>([\s\S]*?)<\/h1>/i;
     const h1 = html.match(h1Re);
     assert.ok(h1, 'heading not found in dist/index.html');
-    assert.ok(h1[1].trim().length > 0, 'heading empty');
+    const raw = h1[1].trim();
+    const decoded = raw
+      .replace(/&#x27;/gi, "'")
+      .replace(/&#39;/g, "'")
+      .replace(/&apos;/g, "'")
+      .replace(/&#8217;/g, "'")
+      .replace(/&rsquo;/g, "'")
+      .replace(/&#x2019;/gi, "'")
+      .replace(/\s+/g, ' ')
+      .trim();
+    assert.equal(decoded, "What an AI agent finds in your repo. And what it doesn't.");
+    assert.ok(html.includes('Real checks'), 'dist/index.html should contain "Real checks"');
+    assert.ok(html.includes('It does not scan for code vulnerabilities'), 'dist/index.html should contain "It does not scan for code vulnerabilities"');
+    assert.ok(html.includes('devnet'), 'dist/index.html should contain "devnet"');
     assert.ok(html.includes('<label'), 'label not found in dist/index.html');
     assert.ok(html.includes('>Check<') || html.includes('>Check </button>') || html.includes('Check'), 'Check button not found');
     const buttonRe = /<button[^>]*>([^<]+)<\/button>/i;
     const buttonMatch = html.match(buttonRe);
     assert.ok(buttonMatch, 'Check button not found');
     assert.equal(buttonMatch[1].trim(), 'Check');
-    const exampleTexts = ['Uniswap/v4-core', 'OpenZeppelin/openzeppelin-contracts', 'jup-ag/jupiter-quote-api-node'];
-    for (const ex of exampleTexts) assert.ok(html.includes(ex), `example "${ex}" not in dist/index.html`);
+    const data = JSON.parse(fs.readFileSync(path.resolve('web/src/data/sample-result.json'), 'utf8'));
+    for (const ex of data.examples) {
+      assert.ok(html.includes(ex.repo), `example "${ex.repo}" not in dist/index.html`);
+    }
     assert.ok(html.includes('This page needs JavaScript to run a check. You can also run it yourself: npx yokoten'), 'noscript text incorrect');
-    assert.ok(html.includes('How this was made'), 'How this was made sentence not found');
-    assert.ok(html.includes('Muse Spark Open'), 'dist/index.html should contain "Muse Spark Open"');
-    assert.ok(html.includes('Claude Opus 5.5'), 'dist/index.html should contain "Claude Opus 5.5"');
-    assert.ok(html.includes('from before this project'), 'dist/index.html should contain "from before this project"');
   });
 
   test('example links in dist/index.html are relative and start with ?repo=', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
-    const anchorRe = /<a[^>]*href=["']([^"']+)["'][^>]*>([^<]+)<\/a>/gi;
-    let m;
-    const repoLinks = [];
-    while ((m = anchorRe.exec(html)) !== null) {
-      const href = m[1];
-      const text = m[2].trim();
-      if (text.includes('/') && (text === 'Uniswap/v4-core' || text === 'OpenZeppelin/openzeppelin-contracts' || text === 'jup-ag/jupiter-quote-api-node')) repoLinks.push(href);
-    }
-    assert.ok(repoLinks.length === 3, `expected 3 example links, found ${repoLinks.length}`);
-    for (const href of repoLinks) {
-      assert.ok(href.startsWith('?repo='), `example href should start with ?repo=: ${href}`);
+    const data = JSON.parse(fs.readFileSync(path.resolve('web/src/data/sample-result.json'), 'utf8'));
+    const repos = data.examples.map(e => e.repo);
+    for (const repo of repos) {
+      const href = `?repo=${repo}`;
+      assert.ok(html.includes(`href="${href}"`), `link for repo "${repo}" not found in dist/index.html`);
       assert.equal(href.startsWith('/'), false, `example href should not start with /: ${href}`);
       assert.equal(/^[a-zA-Z][a-zA-Z0-9+.\-]*:/.test(href), false, `example href should not have scheme: ${href}`);
     }
@@ -219,12 +238,13 @@ describe('static host portability', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
     const mainIdx = html.indexOf('<main id="app"');
     assert.ok(mainIdx !== -1, '<main id="app" not found');
-    const howIdx = html.indexOf('How this was made');
-    assert.ok(howIdx !== -1, 'How this was made not found');
-    assert.ok(howIdx > mainIdx, 'How this was made should come after <main id="app"');
-    assert.ok(html.includes('Muse Spark Open'), 'dist/index.html should contain "Muse Spark Open"');
-    assert.ok(html.includes('Claude Opus 5.5'), 'dist/index.html should contain "Claude Opus 5.5"');
-    assert.ok(html.includes('from before this project'), 'dist/index.html should contain "from before this project"');
+    const marker = 'How this was made';
+    const markerIdx = html.indexOf(marker);
+    assert.ok(markerIdx !== -1, `${marker} not found`);
+    assert.ok(markerIdx > mainIdx, `${marker} should come after <main id="app"`);
+    assert.ok(html.includes('Real checks'), 'dist/index.html should contain "Real checks"');
+    assert.ok(html.includes('It does not scan for code vulnerabilities'), 'dist/index.html should contain "It does not scan for code vulnerabilities"');
+    assert.ok(html.includes('devnet'), 'dist/index.html should contain "devnet"');
   });
 
   test('web/src/data/sample-result.json has a 40-character commit, total equal to the number of steps, and done equal to the steps marked done', () => {
@@ -238,6 +258,22 @@ describe('static host portability', () => {
     assert.equal(data.total, steps.length);
     const doneCount = steps.filter(s => s.mark === 'done').length;
     assert.equal(data.done, doneCount);
+    assert.ok(Array.isArray(data.examples), 'examples should be array');
+    assert.ok(data.examples.length >= 3, 'examples should have at least 3 rows');
+    for (const ex of data.examples) {
+      assert.equal(typeof ex.repo, 'string', 'example repo should be string');
+      assert.ok(ex.repo.length > 0, 'example repo should be non-empty');
+      assert.equal(typeof ex.commit, 'string', 'example commit should be string');
+      assert.equal(ex.commit.length, 7, `example commit should be 7 characters: ${ex.commit}`);
+      assert.ok(/^[0-9a-f]{7}$/i.test(ex.commit), `example commit should be hex: ${ex.commit}`);
+      assert.equal(typeof ex.done, 'number', 'example done should be number');
+      assert.ok(Number.isInteger(ex.done), 'example done should be integer');
+      assert.equal(typeof ex.total, 'number', 'example total should be number');
+      assert.ok(Number.isInteger(ex.total), 'example total should be integer');
+      assert.ok(ex.after === null || (typeof ex.after === 'number' && Number.isInteger(ex.after)), 'example after should be null or integer');
+    }
+    assert.equal(typeof data.examplesCheckedOn, 'string', 'examplesCheckedOn should be string');
+    assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(data.examplesCheckedOn), `examplesCheckedOn should be YYYY-MM-DD: ${data.examplesCheckedOn}`);
   });
 
   test('every class used in .astro and client .ts appears in global.css', () => {
@@ -280,6 +316,11 @@ describe('static host portability', () => {
     assert.deepEqual(missing.sort(), ['baz', 'qux']);
     const none = findMissingClasses(['foo bar'], css);
     assert.deepEqual(none, []);
+  });
+
+  test('dist/index.html does not hold the words "ready for AI agents"', () => {
+    const html = fs.readFileSync(indexPath, 'utf8');
+    assert.equal(html.toLowerCase().includes('ready for ai agents'), false, 'dist/index.html should not contain "ready for AI agents"');
   });
 });
 

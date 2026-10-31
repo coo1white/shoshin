@@ -4,7 +4,8 @@ import json
 
 def make_document(result, recorded_at) -> bytes:
     obj = {"schema": "yokoten-doctor/1", "recorded_at": recorded_at, "result": result}
-    text = json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    text = json.dumps(obj, sort_keys=True, indent=2, ensure_ascii=False)
+    text = text + "\n"
     return text.encode("utf-8")
 
 

@@ -13,6 +13,8 @@ const landingEl = document.getElementById("landing") as HTMLElement | null;
 const checkForm = document.getElementById("check-form") as HTMLFormElement | null;
 const repoInput = document.getElementById("repo-input") as HTMLInputElement | null;
 const checkError = document.getElementById("check-error") as HTMLParagraphElement | null;
+const heroLive = document.getElementById("hero-live") as HTMLElement | null;
+const checkButton = checkForm ? checkForm.querySelector("button[type=\"submit\"]") as HTMLButtonElement | null : null;
 
 let state: "empty" | "working" | "result" = "empty";
 let currentProgress: string[] = [];
@@ -20,7 +22,6 @@ let lastResult: CheckResult | null = null;
 let lastFixes: FixesPayload | null = null;
 let isWaitingForFixes = false;
 let lastRecord: RecordPayload | null = null;
-let hasScrolledForResult = false;
 
 const openDetailsKeys = new Set<string>();
 
@@ -42,24 +43,42 @@ function maybeUpdateUrl(inputText: string): void {
   }
 }
 
-function scrollResultIntoView(): void {
-  const el = document.getElementById("result-panel");
-  if (!el) return;
-  const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const behavior: ScrollBehavior = prefersReduced ? "auto" : "smooth";
-  try {
-    el.scrollIntoView({ behavior, block: "start" });
-  } catch {}
+function restoreEmptyState(): void {
+  if (landingEl) landingEl.hidden = false;
+  if (appEl) appEl.hidden = true;
+  if (heroLive) {
+    heroLive.hidden = true;
+    while (heroLive.firstChild) heroLive.removeChild(heroLive.firstChild);
+  }
+  if (repoInput) repoInput.readOnly = false;
+  if (checkButton) {
+    checkButton.disabled = false;
+    checkButton.textContent = "Check";
+  }
 }
 
-function updateVisibility(): void {
-  if (state === "empty") {
-    if (landingEl) landingEl.hidden = false;
-    if (appEl) appEl.hidden = true;
-  } else {
-    if (landingEl) landingEl.hidden = true;
-    if (appEl) appEl.hidden = false;
+function enterWorkingState(): void {
+  if (landingEl) landingEl.hidden = false;
+  if (appEl) appEl.hidden = true;
+  if (heroLive) heroLive.hidden = false;
+  if (repoInput) repoInput.readOnly = true;
+  if (checkButton) {
+    checkButton.disabled = true;
+    checkButton.textContent = "Checking…";
   }
+}
+
+function renderWorkingIntoHero(): void {
+  if (!heroLive) return;
+  while (heroLive.firstChild) heroLive.removeChild(heroLive.firstChild);
+  const rawUrl = repoInput ? repoInput.value.trim() : "";
+  const repoName = repoFromInput(rawUrl) ?? (rawUrl || "");
+  const terminal = renderWorking({ repoName, progress: currentProgress });
+  heroLive.appendChild(terminal);
+  const note = document.createElement("p");
+  note.className = "hero-live-note";
+  note.textContent = "Usually about 15 seconds.";
+  heroLive.appendChild(note);
 }
 
 function showError(message: string): void {
@@ -82,16 +101,30 @@ function render(): void {
   if (!appEl) return;
   while (appEl.firstChild) appEl.removeChild(appEl.firstChild);
 
-  updateVisibility();
+  if (state === "empty") {
+    restoreEmptyState();
+    return;
+  }
 
   if (state === "working") {
-    const rawUrl = repoInput ? repoInput.value.trim() : "";
-    const repoName = repoFromInput(rawUrl) ?? (rawUrl || "");
-    const working = renderWorking({ repoName, progress: currentProgress });
-    appEl.appendChild(working);
+    enterWorkingState();
+    renderWorkingIntoHero();
+    return;
   }
 
   if (state === "result" && lastResult) {
+    if (landingEl) landingEl.hidden = true;
+    if (appEl) appEl.hidden = false;
+    if (heroLive) {
+      heroLive.hidden = true;
+      while (heroLive.firstChild) heroLive.removeChild(heroLive.firstChild);
+    }
+    if (repoInput) repoInput.readOnly = false;
+    if (checkButton) {
+      checkButton.disabled = false;
+      checkButton.textContent = "Check";
+    }
+    window.scrollTo(0, 0);
     const vm = viewModel(lastResult);
     const hero = renderResultHero({ lastResult, vm, lastFixes });
     appEl.appendChild(hero);
@@ -125,7 +158,6 @@ async function startCheck(): Promise<void> {
   lastFixes = null;
   lastRecord = null;
   isWaitingForFixes = false;
-  hasScrolledForResult = false;
   openDetailsKeys.clear();
   render();
 
@@ -170,12 +202,6 @@ async function startCheck(): Promise<void> {
           state = "result";
           isWaitingForFixes = true;
           render();
-          if (!hasScrolledForResult) {
-            hasScrolledForResult = true;
-            requestAnimationFrame(() => {
-              requestAnimationFrame(() => scrollResultIntoView());
-            });
-          }
         } else if (eventName === "fixes") {
           if (!lastResult) continue;
           lastFixes = data as FixesPayload;

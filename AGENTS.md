@@ -94,7 +94,7 @@ and a small Python service in `server/` that runs on Modal. The design is in
 
 ### Test
 
-- `npm test` builds first through `pretest` and then runs the web tests in `test/web/` (Node 22 or newer, no runtime dependencies to install).
+- `npm test` builds first through `pretest` and then runs the web tests in `test/web/` (Node 22.23.4 or newer, no runtime dependencies to install).
 - `python3 -m pytest test/server` runs the server tests in `test/server/`.
   Use the project environment in `.venv` when the system Python has no pytest:
   `python3 -m venv .venv`, then `.venv/bin/python -m pytest test/server`.

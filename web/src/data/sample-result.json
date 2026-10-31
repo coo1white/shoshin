@@ -64,5 +64,40 @@
     "Build: forge build",
     "Run tests: forge test --isolate -vvv",
     "Do not edit lib/ submodules (forge-std, openzeppelin-contracts, solmate)."
-  ]
+  ],
+  "examples": [
+    {
+      "repo": "Uniswap/v4-core",
+      "commit": "bea7f6d",
+      "done": 4,
+      "total": 13,
+      "after": 7,
+      "files": 5
+    },
+    {
+      "repo": "OpenZeppelin/openzeppelin-contracts",
+      "commit": "b7f748e",
+      "done": 7,
+      "total": 13,
+      "after": 7,
+      "files": 4
+    },
+    {
+      "repo": "expressjs/express",
+      "commit": "1c6f1b0",
+      "done": 2,
+      "total": 13,
+      "after": 6,
+      "files": 6
+    },
+    {
+      "repo": "jup-ag/jupiter-quote-api-node",
+      "commit": "6dbd33a",
+      "done": 2,
+      "total": 13,
+      "after": 6,
+      "files": 8
+    }
+  ],
+  "examplesCheckedOn": "2026-10-31"
 }

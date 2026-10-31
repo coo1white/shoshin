@@ -37,6 +37,15 @@ export function renderResultHero({ lastResult, vm, lastFixes }: { lastResult: Ch
   checkAnother.href = "./";
   checkAnother.textContent = "Check another repo";
   actions.appendChild(checkAnother);
+  const checkAgain = document.createElement("a");
+  checkAgain.textContent = "Check again";
+  checkAgain.href = `?repo=${encodeURIComponent(lastResult.owner + "/" + lastResult.repo)}`;
+  checkAgain.addEventListener("click", (e) => {
+    e.preventDefault();
+    window.location.href = checkAgain.href;
+    window.location.reload();
+  });
+  actions.appendChild(checkAgain);
   const copyBtn = document.createElement("button");
   copyBtn.type = "button";
   copyBtn.textContent = "Copy link to this result";
@@ -68,7 +77,9 @@ export function renderResultHero({ lastResult, vm, lastFixes }: { lastResult: Ch
 
   const h1 = document.createElement("h1");
   h1.className = "result-repo";
-  h1.textContent = `${lastResult.owner}/${lastResult.repo}`;
+  h1.appendChild(document.createTextNode(`${lastResult.owner}/`));
+  h1.appendChild(document.createElement("wbr"));
+  h1.appendChild(document.createTextNode(`${lastResult.repo}`));
   left.appendChild(h1);
 
   if (lastFixes && lastFixes.summary && lastFixes.summary.trim() !== "") {
@@ -90,7 +101,7 @@ export function renderResultHero({ lastResult, vm, lastFixes }: { lastResult: Ch
   const done = vm.score.done;
   big.textContent = `${done} `;
   const span = document.createElement("span");
-  span.textContent = `of ${total} steps`;
+  span.textContent = `of ${total} file checks`;
   big.appendChild(span);
   scoreWrap.appendChild(big);
 
@@ -160,7 +171,7 @@ export function renderResultHero({ lastResult, vm, lastFixes }: { lastResult: Ch
   const right = document.createElement("div");
   right.className = "result-hero-right";
   const steps = (lastResult.summary as { steps?: { id: string; title: string; mark: string }[] } | undefined)?.steps ?? [];
-  const term = makeTerminalWindow("DOCTOR", `${total} STEPS`);
+  const term = makeTerminalWindow("DOCTOR", `${total} CHECKS`);
   for (const s of steps) {
     const row = document.createElement("div");
     row.className = "terminal-row";

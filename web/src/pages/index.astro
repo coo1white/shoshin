@@ -19,85 +19,91 @@ const ownerRepo = `${sample.owner}/${sample.repo}`;
 <Header />
 <div id="landing">
 <section id="top" class="hero">
-  <div class="hero-copy">
-    <ul class="badges">
-      <li class="badge-green">yokoten {sample.yokotenVersion}</li>
-      <li class="badge-outline">Public repos</li>
-    </ul>
-    <h1 class="hero-title">Is your repo ready for AI agents?</h1>
-    <p class="hero-sub">See what is missing. Get the files that fix it.</p>
-    <form id="check-form" novalidate class="check-form">
-      <label for="repo-input">GitHub repo URL</label>
-      <div class="input-row">
-        <input id="repo-input" name="url" type="url" placeholder="https://github.com/owner/repo" autocomplete="off" />
-        <button type="submit">Check</button>
-      </div>
-    </form>
-    <p id="check-error" class="error-box" role="alert" hidden></p>
-    <noscript><p>This page needs JavaScript to run a check. You can also run it yourself: npx yokoten</p></noscript>
-    <div class="try-row">
-      <span class="try-label">Try one</span>
-      <a href="?repo=Uniswap/v4-core" class="chip">Uniswap/v4-core</a>
-      <a href="?repo=OpenZeppelin/openzeppelin-contracts" class="chip">OpenZeppelin/openzeppelin-contracts</a>
-      <a href="?repo=jup-ag/jupiter-quote-api-node" class="chip">jup-ag/jupiter-quote-api-node</a>
+  <ul class="badges">
+    <li class="badge-green">yokoten {sample.yokotenVersion}</li>
+  </ul>
+  <h1>What an AI agent finds in your repo. And what it doesn't.</h1>
+  <p>13 file checks, the one next step, and the files that fix it. Your code never runs.</p>
+  <form id="check-form" novalidate class="check-form">
+    <label for="repo-input">GitHub repo URL</label>
+    <div class="input-row">
+      <input id="repo-input" name="url" type="url" placeholder="https://github.com/owner/repo" autocomplete="off" />
+      <button type="submit">Check</button>
     </div>
-  </div>
-  <TerminalWindow title="REAL RESULT" aside={commitShort}>
-    <div class="sample-title">{ownerRepo} · {doneCount} of {total} steps</div>
-    <div class="spacer"></div>
-    {visible.map((s) => {
-      if (s.mark === "done") return (<div class="terminal-row is-done"><span>✓ done</span><span>{s.title}</span></div>);
-      if (s.mark === "next") return (<div class="terminal-row is-next"><span>● next</span><span>{s.title}</span></div>);
-      return (<div class="terminal-row is-todo"><span>● to do</span><span>{s.title}</span></div>);
-    })}
-    <div class="terminal-row is-more"><span>+{hiddenCount}</span><span>more to do</span></div>
-    <div class="spacer"></div>
-    <div class="muse-label">Muse wrote for this repo:</div>
-    {sample.museLines.map((line: string) => <div>{line}</div>)}
-  </TerminalWindow>
+  </form>
+  <p id="check-error" class="error-box" role="alert" hidden></p>
+  <noscript><p>This page needs JavaScript to run a check. You can also run it yourself: npx yokoten</p></noscript>
+  <div id="hero-live" class="hero-live" hidden></div>
 </section>
-<section class="band">
+<section id="checks" class="checks">
+  <h2>Real checks <span class="checks-date">Checked {sample.examplesCheckedOn}</span></h2>
+  <div class="checks-list">
+    {sample.examples.map((ex) => (
+      <a class="check-row" href={`?repo=${ex.repo}`}>
+        <span class="check-repo">{ex.repo}</span>
+        <span class="check-commit">{ex.commit}</span>
+        <span class="check-bar" aria-hidden="true">
+          {Array.from({ length: ex.total }).map((_, i) => {
+            let cls = "is-open";
+            if (i < ex.done) cls = "is-done";
+            else if (ex.after > ex.done && i < ex.after) cls = "is-after";
+            return <span class={`check-seg ${cls}`}></span>;
+          })}
+        </span>
+        <span class="check-score">{ex.done}<span class="check-total">/{ex.total}</span></span>
+      </a>
+    ))}
+  </div>
+  <p class="checks-note">Green is done now. Outlined is what the files add.</p>
+</section>
+<section id="result" class="band">
   <div class="band-inner">
-    <p class="section-label"><span>01 ·</span> The result</p>
+    <p class="section-label"><span>01 ·</span> A real result</p>
     <h2 class="section-title">What you get</h2>
-    <ul class="cards">
-      <li class="card">
-        <div aria-hidden="true" class="card-bars">
-          <span class="bar bar-green"></span><span class="bar bar-green"></span><span class="bar bar-green"></span><span class="bar bar-green"></span><span class="bar bar-fg"></span><span class="bar bar-raised"></span><span class="bar bar-raised"></span><span class="bar bar-raised"></span><span class="bar bar-raised"></span><span class="bar bar-raised"></span><span class="bar bar-raised"></span><span class="bar bar-raised"></span><span class="bar bar-raised"></span>
-        </div>
-        <p class="card-title">Where the repo stands, and the one next step.</p>
-        <p class="card-foot">yokoten doctor, 13 checks</p>
-      </li>
-      <li class="card">
-        <svg width="72" height="56" viewBox="0 0 72 56" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h22l10 10v34H8z"></path><path d="M30 6v10h10"></path><path d="M15 26h18M15 33h18M15 40h11"></path><path d="M52 28h14M59 21v14" stroke="#13a10e"></path></svg>
-        <p class="card-title">Files written for this repo, ready to commit.</p>
-        <p class="card-foot">Muse writes the project section</p>
-      </li>
-      <li class="card">
-        <svg width="72" height="56" viewBox="0 0 72 56" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="10" width="42" height="36" rx="4"></rect><path d="M14 21h26M14 29h26M14 37h14"></path><circle cx="54" cy="36" r="11" fill="var(--surface)"></circle><path d="M49 36l4 4 6-7" stroke="#13a10e"></path></svg>
-        <p class="card-title">A public record you can check yourself.</p>
-        <p class="card-foot">SHA-256 on Rekor and Solana devnet</p>
-      </li>
-    </ul>
+    <div class="result-columns">
+      <div class="result-left">
+        <ul class="get-list">
+          <li>Where the repo stands, and the one next step.</li>
+          <li>Files written for this repo, ready to commit.</li>
+          <li>The commands that repeat this check.</li>
+        </ul>
+      </div>
+      <div class="result-right">
+        <TerminalWindow title="REAL RESULT" aside={commitShort}>
+          <div class="sample-title">{ownerRepo} · {doneCount} of {total} file checks</div>
+          <div class="spacer"></div>
+          {visible.map((s) => {
+            if (s.mark === "done") return (<div class="terminal-row is-done"><span>✓ done</span><span>{s.title}</span></div>);
+            if (s.mark === "next") return (<div class="terminal-row is-next"><span>● next</span><span>{s.title}</span></div>);
+            return (<div class="terminal-row is-todo"><span>● to do</span><span>{s.title}</span></div>);
+          })}
+          <div class="terminal-row is-more"><span>+{hiddenCount}</span><span>more to do</span></div>
+          <div class="spacer"></div>
+          <div class="muse-label">Muse wrote for this repo:</div>
+          {sample.museLines.map((line: string) => <div>{line}</div>)}
+        </TerminalWindow>
+      </div>
+    </div>
   </div>
 </section>
 <section id="how" class="section-inner">
-  <p class="section-label"><span>02 ·</span> Behind the button</p>
-  <h2 class="section-title">How it works</h2>
-  <ol class="steps-list">
-    <li class="step-item"><span aria-hidden="true" class="step-num">1</span><span>Copies the public files into a throwaway sandbox.</span></li>
-    <li class="step-item"><span aria-hidden="true" class="step-num">2</span><span>Cuts the network and runs yokoten. Your code never runs.</span></li>
-    <li class="step-item"><span aria-hidden="true" class="step-num">3</span><span>Muse reads the repo and writes its project section.</span></li>
-  </ol>
+  <span id="questions"></span>
+  <p class="section-label"><span>02 ·</span> What it doesn't do</p>
+  <h2 class="section-title">It reads. It does not touch.</h2>
+  <ul class="facts">
+    <li><strong>Your code never runs.</strong> No install, no build, no tests.</li>
+    <li><strong>The network is cut.</strong> yokoten runs in a throwaway sandbox, with no way out.</li>
+    <li><strong>Your repo stays yours.</strong> Nothing changes until you click Commit on GitHub.</li>
+  </ul>
+  <p class="facts-note">It reads public repos only. Muse's text stays in a cache for 24 hours. It does not scan for code vulnerabilities. It is free, with no account, and each visitor gets 10 checks an hour.</p>
 </section>
-<section id="questions" class="section-inner">
-  <p class="section-label"><span>03 ·</span> Questions</p>
-  <h2 class="section-title">Three questions</h2>
-  <dl class="questions">
-    <div class="qa"><dt>Can it change my repo?</dt><dd>No. It has no access. Nothing changes until you click Commit on GitHub.</dd></div>
-    <div class="qa"><dt>Does it keep my code?</dt><dd>No. The sandbox is thrown away. Muse's text stays in a cache for 24 hours.</dd></div>
-    <div class="qa"><dt>Is it free?</dt><dd>Yes, with no account. Each visitor gets 10 checks an hour.</dd></div>
-  </dl>
+<section id="proof" class="band">
+  <div class="band-inner">
+    <p class="section-label"><span>03 ·</span> Don't trust us</p>
+    <h2 class="section-title">Run it yourself.</h2>
+    <p class="proof-lede">Every result gives you the version, the commit and the command.</p>
+    <p class="proof-note">Its hash is on Sigstore Rekor and a Solana devnet memo, so a later change would show. Devnet is a test network.</p>
+  </div>
 </section>
 <section class="cta">
   <div class="cta-inner">
