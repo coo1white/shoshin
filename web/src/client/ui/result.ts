@@ -34,17 +34,19 @@ export function renderResultHero({ lastResult, vm, lastFixes }: { lastResult: Ch
   const actions = document.createElement("div");
   actions.className = "result-actions";
   const checkAnother = document.createElement("a");
-  checkAnother.href = "./";
+  checkAnother.href = "/";
   checkAnother.textContent = "Check another repo";
   actions.appendChild(checkAnother);
   const checkAgain = document.createElement("a");
   checkAgain.textContent = "Check again";
-  checkAgain.href = `?repo=${encodeURIComponent(lastResult.owner + "/" + lastResult.repo)}`;
-  checkAgain.addEventListener("click", (e) => {
-    e.preventDefault();
-    window.location.href = checkAgain.href;
-    window.location.reload();
-  });
+  checkAgain.href = `/?repo=${encodeURIComponent(lastResult.owner + "/" + lastResult.repo)}`;
+  if (window.location.pathname === "/") {
+    checkAgain.addEventListener("click", (e) => {
+      e.preventDefault();
+      window.location.href = checkAgain.href;
+      window.location.reload();
+    });
+  }
   actions.appendChild(checkAgain);
   const copyBtn = document.createElement("button");
   copyBtn.type = "button";

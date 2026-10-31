@@ -25,6 +25,25 @@ let lastRecord: RecordPayload | null = null;
 
 const openDetailsKeys = new Set<string>();
 
+function showSavedCheck(): boolean {
+  const el = document.getElementById("saved-check");
+  if (!el) return false;
+  const raw = el.dataset.check ?? "";
+  if (!raw.trim()) return false;
+  try {
+    const data = JSON.parse(raw) as { result: CheckResult; fixes: FixesPayload; record: RecordPayload };
+    lastResult = data.result;
+    lastFixes = data.fixes;
+    lastRecord = data.record;
+    isWaitingForFixes = false;
+    state = "result";
+    render();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function markFixesLost(): void {
   if (lastResult && lastFixes == null) {
     lastFixes = { files: [], summary: "", muse: "lost" };
@@ -247,7 +266,7 @@ if (checkForm) {
 render();
 
 try {
-  const fromQ = repoFromQuery(window.location.search);
+  const fromQ = showSavedCheck() ? null : repoFromQuery(window.location.search);
   if (fromQ) {
     const full = "https://github.com/" + fromQ;
     if (repoInput) repoInput.value = full;

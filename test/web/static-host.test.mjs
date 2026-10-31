@@ -210,15 +210,13 @@ describe('static host portability', () => {
     assert.ok(html.includes('This page needs JavaScript to run a check. You can also run it yourself: npx yokoten'), 'noscript text incorrect');
   });
 
-  test('example links in dist/index.html are relative and start with ?repo=', () => {
+  test('example links in dist/index.html point to /example/<slug>', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
     const data = JSON.parse(fs.readFileSync(path.resolve('web/src/data/sample-result.json'), 'utf8'));
-    const repos = data.examples.map(e => e.repo);
-    for (const repo of repos) {
-      const href = `?repo=${repo}`;
-      assert.ok(html.includes(`href="${href}"`), `link for repo "${repo}" not found in dist/index.html`);
-      assert.equal(href.startsWith('/'), false, `example href should not start with /: ${href}`);
-      assert.equal(/^[a-zA-Z][a-zA-Z0-9+.\-]*:/.test(href), false, `example href should not have scheme: ${href}`);
+    for (const ex of data.examples) {
+      const slug = ex.repo.replaceAll("/", "-");
+      const href = `/example/${slug}`;
+      assert.ok(html.includes(`href="${href}"`), `link for repo "${ex.repo}" should be href="${href}"`);
     }
   });
 
@@ -326,6 +324,70 @@ describe('static host portability', () => {
   test('dist/index.html does not hold the words "ready for AI agents"', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
     assert.equal(html.toLowerCase().includes('ready for ai agents'), false, 'dist/index.html should not contain "ready for AI agents"');
+  });
+
+  test('example pages exist and contain noindex', () => {
+    const sample = JSON.parse(fs.readFileSync(path.resolve('web/src/data/sample-result.json'), 'utf8'));
+    for (const ex of sample.examples) {
+      const slug = ex.repo.replaceAll("/", "-");
+      const htmlPath = path.join(distDir, 'example', `${slug}.html`);
+      assert.ok(fs.existsSync(htmlPath), `missing ${htmlPath}`);
+      const html = fs.readFileSync(htmlPath, 'utf8');
+      assert.ok(html.includes('name="robots"') && html.includes('content="noindex"'), `${slug}.html should contain robots noindex`);
+    }
+  });
+
+  test('example saved data matches sample summary and after/files', () => {
+    const sample = JSON.parse(fs.readFileSync(path.resolve('web/src/data/sample-result.json'), 'utf8'));
+    for (const ex of sample.examples) {
+      const slug = ex.repo.replaceAll("/", "-");
+      const saved = JSON.parse(fs.readFileSync(path.resolve(`web/src/data/examples/${slug}.json`), 'utf8'));
+      assert.ok(String(saved.result.commit).startsWith(ex.commit), `${slug} result.commit should start with ${ex.commit}`);
+      assert.equal(saved.result.summary.done, ex.done, `${slug} summary.done`);
+      assert.equal(saved.result.summary.total, ex.total, `${slug} summary.total`);
+      assert.equal(saved.fixes.after.done, ex.after, `${slug} fixes.after.done`);
+      assert.equal(saved.fixes.files.length, ex.files, `${slug} fixes.files.length`);
+    }
+  });
+
+  test('example fixes.muse is ok', () => {
+    const sample = JSON.parse(fs.readFileSync(path.resolve('web/src/data/sample-result.json'), 'utf8'));
+    for (const ex of sample.examples) {
+      const slug = ex.repo.replaceAll("/", "-");
+      const saved = JSON.parse(fs.readFileSync(path.resolve(`web/src/data/examples/${slug}.json`), 'utf8'));
+      assert.equal(saved.fixes.muse, "ok", `${slug} fixes.muse should be ok`);
+    }
+  });
+
+  test('saved-check block has no < and parses to saved file', () => {
+    const sample = JSON.parse(fs.readFileSync(path.resolve('web/src/data/sample-result.json'), 'utf8'));
+    for (const ex of sample.examples) {
+      const slug = ex.repo.replaceAll("/", "-");
+      const htmlPath = path.join(distDir, 'example', `${slug}.html`);
+      const html = fs.readFileSync(htmlPath, 'utf8');
+      const m = html.match(/<div id="saved-check" data-check="([^"]*)"/);
+      assert.ok(m, `saved-check not found in ${slug}.html`);
+      const inner = m[1].replaceAll('&#34;', '"').replaceAll('&quot;', '"').replaceAll('&#38;', '&').replaceAll('&amp;', '&');
+      assert.equal(inner.includes("<"), false, `saved-check in ${slug}.html should not contain <`);
+      const parsed = JSON.parse(inner);
+      const saved = JSON.parse(fs.readFileSync(path.resolve(`web/src/data/examples/${slug}.json`), 'utf8'));
+      assert.deepEqual(parsed, saved, `saved-check data should equal file for ${slug}`);
+    }
+  });
+
+  test('example pages have src on every script', () => {
+    const sample = JSON.parse(fs.readFileSync(path.resolve('web/src/data/sample-result.json'), 'utf8'));
+    for (const ex of sample.examples) {
+      const slug = ex.repo.replaceAll("/", "-");
+      const htmlPath = path.join(distDir, 'example', `${slug}.html`);
+      const html = fs.readFileSync(htmlPath, 'utf8');
+      const re = /<script\b([^>]*)>/gi;
+      let match;
+      while ((match = re.exec(html)) !== null) {
+        const attrs = match[1];
+        assert.ok(/\bsrc\s*=/.test(attrs), `script without src in ${slug}.html: <script${attrs}>`);
+      }
+    }
   });
 });
 
