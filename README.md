@@ -50,3 +50,7 @@ This entry was built during the hackathon, with these tools:
 - **yokoten** (`yokoten@0.2.0`) is a tool that existed before the hackathon. It is an npm dependency, and no yokoten code is copied here. The checks on the page are yokoten's.
 
 A `Co-Authored-By` line names Muse on commits whose code it wrote. Claude's part is stated here instead of in those lines, and some commit messages also name it. Commit messages were edited once, before the first push, to change those lines.
+
+### A note for the organizers
+
+As we understand the rules, all contributors must be approved participants. One person made this entry, and that person is the only participant. Muse and Claude are AI tools used in this work, not people on a team. Our notes on the rules do not say whether an AI tool counts as a contributor, so we state our use of them here, in the open. If this use of Claude is not allowed, please tell us, and we will follow your decision.
