@@ -2,12 +2,21 @@
 import Mark from "./Mark.astro";
 ---
 <footer class="site-footer">
-  <div class="footer-brand">
-    <div class="brand-lockup">
-      <Mark id="footer-mark" size={24} />
-      <span class="brand-name">yokoten doctor</span>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="brand-lockup">
+        <Mark id="footer-mark" size={24} />
+        <span class="brand-name">yokoten doctor</span>
+      </div>
+      <p class="brand-note">A free check for public GitHub repos.</p>
     </div>
-    <p class="brand-note">A free check for public GitHub repos.</p>
+    <nav class="footer-links" aria-label="Links">
+      <ul>
+        <li><a href="https://yokoten.app/docs">Docs</a></li>
+        <li><a href="https://github.com/coo1white/yokoten-doctor">GitHub</a></li>
+        <li><a href="https://github.com/coo1white/yokoten-doctor/issues">Report a problem</a></li>
+      </ul>
+    </nav>
   </div>
   <div class="footer-made">
     <h2>How this was made</h2>
@@ -26,12 +35,4 @@ import Mark from "./Mark.astro";
       </div>
     </dl>
   </div>
-  <nav class="footer-links" aria-labelledby="footer-links-title">
-    <h2 id="footer-links-title">Links</h2>
-    <ul>
-      <li><a href="https://yokoten.app/docs">Docs</a></li>
-      <li><a href="https://github.com/coo1white/yokoten-doctor">GitHub</a></li>
-      <li><a href="https://github.com/coo1white/yokoten-doctor/issues">Report a problem</a></li>
-    </ul>
-  </nav>
 </footer>

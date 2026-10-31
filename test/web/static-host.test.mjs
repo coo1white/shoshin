@@ -318,6 +318,11 @@ describe('static host portability', () => {
     assert.deepEqual(none, []);
   });
 
+  test('global.css does not hide every nav, so the footer links stay on a phone', () => {
+    const cssText = fs.readFileSync(path.resolve('web/src/styles/global.css'), 'utf8');
+    assert.doesNotMatch(cssText, /(^|[\s{}])nav\s*\{\s*display:\s*none/);
+  });
+
   test('dist/index.html does not hold the words "ready for AI agents"', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
     assert.equal(html.toLowerCase().includes('ready for ai agents'), false, 'dist/index.html should not contain "ready for AI agents"');
