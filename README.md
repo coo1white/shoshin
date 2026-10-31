@@ -17,6 +17,9 @@ fix files. The design is in `docs/design.md`.
 3. The page shows yokoten's checks, in the same order as the terminal.
 4. Muse writes the missing files for your repo.
 5. You copy the files or download them as a patch.
+6. The server writes a hash of the result to Sigstore Rekor and to a Solana devnet memo. You can download the result and compare.
+
+See `docs/public-record.md`.
 
 ## Run your own copy
 
@@ -28,6 +31,7 @@ shares the demo's keys.
 2. Deploy the Python app in `server/` to Modal.
 3. Serve the static files in `web/` on any static host. See `docs/hosting.md`.
 4. Open the page and paste a public repo URL.
+5. Put `REKOR_SIGNING_KEY` and `SOLANA_DEVNET_SEED` in the server secret store to turn on the public record. Without them the page works, and writes no record.
 
 For the full check on your own machine, run `npx yokoten`.
 

@@ -9,6 +9,7 @@ import {
   fixMessage,
   claudeImportMessage,
   PATCH_COMMANDS,
+  recordView,
 } from "./fixes.js";
 
 const appEl = document.getElementById("app");
@@ -21,6 +22,7 @@ let inputValue = "";
 let lastFixes = null;
 let isWaitingForFixes = false;
 let hasChecked = false;
+let lastRecord = null;
 
 /** @type {Set<string>} */
 let openDetailsKeys = new Set();
@@ -615,6 +617,69 @@ function render() {
       note.textContent = "Run this one in a clean home folder: on your own machine, check also looks for your own private marks, which this page never had.";
       checkYourself.appendChild(note);
     }
+    // Public record section
+    const rv = recordView(lastRecord);
+    if (rv) {
+      const prTitle = document.createElement("h4");
+      prTitle.textContent = "Public record";
+      checkYourself.appendChild(prTitle);
+      const prDesc = document.createElement("p");
+      prDesc.textContent = "A hash of this result is in a public log. Download the result, hash it, and compare. The record holds no file contents.";
+      checkYourself.appendChild(prDesc);
+      const hashP = document.createElement("p");
+      const hashMono = document.createElement("code");
+      hashMono.textContent = rv.sha256;
+      hashP.appendChild(hashMono);
+      checkYourself.appendChild(hashP);
+      const recordedP = document.createElement("p");
+      recordedP.textContent = rv.recordedAt;
+      checkYourself.appendChild(recordedP);
+      const dlBtn = document.createElement("button");
+      dlBtn.textContent = "Download the result";
+      dlBtn.addEventListener("click", () => {
+        const blob = new Blob([rv.documentText], { type: "application/json;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = rv.documentName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      });
+      checkYourself.appendChild(dlBtn);
+      const verifyWrap = document.createElement("div");
+      verifyWrap.className = "code-wrap";
+      const preV = document.createElement("pre");
+      const codeV = document.createElement("code");
+      codeV.textContent = rv.verifyCommand;
+      preV.appendChild(codeV);
+      verifyWrap.appendChild(preV);
+      const copyV = addCopyButton("Copy", rv.verifyCommand, codeV);
+      verifyWrap.appendChild(copyV);
+      checkYourself.appendChild(verifyWrap);
+      if (rv.rekorUrl) {
+        const p = document.createElement("p");
+        const a = createLink(rv.rekorUrl, "Rekor entry");
+        p.appendChild(a);
+        checkYourself.appendChild(p);
+      }
+      if (rv.solanaUrl) {
+        const p2 = document.createElement("p");
+        const a2 = createLink(rv.solanaUrl, "Solana devnet memo");
+        p2.appendChild(a2);
+        const small = document.createElement("span");
+        small.textContent = " Devnet is a test network. It can be reset, and it holds no real money.";
+        small.className = "small";
+        p2.appendChild(small);
+        checkYourself.appendChild(p2);
+      }
+      if (rv.message) {
+        const msgP = document.createElement("p");
+        msgP.textContent = rv.message;
+        checkYourself.appendChild(msgP);
+      }
+    }
     term.appendChild(checkYourself);
 
     // 8. Closing about + npx yokoten link
@@ -675,6 +740,7 @@ async function startCheck() {
   currentProgress = [];
   lastResult = null;
   lastFixes = null;
+  lastRecord = null;
   isWaitingForFixes = false;
   openDetailsKeys.clear();
   hasChecked = true;
@@ -731,6 +797,9 @@ async function startCheck() {
           if (!lastResult) continue;
           lastFixes = data;
           isWaitingForFixes = false;
+          render();
+        } else if (eventName === "record") {
+          lastRecord = data;
           render();
         } else if (eventName === "error") {
           hasResultOrError = true;
