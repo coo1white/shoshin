@@ -72,7 +72,7 @@ describe('static host portability', () => {
       const content = fs.readFileSync(file, 'utf8');
       const lower = content.toLowerCase();
       assert.equal(lower.includes('<script'), false, `SVG should not contain <script: ${path.relative(distDir, file)}`);
-      assert.equal(/\bon\w+\s*=/.test(content), false, `SVG should not contain on...= attribute: ${path.relative(distDir, file)}`);
+      assert.equal(/\bon\w+\s*=/i.test(content), false, `SVG should not contain on...= attribute: ${path.relative(distDir, file)}`);
     }
   });
 
@@ -120,7 +120,7 @@ describe('static host portability', () => {
     assert.equal(connectSrc, api, `connect-src (${connectSrc}) should equal API (${api})`);
   });
 
-  test('dist/index.html holds the page\'s strings: h1 is "A health check for repos that AI agents work in." with its apostrophe in any HTML form, and "Real checks", "It does not scan for code vulnerabilities" and "devnet"', () => {
+  test('dist/index.html holds the page\'s strings: h1 is "A health check for repos that AI agents work in.", and "Real checks", "It does not scan for code vulnerabilities" and "devnet"', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
     const h1Re = /<h1[^>]*>([\s\S]*?)<\/h1>/i;
     const h1Match = html.match(h1Re);
