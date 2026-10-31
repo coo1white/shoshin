@@ -1,3 +1,4 @@
+import hashlib
 import json
 import logging
 import pathlib
@@ -24,7 +25,7 @@ logger = logging.getLogger(__name__)
 ALLOWED_ORIGINS = ["https://doctor.yokoten.app", "http://localhost:8000"]
 GENERIC_ERROR = "The check could not finish. Please try again in a minute."
 BAD_URL_MSG = "That doesn't look like a public GitHub repo. Try https://github.com/owner/repo."
-NO_FIXES = {"files": [], "summary": "", "muse": "failed"}
+NO_FIXES = {"files": [], "summary": "", "muse": "failed", "claude_import": None}
 
 HERE = pathlib.Path(__file__).parent
 
@@ -37,6 +38,47 @@ web_image = (
     .add_local_dir(HERE / "fixes", "/root/fixes")
 )
 app = modal.App("yokoten-doctor")
+
+
+class RateLimiter:
+    HOURLY_LIMIT_PER_IP = 10
+    DAILY_LIMIT_TOTAL = 300
+
+    def __init__(self, store, now=time.time):
+        self.store = store
+        self.now = now
+
+    def allow(self, client_ip) -> str:
+        try:
+            now_val = self.now()
+            day_num = int(now_val // 86400)
+            hour_num = int(now_val // 3600)
+            day_key = f"limit:day:{day_num}"
+            day_count = self.store.get(day_key, 0)
+            if day_count is None:
+                day_count = 0
+            if day_count >= self.DAILY_LIMIT_TOTAL:
+                return "day"
+            ip_hash = hashlib.sha256(client_ip.encode("utf-8")).hexdigest()[:16]
+            hour_key = f"limit:ip:{ip_hash}:{hour_num}"
+            ip_count = self.store.get(hour_key, 0)
+            if ip_count is None:
+                ip_count = 0
+            if ip_count >= self.HOURLY_LIMIT_PER_IP:
+                return "ip"
+            # allowed - increment both
+            try:
+                self.store.put(day_key, day_count + 1)
+            except Exception:
+                raise
+            try:
+                self.store.put(hour_key, ip_count + 1)
+            except Exception:
+                raise
+            return "ok"
+        except Exception as e:
+            logger.error(type(e).__name__)
+            return "ok"
 
 
 def open_cache():
@@ -73,7 +115,7 @@ def build_result(res) -> dict:
     }
 
 
-def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_default, make_fixes=None):  # type: ignore
+def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_default, make_fixes=None, limiter=None):  # type: ignore
     if make_fixes is None:
         def _default_make_fixes(result):
             cache = open_cache()
@@ -122,10 +164,31 @@ def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_
 
         def gen():
             yield sse_event("progress", {"step": "reading"})
-            public_info = None
             try:
                 owner, repo = _parse_repo_url_default(url_val)
-                public_info = public(owner, repo)
+            except (BadRepoUrl, RepoRefused) as e:
+                yield sse_event("error", {"message": str(e)})
+                return
+            except Exception:
+                logger.exception("check failed reading")
+                yield sse_event("error", {"message": GENERIC_ERROR})
+                return
+
+            if limiter is not None:
+                try:
+                    client_ip = request.client.host if request.client else ""
+                except Exception:
+                    client_ip = ""
+                decision = limiter.allow(client_ip)
+                if decision == "ip":
+                    yield sse_event("error", {"message": "You have run 10 checks this hour. Please try again later. You can also run it yourself: npx yokoten"})
+                    return
+                if decision == "day":
+                    yield sse_event("error", {"message": "This page has reached its limit for today. Please try again tomorrow. You can also run it yourself: npx yokoten"})
+                    return
+
+            try:
+                public(owner, repo)
             except (BadRepoUrl, RepoRefused) as e:
                 yield sse_event("error", {"message": str(e)})
                 return
@@ -186,7 +249,7 @@ def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_
                 elif kind == "done":
                     try:
                         payload_out = build_result(item[1])
-                        default_branch = public_info.get("default_branch") if isinstance(public_info, dict) else None
+                        default_branch = item[1].get("branch") if isinstance(item[1], dict) else None
                         payload_out["default_branch"] = default_branch
                         yield sse_event("result", payload_out)
                     except Exception:
@@ -209,7 +272,15 @@ def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_
     return api
 
 
-@app.function(image=web_image, timeout=180, secrets=[modal.Secret.from_name("yokoten-doctor-baseten")])
+@app.function(image=web_image, timeout=180, max_containers=3, secrets=[modal.Secret.from_name("yokoten-doctor-baseten")])
+@modal.concurrent(max_inputs=10)
 @modal.asgi_app()
 def fastapi_app():
-    return create_api()
+    cache = open_cache()
+    limiter = None
+    if cache is not None:
+        try:
+            limiter = RateLimiter(cache)
+        except Exception:
+            limiter = None
+    return create_api(limiter=limiter)

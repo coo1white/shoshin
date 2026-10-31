@@ -387,3 +387,77 @@ def test_build_fixes_cache_get_put_raise_still_ok():
         return {"summary": "s", "this_project": "p"}
     out = build_fixes(result, ask=fake_ask, cache=BadCache())
     assert out["muse"] == "ok"
+
+
+import pytest
+from fixes.build import build_fixes
+
+def _base_result(fix_files=None, claude_file=None, too_big=False, muse_facts=None):
+    if fix_files is None:
+        fix_files = [{"path": "AGENTS.md", "content": "# agents"}]
+    return {
+        "owner": "o",
+        "repo": "r",
+        "commit": "abc",
+        "yokoten_version": "1.0",
+        "fix_files": fix_files,
+        "claude_file": claude_file,
+        "too_big": too_big,
+        "muse_facts": muse_facts or {"facts": "x"},
+    }
+
+def test_claude_import_for_claude_md():
+    fix_files = [{"path": "AGENTS.md", "content": "x"}]
+    result = _base_result(fix_files=fix_files, claude_file="CLAUDE.md")
+    out = build_fixes(result, cache=None)
+    assert out["claude_import"] == {"file": "CLAUDE.md", "line": "@AGENTS.md"}
+
+def test_claude_import_for_dot_claude():
+    fix_files = [{"path": "AGENTS.md", "content": "x"}]
+    result = _base_result(fix_files=fix_files, claude_file=".claude/CLAUDE.md")
+    out = build_fixes(result, cache=None)
+    assert out["claude_import"] == {"file": ".claude/CLAUDE.md", "line": "@../AGENTS.md"}
+
+def test_claude_import_null_when_claude_file_none():
+    fix_files = [{"path": "AGENTS.md", "content": "x"}]
+    result = _base_result(fix_files=fix_files, claude_file=None)
+    out = build_fixes(result, cache=None)
+    assert out["claude_import"] is None
+
+def test_claude_import_null_when_no_agents_md():
+    fix_files = [{"path": "OTHER.md", "content": "x"}, {"path": "README.md", "content": "y"}]
+    result = _base_result(fix_files=fix_files, claude_file="CLAUDE.md")
+    out = build_fixes(result, cache=None)
+    assert out["claude_import"] is None
+
+def test_claude_import_present_when_claude_fails():
+    fix_files = [{"path": "AGENTS.md", "content": "x"}]
+    result = _base_result(fix_files=fix_files, claude_file="CLAUDE.md", muse_facts={"facts": "x"})
+    def failing_ask(facts):
+        raise RuntimeError("Muse boom")
+    out = build_fixes(result, ask=failing_ask, cache=None)
+    # muse failed but claude_import should still be present
+    assert out["muse"] == "failed"
+    assert out["claude_import"] == {"file": "CLAUDE.md", "line": "@AGENTS.md"}
+
+def test_claude_import_null_when_claude_file_unexpected_value():
+    fix_files = [{"path": "AGENTS.md", "content": "x"}]
+    result = _base_result(fix_files=fix_files, claude_file="something/else.md")
+    out = build_fixes(result, cache=None)
+    assert out["claude_import"] is None
+
+def test_build_fixes_not_needed_still_returns_claude_import():
+    # too_big or no agents should return not needed but still include claude_import if applicable
+    fix_files = [{"path": "AGENTS.md", "content": "x"}]
+    result = _base_result(fix_files=fix_files, claude_file="CLAUDE.md", too_big=True)
+    out = build_fixes(result, cache=None)
+    assert out["claude_import"] == {"file": "CLAUDE.md", "line": "@AGENTS.md"}
+    assert out["muse"] == "not needed"
+
+def test_build_fixes_without_agents_never_has_claude_import():
+    fix_files = [{"path": "OTHER.md", "content": "x"}]
+    result = _base_result(fix_files=fix_files, claude_file="CLAUDE.md")
+    def should_not_be_called(facts):
+        raise AssertionError("should not call Muse when no AGENTS.md")
+    out = build_fixes(result, ask=should_not_be_called, cache=None)
+    assert out["claude_import"] is None

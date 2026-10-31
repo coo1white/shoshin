@@ -128,6 +128,17 @@ export function fixMessage(fixes) {
   return "";
 }
 
+/**
+ * @param {{claude_import: {file:string, line:string}|null|undefined}} fixes
+ * @returns {string}
+ */
+export function claudeImportMessage(fixes) {
+  if (fixes && fixes.claude_import && fixes.claude_import.file && fixes.claude_import.line) {
+    return `Your repo already has ${fixes.claude_import.file}. Add this line to it, so Claude Code reads the new rules: ${fixes.claude_import.line}`;
+  }
+  return "";
+}
+
 export const PATCH_COMMANDS = [
   "git switch -c yokoten-doctor-fixes",
   "git apply --index yokoten-doctor.patch",

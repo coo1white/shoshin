@@ -11,6 +11,26 @@ def muse_cache_key(owner, repo, commit, version) -> str:
     return f"{owner}/{repo}@{commit}@{version}".lower()
 
 
+def _claude_import_for(result, fix_files):
+    try:
+        has_agents = False
+        if isinstance(fix_files, list):
+            for f in fix_files:
+                if isinstance(f, dict) and f.get("path") == "AGENTS.md":
+                    has_agents = True
+                    break
+        if not has_agents:
+            return None
+        claude_file = result.get("claude_file") if isinstance(result, dict) else None
+        if claude_file == "CLAUDE.md":
+            return {"file": "CLAUDE.md", "line": "@AGENTS.md"}
+        if claude_file == ".claude/CLAUDE.md":
+            return {"file": ".claude/CLAUDE.md", "line": "@../AGENTS.md"}
+        return None
+    except Exception:
+        return None
+
+
 def build_fixes(result, ask=_ask_muse_default, cache=None, now=time.time) -> dict:
     try:
         fix_files = result.get("fix_files") if isinstance(result, dict) else None
@@ -38,7 +58,7 @@ def build_fixes(result, ask=_ask_muse_default, cache=None, now=time.time) -> dic
                             "content": f.get("content"),
                             "source": "yokoten",
                         })
-            return {"files": files_out, "summary": "", "muse": "not needed"}
+            return {"files": files_out, "summary": "", "muse": "not needed", "claude_import": _claude_import_for(result, fix_files)}
 
         # need muse
         cache_key = muse_cache_key(owner or "", repo or "", commit or "", yokoten_version or "")
@@ -115,7 +135,7 @@ def build_fixes(result, ask=_ask_muse_default, cache=None, now=time.time) -> dic
             summary_out = ""
             muse_status = "failed"
 
-        return {"files": files_out, "summary": summary_out, "muse": muse_status}
+        return {"files": files_out, "summary": summary_out, "muse": muse_status, "claude_import": _claude_import_for(result, fix_files)}
     except Exception as e:
         logger.error(type(e).__name__)
         # never raise
@@ -126,6 +146,6 @@ def build_fixes(result, ask=_ask_muse_default, cache=None, now=time.time) -> dic
                 for f in fix_files:
                     if isinstance(f, dict):
                         files_out.append({"path": f.get("path"), "content": f.get("content"), "source": "yokoten"})
-            return {"files": files_out, "summary": "", "muse": "failed"}
+            return {"files": files_out, "summary": "", "muse": "failed", "claude_import": _claude_import_for(result, fix_files)}
         except Exception:
-            return {"files": [], "summary": "", "muse": "failed"}
+            return {"files": [], "summary": "", "muse": "failed", "claude_import": None}

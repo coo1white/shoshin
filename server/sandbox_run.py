@@ -84,6 +84,7 @@ def _collect_fix_data(sb, owner, repo, doctor, check) -> dict:
     fix_files = []
     muse_facts = {}
     too_big = False
+    claude_file = None
     try:
         p = sb.exec("git", "-C", "/tmp/repo", "ls-files", timeout=10)
         stdout_ls, _, rc_ls = _read_process(p)
@@ -94,6 +95,13 @@ def _collect_fix_data(sb, owner, repo, doctor, check) -> dict:
             tracked = []
         if len(tracked) > 20000:
             too_big = True
+        # compute claude_file before yokoten init
+        if "CLAUDE.md" in tracked:
+            claude_file = "CLAUDE.md"
+        elif ".claude/CLAUDE.md" in tracked:
+            claude_file = ".claude/CLAUDE.md"
+        else:
+            claude_file = None
         findings = []
         try:
             findings = check.get("findings") or []
@@ -166,7 +174,8 @@ def _collect_fix_data(sb, owner, repo, doctor, check) -> dict:
         fix_files = []
         muse_facts = {}
         too_big = False
-    return {"fix_files": fix_files, "muse_facts": muse_facts, "too_big": too_big}
+        claude_file = None
+    return {"fix_files": fix_files, "muse_facts": muse_facts, "too_big": too_big, "claude_file": claude_file}
 
 
 def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
@@ -219,6 +228,9 @@ def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
         if rc != 0:
             raise SandboxFailed(f"Could not read commit: {stderr.strip()}")
         commit = stdout.strip()
+        p = sb.exec("git", "-C", "/tmp/repo", "rev-parse", "--abbrev-ref", "HEAD", timeout=10)
+        stdout_branch, stderr_branch, rc_branch = _read_process(p)
+        branch = stdout_branch.strip() if rc_branch == 0 else None
         try:
             sb._experimental_set_outbound_network_policy(
                 outbound_domain_allowlist=[],
@@ -295,10 +307,12 @@ def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
         fix_files = collected["fix_files"]
         muse_facts = collected["muse_facts"]
         too_big = collected["too_big"]
+        claude_file = collected.get("claude_file")
         return {
             "owner": owner,
             "repo": repo,
             "commit": commit,
+            "branch": branch,
             "yokoten_version": yokoten_version,
             "about": about,
             "doctor": doctor,
@@ -307,6 +321,7 @@ def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
             "fix_files": fix_files,
             "muse_facts": muse_facts,
             "too_big": too_big,
+            "claude_file": claude_file,
         }
     finally:
         try:

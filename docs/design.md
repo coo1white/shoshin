@@ -244,17 +244,17 @@ streamed events (server-sent events) back to the browser
 ```
 
 - One repo, in the owner's personal GitHub account, holds web and server.
-- Web: static files (one HTML file, one TS file, one CSS file), on any static
-  host. Served at `doctor.yokoten.app` (owner, 2026-10-29). Trust does not
-  rest on the host (section 6.4).
-- Server: Modal, which gives one throwaway sandbox per check. (Not checked yet:
-  the exact Modal sandbox and web endpoint API, and how far the hackathon
-  credits go. The credits must first be claimed by the owner.)
-- yokoten version: the server image installs the latest yokoten release from
-  npm at each deploy, and a daily job rebuilds it; nothing is fetched at check
-  time. The version used is written into every result. yokoten v0.2.0 ships
-  before 2026-11-02 UTC with the misread fixes (issue #1167, issue #1169) and
-  a contract test that pins the `doctor --all --json` shape.
+- Web: static files in `web/`, on any static host. Served at
+  `doctor.yokoten.app` (owner, 2026-10-29). Trust does not rest on the host
+  (section 6.4).
+- Server: Modal, which gives one throwaway sandbox per check. At most 3
+  containers, and 10 requests in each, so a flood queues instead of spending.
+- Limits: 10 checks per address per hour and 300 per day in all. The address is
+  stored only as a hash. A bad URL costs nothing.
+- yokoten version: pinned to one exact release in `server/sandbox_run.py`
+  (v0.2.0), so the re-run command gives the same result. A new release means
+  changing that line and deploying again. The version used is written into every
+  result. Nothing is fetched at check time.
 - Language (decided 2026-10-30, replaces the TypeScript page of 2026-10-29):
   plain JavaScript with `// @ts-check` for the web page and its tests, so there
   is no build step; a small Python app on Modal for the server (receive the URL,

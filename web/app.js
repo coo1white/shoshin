@@ -7,6 +7,7 @@ import {
   buildPatch,
   orderFiles,
   fixMessage,
+  claudeImportMessage,
   PATCH_COMMANDS,
 } from "./fixes.js";
 
@@ -19,6 +20,7 @@ let errorMessage = "";
 let inputValue = "";
 let lastFixes = null;
 let isWaitingForFixes = false;
+let hasChecked = false;
 
 /** @type {Set<string>} */
 let openDetailsKeys = new Set();
@@ -158,6 +160,16 @@ function createFixCard(owner, repo, branch, file) {
   preWrap.appendChild(copyBtn2);
   details.appendChild(preWrap);
   card.appendChild(details);
+
+  // claude import message - show in AGENTS.md card, above buttons
+  if (file.path === "AGENTS.md" && lastFixes) {
+    const msg = claudeImportMessage(lastFixes);
+    if (msg) {
+      const claudeP = document.createElement("p");
+      claudeP.textContent = msg;
+      card.appendChild(claudeP);
+    }
+  }
 
   const plan = fileLinkPlan(owner, repo, branch, file);
   if (plan.kind === "filled") {
@@ -641,6 +653,12 @@ function render() {
     appEl.appendChild(footer);
   }
   restoreDetailsState(appEl);
+  if (errorMessage && hasChecked) {
+    const inputEl = document.getElementById("repo-input");
+    if (inputEl) {
+      inputEl.focus();
+    }
+  }
 }
 
 async function startCheck() {
@@ -648,6 +666,8 @@ async function startCheck() {
   const url = inputValue.trim();
   if (!url) {
     errorMessage = "That doesn't look like a public GitHub repo. Try https://github.com/owner/repo.";
+    hasChecked = true;
+    state = "empty";
     render();
     return;
   }
@@ -657,6 +677,7 @@ async function startCheck() {
   lastFixes = null;
   isWaitingForFixes = false;
   openDetailsKeys.clear();
+  hasChecked = true;
   render();
 
   try {

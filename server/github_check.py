@@ -22,6 +22,8 @@ def check_public(owner: str, repo: str) -> dict:
     except urllib.error.HTTPError as e:
         if e.code == 404:
             raise RepoRefused("That repo was not found or is private.") from e
+        if e.code == 403 or e.code == 429:
+            return {"default_branch": None, "size_kb": None}
         raise RepoRefused("GitHub could not be reached. Please try again.") from e
     except urllib.error.URLError as e:
         raise RepoRefused("GitHub could not be reached. Please try again.") from e
