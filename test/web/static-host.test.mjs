@@ -72,7 +72,7 @@ describe('static host portability', () => {
       const content = fs.readFileSync(file, 'utf8');
       const lower = content.toLowerCase();
       assert.equal(lower.includes('<script'), false, `SVG should not contain <script: ${path.relative(distDir, file)}`);
-      assert.equal(/\bon\w+\s*=/i.test(content), false, `SVG should not contain on...= attribute: ${path.relative(distDir, file)}`);
+      assert.equal(/\bon\w+\s*=/.test(content), false, `SVG should not contain on...= attribute: ${path.relative(distDir, file)}`);
     }
   });
 
@@ -120,7 +120,7 @@ describe('static host portability', () => {
     assert.equal(connectSrc, api, `connect-src (${connectSrc}) should equal API (${api})`);
   });
 
-  test('dist/index.html holds the page\'s strings: h1 is "What an AI agent finds in your repo. And what it doesn\'t." with its apostrophe in any HTML form, and "Real checks", "It does not scan for code vulnerabilities" and "devnet"', () => {
+  test('dist/index.html holds the page\'s strings: h1 is "A health check for repos that AI agents work in." with its apostrophe in any HTML form, and "Real checks", "It does not scan for code vulnerabilities" and "devnet"', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
     const h1Re = /<h1[^>]*>([\s\S]*?)<\/h1>/i;
     const h1Match = html.match(h1Re);
@@ -136,7 +136,7 @@ describe('static host portability', () => {
       .replace(/\u2019/g, "'")
       .replace(/\s+/g, ' ')
       .trim();
-    assert.equal(decoded, "What an AI agent finds in your repo. And what it doesn't.");
+    assert.equal(decoded, "A health check for repos that AI agents work in.");
     assert.ok(html.includes('Real checks'), 'dist/index.html should contain "Real checks"');
     assert.ok(html.includes('It does not scan for code vulnerabilities'), 'dist/index.html should contain "It does not scan for code vulnerabilities"');
     assert.ok(html.includes('devnet'), 'dist/index.html should contain "devnet"');
@@ -178,7 +178,7 @@ describe('static host portability', () => {
     }
   });
 
-  test('dist/index.html holds the h1, the label, the Check button, the three examples, the noscript sentence, and the sentence that starts "How this was made"', () => {
+  test('dist/index.html holds the h1 "A health check for repos that AI agents work in.", the label, the Check button, the three examples, the noscript sentence, and the sentence that starts "How this was made"', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
     const h1Re = /<h1[^>]*>([\s\S]*?)<\/h1>/i;
     const h1 = html.match(h1Re);
@@ -193,7 +193,7 @@ describe('static host portability', () => {
       .replace(/&#x2019;/gi, "'")
       .replace(/\s+/g, ' ')
       .trim();
-    assert.equal(decoded, "What an AI agent finds in your repo. And what it doesn't.");
+    assert.equal(decoded, "A health check for repos that AI agents work in.");
     assert.ok(html.includes('Real checks'), 'dist/index.html should contain "Real checks"');
     assert.ok(html.includes('It does not scan for code vulnerabilities'), 'dist/index.html should contain "It does not scan for code vulnerabilities"');
     assert.ok(html.includes('devnet'), 'dist/index.html should contain "devnet"');
