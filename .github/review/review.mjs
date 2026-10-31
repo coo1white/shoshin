@@ -132,7 +132,7 @@ function userMessage(title, body, diff, skipped = []) {
 
 async function callModel(apiKey, model, title, body, diff, prNumber, skipped = []) {
   const controller = new AbortController();
-  const t = setTimeout(() => controller.abort(), 300000);
+  const t = setTimeout(() => controller.abort(), 480000);
   try {
     const res = await fetch("https://opencode.ai/inference/go/openai/v1/chat/completions", {
       method: "POST",
@@ -144,8 +144,9 @@ async function callModel(apiKey, model, title, body, diff, prNumber, skipped = [
       },
       body: JSON.stringify({
         model,
-        max_tokens: 16000,
+        max_tokens: 65536,
         reasoning_effort: "high",
+        response_format: { type: "json_object" },
         messages: [
           { role: "system", content: systemMessage() },
           { role: "user", content: userMessage(title, body, diff, skipped) }
@@ -155,7 +156,8 @@ async function callModel(apiKey, model, title, body, diff, prNumber, skipped = [
     });
     if (!res.ok) throw new Error(`model request failed with ${res.status}`);
     const data = await res.json();
-    const text = data?.choices?.[0]?.message?.content ?? data?.choices?.[0]?.text ?? "";
+    console.log(`review: finish ${data?.choices?.[0]?.finish_reason}, usage ${JSON.stringify(data?.usage ?? null)}`);
+    const text =data?.choices?.[0]?.message?.content ?? data?.choices?.[0]?.text ?? "";
     return text;
   } finally {
     clearTimeout(t);
