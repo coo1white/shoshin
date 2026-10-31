@@ -6,8 +6,17 @@ import interLatin from "@fontsource-variable/inter/files/inter-latin-wght-normal
 import monoLatin from "@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2?url";
 interface Props {
   noindex?: boolean;
+  title?: string;
+  description?: string;
+  path?: string;
 }
-const { noindex } = Astro.props as Props;
+const site = "https://doctor.yokoten.app";
+const {
+  noindex,
+  title = "A health check for repos that AI agents work in \u00b7 yokoten doctor",
+  description = "13 file checks, the one next step, and the files that fix it. Your code never runs.",
+  path = "/",
+} = Astro.props as Props;
 ---
 <!doctype html>
 <html lang="en">
@@ -22,12 +31,18 @@ const { noindex } = Astro.props as Props;
 <script is:inline src="/js/theme.js"></script>
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
 <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
-<title>A health check for repos that AI agents work in · yokoten doctor</title>
-<meta name="description" content="13 file checks, the one next step, and the files that fix it. Your code never runs." />
-<meta property="og:title" content="A health check for repos that AI agents work in · yokoten doctor" />
-<meta property="og:description" content="13 file checks, the one next step, and the files that fix it. Your code never runs." />
+<title>{title}</title>
+<meta name="description" content={description} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://doctor.yokoten.app/" />
+<meta property="og:url" content={site + path} />
+<link rel="canonical" href={site + path} />
+<meta property="og:image" content="https://doctor.yokoten.app/images/share.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="A health check for repos that AI agents work in." />
+<meta name="twitter:card" content="summary_large_image" />
 <link rel="icon" href="/images/favicon.svg" type="image/svg+xml" />
 </head>
 <body>
