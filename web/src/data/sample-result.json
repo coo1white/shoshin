@@ -1,0 +1,68 @@
+{
+  "owner": "Uniswap",
+  "repo": "v4-core",
+  "commit": "bea7f6d1c11cd5dc4f0d5151ffa37a1c239feee6",
+  "yokotenVersion": "0.2.0",
+  "checkedAt": "2026-10-31T10:06:35Z",
+  "done": 4,
+  "total": 13,
+  "steps": [
+    {
+      "mark": "next",
+      "title": "Write the rules for your agents (AGENTS.md)"
+    },
+    {
+      "mark": "to do",
+      "title": "Turn on the guard for your agents' commands"
+    },
+    {
+      "mark": "to do",
+      "title": "Add the yokoten runtime to the project"
+    },
+    {
+      "mark": "done",
+      "title": "Run your tests on every push"
+    },
+    {
+      "mark": "to do",
+      "title": "Run the checks on every pull request"
+    },
+    {
+      "mark": "done",
+      "title": "Turn on issues"
+    },
+    {
+      "mark": "done",
+      "title": "Add issue and pull request templates"
+    },
+    {
+      "mark": "to do",
+      "title": "Keep build output out of git"
+    },
+    {
+      "mark": "to do",
+      "title": "Keep a changelog"
+    },
+    {
+      "mark": "to do",
+      "title": "Check pull request titles"
+    },
+    {
+      "mark": "done",
+      "title": "Name the owner (CODEOWNERS)"
+    },
+    {
+      "mark": "to do",
+      "title": "Keep your agents in a sandbox"
+    },
+    {
+      "mark": "to do",
+      "title": "Add a license and a security policy"
+    }
+  ],
+  "museLines": [
+    "Build: forge build",
+    "Run tests: forge test --isolate -vvv",
+    "Do not edit lib/ submodules (forge-std, openzeppelin-contracts, solmate)."
+  ]
+}

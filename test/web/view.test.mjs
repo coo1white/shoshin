@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { viewModel, markLabel, splitCode, formatRecordTime, repoFromInput, repoFromQuery } from "../../web/view.js";
+import { viewModel, markLabel, splitCode, formatRecordTime, repoFromInput, repoFromQuery } from "../../web/src/client/view.ts";
 
 test("viewModel: headline text, next, others leave out next and install-only, evidence short commit", () => {
   const result = {
@@ -35,16 +35,12 @@ test("viewModel: headline text, next, others leave out next and install-only, ev
   };
 
   const vm = viewModel(result);
-  // headline
   assert.equal(vm.headline, "done 3 of 10 file checks · next: Next Title");
-  // next
   assert.ok(vm.next);
   assert.equal(vm.next.title, "Next Title");
   assert.equal(vm.next.id, "next-id");
-  // others leaves out next and install-only
   assert.equal(vm.others.length, 1);
   assert.equal(vm.others[0].id, "other-1");
-  // evidence short commit
   assert.equal(vm.evidence.shortCommit, "abcdef1");
   assert.equal(vm.evidence.commit, "abcdef1234567890");
   assert.equal(vm.evidence.version, "1.2.3");
@@ -90,7 +86,6 @@ test("viewModel: secrets grouped by id in first-seen order", () => {
   const vm = viewModel(result);
   assert.equal(vm.secretCount, 3);
   assert.equal(vm.secretGroups.length, 2);
-  // first-seen order: a then b
   assert.equal(vm.secretGroups[0].what, "what a");
   assert.equal(vm.secretGroups[0].why, "why a");
   assert.equal(vm.secretGroups[0].fix, "fix a");

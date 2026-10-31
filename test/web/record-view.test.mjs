@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { recordView } from '../../web/fixes.js';
+import { recordView } from '../../web/src/client/fixes.ts';
 
 describe('recordView', () => {
   it('null gives null', () => {
@@ -12,7 +12,6 @@ describe('recordView', () => {
     assert.equal(recordView({ sha256: 'zzzz', recorded_at: '2024-01-01T00:00:00Z', document: '{}' }), null);
     assert.equal(recordView({ sha256: 'abc', recorded_at: '2024-01-01T00:00:00Z', document: '{}' }), null);
     assert.equal(recordView({ sha256: 'A'.repeat(64), recorded_at: '2024-01-01T00:00:00Z', document: '{}' }), null);
-    // missing fields
     assert.equal(recordView({ sha256: 'a'.repeat(64), recorded_at: '2024-01-01T00:00:00Z' }), null);
     assert.equal(recordView({ sha256: 'a'.repeat(64), document: '{}' }), null);
   });
@@ -57,7 +56,6 @@ describe('recordView', () => {
     assert.equal(r.rekorUrl, null);
     assert.equal(r.solanaUrl, null);
     assert.equal(r.message, 'The public record could not be written this time. The result above is still right.');
-    // also when both missing keys
     const r2 = recordView({
       sha256: sha,
       recorded_at: '2024-01-01T00:00:00Z',
@@ -76,7 +74,6 @@ describe('recordView', () => {
       solana: { url: 'https://explorer.solana.com/tx/abc?cluster=devnet' },
     });
     assert.equal(r.rekorUrl, null);
-    // without rekor, message is public record failure
     assert.equal(r.message, 'The public record could not be written this time. The result above is still right.');
   });
 

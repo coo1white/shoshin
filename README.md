@@ -6,7 +6,7 @@ Paste a public GitHub repo URL and see what `yokoten doctor` says about it,
 without opening a terminal. The page shows the same checks as the command
 line tool, then hands you the files to fix what is missing.
 
-This repo holds the page in `web/` and the small server in `server/`. The
+This repo holds the page in `web/src/` and the small server in `server/`. The
 server runs on Modal and calls Muse Spark Open on Baseten to write the
 fix files. The design is in `docs/design.md`.
 
@@ -29,7 +29,7 @@ shares the demo's keys.
 1. Put your Baseten key in the server secret store as `BASETEN_API_KEY`.
    Keep it out of this repo and out of the browser.
 2. Deploy the Python app in `server/` to Modal.
-3. Serve the static files in `web/` on any static host. See `docs/hosting.md`.
+3. Serve the static files from `dist/` after `npm run build` on any static host. See `docs/hosting.md`.
 4. Open the page and paste a public repo URL.
 5. Put `REKOR_SIGNING_KEY` and `SOLANA_DEVNET_SEED` in the server secret store to turn on the public record. Without them the page works, and writes no record.
 
@@ -50,8 +50,10 @@ Each tool does what it is good at. Claude Opus 5.5 plans and reviews. Muse Spark
 This entry was built during the hackathon, with these tools:
 
 - **Muse Spark Open** (`muse-spark-open-1026`, on Baseten) wrote the code in this repo, from task briefs. At run time it writes each repo's "This project" section.
-- **Claude Opus 5.5** (Claude Code) wrote `docs/design.md` and the task briefs in `docs/tasks/`, reviewed the code, ran the tests and deploys, and made the commits. It chose what to build and how with the owner, so the briefs are detailed. It typed a few lines by hand: the API address in `web/app.js`, and small edits to docs.
+- **Claude Opus 5.5** (Claude Code) wrote `docs/design.md` and the task briefs in `docs/tasks/`, reviewed the code, ran the tests and deploys, and made the commits. It chose what to build and how with the owner, so the briefs are detailed. It typed a few lines by hand: the API address in `web/src/client/app.ts`, and small edits to docs.
 - **yokoten** (`yokoten@0.2.0`) is a tool that existed before the hackathon. It is an npm dependency, and no yokoten code is copied here. The checks on the page are yokoten's.
+
+yokoten, its logo and its site style existed before this project, and the page's style follows them.
 
 A `Co-Authored-By` line names Muse on commits whose code it wrote. Claude's part is stated here instead of in those lines, and some commit messages also name it. Commit messages were edited once, before the first push, to change those lines.
 

@@ -1,26 +1,25 @@
 # Hosting
 
-Now: GitHub Pages serves `web/`.
+Now: GitHub Pages serves `dist/` after `npm run build`.
 Deploy is by `.github/workflows/pages.yml`.
 `doctor.yokoten.app` is a CNAME record.
 The custom domain is set in the repo Pages settings.
 
 The page is static files with relative paths.
-There is no build step.
-The API address is in `web/app.js`.
-It is also in the meta tag in `web/index.html`.
+The API address is in `web/src/client/app.ts` and the tag in `web/src/layouts/Page.astro`.
 A test keeps them equal.
 The security rule is in the page.
 It is not in a host setting.
 
 To move to Cloudflare Pages:
-Create a project with no build command.
-Use `web` as the output folder.
+Create a project with build command `npm run build` and output folder `dist`.
 Add the custom domain in Cloudflare.
 Change the CNAME record to Cloudflare.
 Turn off the Pages workflow.
 No code change is needed.
 The server allows the domain, and the domain stays.
+
+See `docs/roadmap.md`, which holds the moving steps.
 
 A move does not change rate limits.
 A busy day is limited by the API.

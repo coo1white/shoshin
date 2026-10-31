@@ -13,7 +13,7 @@ import {
   fixMessage,
   PATCH_COMMANDS,
   MAX_GITHUB_LINK,
-} from "../../web/fixes.js";
+} from "../../web/src/client/fixes.ts";
 
 describe("isSafePath", () => {
   test("true for AGENTS.md", () => {
@@ -58,10 +58,8 @@ describe("newFileLink", () => {
   });
   test("branch with slash keeps its /", () => {
     const link = newFileLink("owner", "repo", "feature/foo", "a.txt", "hello");
-    // should contain /new/feature/foo? not encoded %2F
     assert.equal(link.includes("/new/feature/foo?"), true);
     assert.equal(link.includes("%2F"), false);
-    // also verify that if branch had slash, it is preserved as path segment
     const url = new URL(link);
     assert.equal(url.pathname, "/owner/repo/new/feature/foo");
   });
@@ -116,9 +114,7 @@ describe("fileLinkPlan", () => {
     const repo = "repo";
     const branch = null;
     const filePath = "a.txt";
-    // brute force content length to hit exactly MAX_GITHUB_LINK
     const baseNoValue = newFileLink(owner, repo, branch, filePath, null);
-    // filled = baseNoValue + "&value=" + encodeURIComponent(content)
     const overhead = "&value=".length;
     const targetContentLen = MAX_GITHUB_LINK - baseNoValue.length - overhead;
     assert.ok(targetContentLen > 0, "targetContentLen should be positive");
@@ -192,7 +188,6 @@ describe("buildPatch", () => {
   test("empty content", () => {
     const files = [{ path: "empty.txt", content: "" }];
     withGitRepo(files, (tmp, patch) => {
-      // patch should contain header but no hunk for empty
       assert.match(patch, /new file mode 100644/);
       const got = fs.readFileSync(path.join(tmp, "empty.txt"), "utf8");
       assert.equal(got, "");
@@ -251,7 +246,6 @@ describe("buildPatch", () => {
     withGitRepo(files, (tmp) => {
       assert.equal(fs.existsSync(path.join(tmp, "good.txt")), true);
       assert.equal(fs.existsSync(path.join(tmp, "../x")), false);
-      // ensure bad file not created inside tmp either
       assert.equal(fs.existsSync(path.join(tmp, "x")), false);
       const got = fs.readFileSync(path.join(tmp, "good.txt"), "utf8");
       assert.equal(got, "good\n");
@@ -321,7 +315,6 @@ describe("orderFiles", () => {
     const { first, rest } = orderFiles(files);
     assert.equal(first.path, "AGENTS.md");
     assert.deepEqual(rest.map((f) => f.path), ["good.txt"]);
-    // unsafe not present anywhere
     assert.equal(
       rest.some((f) => f.path === "../bad"),
       false,

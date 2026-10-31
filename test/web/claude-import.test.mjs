@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { claudeImportMessage } from "../../web/fixes.js";
+import { claudeImportMessage } from "../../web/src/client/fixes.ts";
 
 describe("claudeImportMessage", () => {
   it("returns message with value", () => {

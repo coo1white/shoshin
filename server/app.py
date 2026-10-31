@@ -30,7 +30,7 @@ NO_FIXES = {"files": [], "summary": "", "muse": "failed", "claude_import": None}
 HERE = pathlib.Path(__file__).parent
 
 web_image = (
-    modal.Image.debian_slim().pip_install("fastapi", "modal", "cryptography")
+    modal.Image.debian_slim().pip_install("fastapi==0.162.0", "modal==1.6.3", "cryptography==50.0.2")
     .add_local_file(HERE / "sandbox_run.py", f"/root/sandbox_run.py")
     .add_local_file(HERE / "github_check.py", f"/root/github_check.py")
     .add_local_file(HERE / "repo_url.py", f"/root/repo_url.py")
