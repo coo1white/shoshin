@@ -1,0 +1,4 @@
+{
+  "layout": { "maxEntries": 7, "exempt": [".github/workflows", "docs/tasks"] },
+  "areas": ["web", "server", "record", "fixes", "ci", "docs", "repo"]
+}
