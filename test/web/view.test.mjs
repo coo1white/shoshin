@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { viewModel, markLabel, splitCode, formatRecordTime, repoFromInput, repoFromQuery } from "../../web/src/client/view.ts";
+import { viewModel, markLabel, splitCode, formatRecordTime, repoFromInput, repoFromQuery, secretFolders, toSentence } from "../../web/src/client/view.ts";
+import { projectSection } from "../../web/src/client/fixes.ts";
 
 test("viewModel: headline text, next, others leave out next and install-only, evidence short commit", () => {
   const result = {
@@ -233,3 +234,59 @@ test("repoFromQuery: null for invalid cases", () => {
   assert.equal(repoFromQuery(""), null);
   assert.equal(repoFromQuery("?repo=../x"), null);
 });
+
+test("secretFolders: groups by folder", () => {
+  const places = ["docs/whitepaper/latex/main.tex:60", "docs/whitepaper/latex/other.tex:10", "test/js-scripts/dist/bundle.js:1"];
+  assert.deepEqual(secretFolders(places), [
+    { folder: "docs/whitepaper/latex/", count: 2 },
+    { folder: "test/js-scripts/dist/", count: 1 },
+  ]);
+});
+
+test("secretFolders: place with no slash gives ./", () => {
+  assert.deepEqual(secretFolders(["README.md:5"]), [{ folder: "./", count: 1 }]);
+});
+
+test("secretFolders: repeat folder counts", () => {
+  const places = ["a/b/c.txt:1", "a/b/d.txt:2", "a/b/c.txt:3", "./"];
+  assert.deepEqual(secretFolders(places), [
+    { folder: "a/b/", count: 3 },
+    { folder: "./", count: 1 },
+  ]);
+});
+
+test("projectSection: extracts from heading to end", () => {
+  const content = "# Title\n\nSome intro\n\n## This project\n\n### Build\nDo build\n";
+  assert.equal(projectSection(content), "## This project\n\n### Build\nDo build");
+});
+
+test("projectSection: returns empty when heading missing", () => {
+  assert.equal(projectSection("# Nope"), "");
+});
+
+test("projectSection: trims whitespace", () => {
+  const content = "## This project\nhello\n\n";
+  assert.equal(projectSection(content), "## This project\nhello");
+});
+
+test("toSentence: upper-cases first letter and adds full stop", () => {
+  assert.equal(toSentence("an agent follows the rules it can read, and only those"), "An agent follows the rules it can read, and only those.");
+});
+
+test("toSentence: keeps existing full stop", () => {
+  assert.equal(toSentence("Already done."), "Already done.");
+});
+
+test("toSentence: keeps ! and ?", () => {
+  assert.equal(toSentence("is it done?"), "Is it done?");
+  assert.equal(toSentence("wow!"), "Wow!");
+});
+
+test("toSentence: empty returns empty", () => {
+  assert.equal(toSentence(""), "");
+});
+
+test("toSentence: single word", () => {
+  assert.equal(toSentence("hello"), "Hello.");
+});
+

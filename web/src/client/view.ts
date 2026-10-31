@@ -4,6 +4,14 @@ export const PROGRESS: Record<string, string> = {
   checking: "yokoten is checking, with the network off…",
 };
 
+export function toSentence(text: string): string {
+  if (!text) return "";
+  const first = text.charAt(0).toUpperCase() + text.slice(1);
+  const last = first.charAt(first.length - 1);
+  if (last === "." || last === "!" || last === "?") return first;
+  return first + ".";
+}
+
 export function splitCode(text: string): { text: string; isCode: boolean }[] {
   if (typeof text !== "string") return [{ text: String(text), isCode: false }];
   const out: { text: string; isCode: boolean }[] = [];
@@ -99,6 +107,22 @@ export function markLabel(mark: string, reason: string | undefined): string {
   }
   if (mark === "can't check") return "can't tell from the web";
   return "unknown";
+}
+
+export function secretFolders(places: string[]): { folder: string; count: number }[] {
+  const order: string[] = [];
+  const counts = new Map<string, number>();
+  for (const p of places) {
+    const idx = p.lastIndexOf("/");
+    const folder = idx === -1 ? "./" : p.slice(0, idx + 1);
+    if (!counts.has(folder)) {
+      counts.set(folder, 1);
+      order.push(folder);
+    } else {
+      counts.set(folder, (counts.get(folder) as number) + 1);
+    }
+  }
+  return order.map((folder) => ({ folder, count: counts.get(folder) as number }));
 }
 
 import type { CheckResult, ViewModel, Rerun } from "./types.ts";

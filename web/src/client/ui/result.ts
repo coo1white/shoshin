@@ -1,212 +1,315 @@
 import { createLink, renderRichText, appendLabeledSection } from "./dom.ts";
+import { secretFolders, toSentence } from "../view.ts";
 import type { CheckResult, FixesPayload, ViewModel } from "../types.ts";
 
-export function renderResultHeader({ lastResult, vm, lastFixes }: { lastResult: CheckResult; vm: ViewModel; lastFixes: FixesPayload | null }): HTMLDivElement {
-  const term = document.createElement("div");
-  term.className = "terminal";
-  term.id = "result-panel";
+function makeTerminalWindow(titleLeft: string, titleRight: string): { wrap: HTMLElement; body: HTMLElement } {
+  const fig = document.createElement("figure");
+  fig.className = "terminal-window";
+  const head = document.createElement("figcaption");
+  head.className = "terminal-head";
+  for (let i = 0; i < 3; i++) {
+    const dot = document.createElement("span");
+    dot.className = "terminal-dot";
+    dot.setAttribute("aria-hidden", "true");
+    head.appendChild(dot);
+  }
+  const t1 = document.createElement("span");
+  t1.textContent = titleLeft;
+  head.appendChild(t1);
+  const t2 = document.createElement("span");
+  t2.textContent = titleRight;
+  head.appendChild(t2);
+  fig.appendChild(head);
+  const body = document.createElement("div");
+  body.className = "terminal-body";
+  fig.appendChild(body);
+  return { wrap: fig, body };
+}
 
-  const repoNameRow = document.createElement("div");
-  repoNameRow.className = "repo-row";
-  const repoName = document.createElement("h2");
-  repoName.textContent = `${lastResult.owner}/${lastResult.repo}`;
-  repoNameRow.appendChild(repoName);
-  const copyLinkBtn = document.createElement("button");
-  copyLinkBtn.type = "button";
-  copyLinkBtn.textContent = "Copy link to this result";
-  copyLinkBtn.className = "button-quiet";
+export function renderResultHero({ lastResult, vm, lastFixes }: { lastResult: CheckResult; vm: ViewModel; lastFixes: FixesPayload | null }): HTMLElement {
+  const section = document.createElement("section");
+  section.className = "result-hero";
+  section.id = "result-panel";
+
+  const actions = document.createElement("div");
+  actions.className = "result-actions";
+  const checkAnother = document.createElement("a");
+  checkAnother.href = "./";
+  checkAnother.textContent = "Check another repo";
+  actions.appendChild(checkAnother);
+  const copyBtn = document.createElement("button");
+  copyBtn.type = "button";
+  copyBtn.textContent = "Copy link to this result";
   const currentUrl = window.location.href;
-  copyLinkBtn.addEventListener("click", () => {
-    const fakeCode = document.createElement("code");
-    fakeCode.textContent = currentUrl;
-    const btn = copyLinkBtn;
+  copyBtn.addEventListener("click", () => {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(currentUrl).then(() => {
-        btn.textContent = "Copied";
-        setTimeout(() => { btn.textContent = "Copy link to this result"; }, 2000);
+        copyBtn.textContent = "Copied";
+        setTimeout(() => { copyBtn.textContent = "Copy link to this result"; }, 2000);
       }).catch(() => {
-        const range = document.createRange();
-        range.selectNodeContents(fakeCode);
-        const sel = window.getSelection();
-        if (sel) { sel.removeAllRanges(); sel.addRange(range); }
-        btn.textContent = "Press Ctrl+C to copy";
+        copyBtn.textContent = "Press Ctrl+C to copy";
       });
     } else {
-      const range = document.createRange();
-      range.selectNodeContents(fakeCode);
-      const sel = window.getSelection();
-      if (sel) { sel.removeAllRanges(); sel.addRange(range); }
-      copyLinkBtn.textContent = "Press Ctrl+C to copy";
+      copyBtn.textContent = "Press Ctrl+C to copy";
     }
   });
-  repoNameRow.appendChild(copyLinkBtn);
-  term.appendChild(repoNameRow);
+  actions.appendChild(copyBtn);
+  section.appendChild(actions);
 
-  const scoreLine = document.createElement("p");
-  scoreLine.className = "score-line";
-  scoreLine.textContent = vm.score.text;
-  term.appendChild(scoreLine);
+  const left = document.createElement("div");
+  left.className = "result-hero-left";
 
-  const prog = document.createElement("progress");
-  prog.max = vm.score.total;
-  prog.value = vm.score.done;
-  prog.setAttribute("aria-label", vm.score.text);
-  term.appendChild(prog);
+  const meta = document.createElement("p");
+  meta.className = "result-meta";
+  const shortCommit = vm.evidence.shortCommit || "";
+  const ver = vm.evidence.version || "";
+  meta.textContent = `${shortCommit} \u00b7 yokoten ${ver}`;
+  left.appendChild(meta);
+
+  const h1 = document.createElement("h1");
+  h1.className = "result-repo";
+  h1.textContent = `${lastResult.owner}/${lastResult.repo}`;
+  left.appendChild(h1);
 
   if (lastFixes && lastFixes.summary && lastFixes.summary.trim() !== "") {
     const sumP = document.createElement("p");
+    sumP.className = "result-summary";
     sumP.textContent = lastFixes.summary;
-    term.appendChild(sumP);
+    left.appendChild(sumP);
     const small = document.createElement("p");
-    small.className = "small muted";
+    small.className = "result-summary-note";
     small.textContent = "Summary by Muse.";
-    term.appendChild(small);
+    left.appendChild(small);
   }
 
-  if (vm.secretCount && vm.secretCount > 0) {
-    const warn = document.createElement("div");
-    warn.className = "warning";
-    const warnTitle = document.createElement("p");
-    const strong = document.createElement("strong");
-    if (vm.secretCount === 1) strong.textContent = "yokoten found 1 thing that looks private in this repo";
-    else strong.textContent = `yokoten found ${vm.secretCount} things that look private in this repo`;
-    warnTitle.appendChild(strong);
-    warn.appendChild(warnTitle);
-    const details = document.createElement("details");
-    details.setAttribute("data-key", "secrets-where");
-    const summaryEl = document.createElement("summary");
-    summaryEl.textContent = "Show where";
-    details.appendChild(summaryEl);
-    for (const g of vm.secretGroups) {
-      const item = document.createElement("div");
-      item.className = "secret-group";
-      if (g.what) {
-        const what = document.createElement("p");
-        renderRichText(g.what, what);
-        item.appendChild(what);
-      }
-      if (g.why) {
-        const why = document.createElement("p");
-        renderRichText(g.why, why);
-        item.appendChild(why);
-      }
-      if (g.fix) {
-        const fix = document.createElement("p");
-        renderRichText(g.fix, fix);
-        item.appendChild(fix);
-      }
-      const list = document.createElement("ul");
-      list.className = "mono secret-list";
-      for (const place of g.places) {
-        const li = document.createElement("li");
-        li.textContent = place;
-        li.className = "mono";
-        list.appendChild(li);
-      }
-      item.appendChild(list);
-      details.appendChild(item);
+  const scoreWrap = document.createElement("div");
+  scoreWrap.className = "score";
+  const big = document.createElement("p");
+  big.className = "score-big";
+  const total = vm.score.total;
+  const done = vm.score.done;
+  big.textContent = `${done} `;
+  const span = document.createElement("span");
+  span.textContent = `of ${total} steps`;
+  big.appendChild(span);
+  scoreWrap.appendChild(big);
+
+  const bar = document.createElement("div");
+  bar.className = "score-bar";
+  bar.setAttribute("role", "img");
+  bar.setAttribute("aria-label", vm.score.text);
+  const segCount = vm.score.total || 0;
+  bar.style.setProperty("--seg-count", String(segCount || 1));
+  let afterDone: number | null = null;
+  let afterTotal: number | null = null;
+  let hasAfter = false;
+  if (lastFixes && lastFixes.after && typeof lastFixes.after.done === "number" && typeof lastFixes.after.total === "number") {
+    if (lastFixes.after.done > done) {
+      hasAfter = true;
+      afterDone = lastFixes.after.done;
+      afterTotal = lastFixes.after.total;
     }
-    warn.appendChild(details);
-    term.appendChild(warn);
   }
+  for (let i = 0; i < segCount; i++) {
+    const seg = document.createElement("span");
+    seg.className = "score-seg";
+    if (i < done) seg.classList.add("is-done");
+    else if (hasAfter && afterDone != null && i < afterDone) seg.classList.add("is-after");
+    else seg.classList.add("is-open");
+    bar.appendChild(seg);
+  }
+  scoreWrap.appendChild(bar);
+  if (hasAfter && afterDone != null && afterTotal != null) {
+    const afterP = document.createElement("p");
+    afterP.className = "score-after";
+    afterP.textContent = `${afterDone} of ${afterTotal} with the files below.`;
+    scoreWrap.appendChild(afterP);
+  }
+  left.appendChild(scoreWrap);
 
   if (vm.next) {
     const nextWrap = document.createElement("div");
     nextWrap.className = "next-step";
-    const nextHeading = document.createElement("p");
-    nextHeading.className = "section-label small muted";
-    nextHeading.textContent = "Next step";
-    nextWrap.appendChild(nextHeading);
-    const nextTitle = document.createElement("h3");
-    nextTitle.textContent = vm.next.title;
-    nextWrap.appendChild(nextTitle);
-    const idEl = document.createElement("p");
-    idEl.className = "small muted";
-    const idLabel = document.createElement("span");
-    idLabel.textContent = "Step id: ";
-    idEl.appendChild(idLabel);
-    const idMono = document.createElement("span");
-    idMono.className = "mono";
-    idMono.textContent = vm.next.id;
-    idEl.appendChild(idMono);
-    nextWrap.appendChild(idEl);
-    appendLabeledSection(nextWrap, "What we found", vm.next.what);
-    appendLabeledSection(nextWrap, "Why it matters", vm.next.why);
-    appendLabeledSection(nextWrap, "How to fix it", vm.next.fix);
-    if (vm.next.docs) {
-      const docsP = document.createElement("p");
-      const link = createLink(vm.next.docs, vm.next.docs);
-      docsP.appendChild(link);
-      nextWrap.appendChild(docsP);
+    const label = document.createElement("p");
+    label.className = "next-label";
+    label.textContent = "Next step";
+    nextWrap.appendChild(label);
+    const h2 = document.createElement("h2");
+    h2.className = "next-title";
+    h2.textContent = vm.next.title;
+    nextWrap.appendChild(h2);
+    if (vm.next.why) {
+      const whyP = document.createElement("p");
+      whyP.className = "next-why";
+      whyP.textContent = toSentence(vm.next.why);
+      nextWrap.appendChild(whyP);
     }
-    if (vm.next.how) {
-      const details = document.createElement("details");
-      details.setAttribute("data-key", "next-how");
-      const summaryEl = document.createElement("summary");
-      summaryEl.textContent = "How this was judged";
-      details.appendChild(summaryEl);
-      const howP = document.createElement("p");
-      renderRichText(vm.next.how, howP);
-      details.appendChild(howP);
-      nextWrap.appendChild(details);
-    }
-    term.appendChild(nextWrap);
+    const fixLink = document.createElement("a");
+    fixLink.href = "#fix";
+    fixLink.textContent = "Fix it";
+    fixLink.className = "button-primary";
+    nextWrap.appendChild(fixLink);
+    left.appendChild(nextWrap);
   } else if (!vm.next && vm.installOnly.length === 0) {
     const doneP = document.createElement("p");
+    doneP.className = "every-done";
     doneP.textContent = "Every file check is done.";
-    term.appendChild(doneP);
+    left.appendChild(doneP);
   }
 
-  if (vm.others.length > 0) {
-    const detailsAll = document.createElement("details");
-    detailsAll.setAttribute("data-key", "show-all-checks");
-    const sumAll = document.createElement("summary");
-    sumAll.textContent = "Show all checks";
-    detailsAll.appendChild(sumAll);
-    vm.others.forEach((st) => {
-      const stWrap = document.createElement("div");
-      stWrap.className = "check-item";
-      const titleEl = document.createElement("h4");
-      titleEl.textContent = st.title;
-      stWrap.appendChild(titleEl);
-      const idEl2 = document.createElement("p");
-      idEl2.className = "small muted";
-      const lbl = document.createElement("span");
-      lbl.textContent = "Step id: ";
-      idEl2.appendChild(lbl);
-      const mono = document.createElement("span");
-      mono.className = "mono";
-      mono.textContent = st.id;
-      idEl2.appendChild(mono);
-      stWrap.appendChild(idEl2);
-      const labelEl = document.createElement("p");
-      labelEl.className = "small muted";
-      labelEl.textContent = st.label;
-      stWrap.appendChild(labelEl);
-      appendLabeledSection(stWrap, "What we found", st.what);
-      appendLabeledSection(stWrap, "Why it matters", st.why);
-      appendLabeledSection(stWrap, "How to fix it", st.fix);
-      if (st.docs) {
-        const docsP = document.createElement("p");
-        const link = createLink(st.docs, st.docs);
-        docsP.appendChild(link);
-        stWrap.appendChild(docsP);
-      }
-      if (st.how) {
-        const detHow = document.createElement("details");
-        detHow.setAttribute("data-key", "how-" + st.id);
-        const sumHow = document.createElement("summary");
-        sumHow.textContent = "How this was judged";
-        detHow.appendChild(sumHow);
-        const howP2 = document.createElement("p");
-        renderRichText(st.how, howP2);
-        detHow.appendChild(howP2);
-        stWrap.appendChild(detHow);
-      }
-      detailsAll.appendChild(stWrap);
-    });
-    term.appendChild(detailsAll);
+  const right = document.createElement("div");
+  right.className = "result-hero-right";
+  const steps = (lastResult.summary as { steps?: { id: string; title: string; mark: string }[] } | undefined)?.steps ?? [];
+  const term = makeTerminalWindow("DOCTOR", `${total} STEPS`);
+  for (const s of steps) {
+    const row = document.createElement("div");
+    row.className = "terminal-row";
+    const markSpan = document.createElement("span");
+    const titleSpan = document.createElement("span");
+    titleSpan.textContent = s.title;
+    if (s.mark === "done") {
+      row.classList.add("is-done");
+      markSpan.textContent = "\u2713 done";
+    } else if (s.mark === "next") {
+      row.classList.add("is-next");
+      markSpan.textContent = "\u25cf next";
+    } else {
+      row.classList.add("is-todo");
+      markSpan.textContent = "\u25cf to do";
+    }
+    row.appendChild(markSpan);
+    row.appendChild(titleSpan);
+    term.body.appendChild(row);
   }
+  right.appendChild(term.wrap);
 
-  return term;
+  section.appendChild(left);
+  section.appendChild(right);
+
+  const detailsAll = document.createElement("details");
+  detailsAll.setAttribute("data-key", "show-all-checks");
+  detailsAll.className = "show-all-checks";
+  const sumAll = document.createElement("summary");
+  sumAll.textContent = "Show all checks";
+  detailsAll.appendChild(sumAll);
+  for (const st of vm.others) {
+    const stWrap = document.createElement("div");
+    stWrap.className = "check-item";
+    const titleEl = document.createElement("h4");
+    titleEl.textContent = st.title;
+    stWrap.appendChild(titleEl);
+    const idEl2 = document.createElement("p");
+    idEl2.className = "small muted";
+    const lbl = document.createElement("span");
+    lbl.textContent = "Step id: ";
+    idEl2.appendChild(lbl);
+    const mono = document.createElement("span");
+    mono.className = "mono";
+    mono.textContent = st.id;
+    idEl2.appendChild(mono);
+    stWrap.appendChild(idEl2);
+    const labelEl = document.createElement("p");
+    labelEl.className = "small muted";
+    labelEl.textContent = st.label;
+    stWrap.appendChild(labelEl);
+    appendLabeledSection(stWrap, "What we found", st.what);
+    appendLabeledSection(stWrap, "Why it matters", st.why);
+    appendLabeledSection(stWrap, "How to fix it", st.fix);
+    if (st.docs) {
+      const docsP = document.createElement("p");
+      const link = createLink(st.docs, st.docs);
+      docsP.appendChild(link);
+      stWrap.appendChild(docsP);
+    }
+    if (st.how) {
+      const detHow = document.createElement("details");
+      detHow.setAttribute("data-key", "how-" + st.id);
+      const sumHow = document.createElement("summary");
+      sumHow.textContent = "How this was judged";
+      detHow.appendChild(sumHow);
+      const howP2 = document.createElement("p");
+      renderRichText(st.how, howP2);
+      detHow.appendChild(howP2);
+      stWrap.appendChild(detHow);
+    }
+    detailsAll.appendChild(stWrap);
+  }
+  section.appendChild(detailsAll);
+
+  return section;
+}
+
+export function renderPrivateSection({ vm }: { vm: ViewModel }): HTMLElement | null {
+  if (!vm.secretCount || vm.secretCount === 0) return null;
+  const section = document.createElement("section");
+  section.className = "section-split private-section";
+  const left = document.createElement("div");
+  const label = document.createElement("p");
+  label.className = "section-label";
+  const num = document.createElement("span");
+  num.textContent = "03 \u00b7";
+  label.appendChild(num);
+  label.appendChild(document.createTextNode(" Worth a look"));
+  left.appendChild(label);
+  const h2 = document.createElement("h2");
+  h2.className = "section-title";
+  if (vm.secretCount === 1) h2.textContent = "1 thing looks private";
+  else h2.textContent = `${vm.secretCount} things look private`;
+  left.appendChild(h2);
+  const note = document.createElement("p");
+  note.className = "muted";
+  note.textContent = "Some may be public on purpose. You decide.";
+  left.appendChild(note);
+  const allPlaces = vm.secretGroups.flatMap((g) => g.places);
+  const folders = secretFolders(allPlaces);
+  const ul = document.createElement("ul");
+  ul.className = "folder-list";
+  for (const f of folders) {
+    const li = document.createElement("li");
+    const leftSpan = document.createElement("span");
+    leftSpan.textContent = f.folder;
+    const rightSpan = document.createElement("span");
+    rightSpan.textContent = String(f.count);
+    li.appendChild(leftSpan);
+    li.appendChild(rightSpan);
+    ul.appendChild(li);
+  }
+  left.appendChild(ul);
+  const details = document.createElement("details");
+  details.setAttribute("data-key", "secrets-where");
+  const summaryEl = document.createElement("summary");
+  summaryEl.textContent = "Show where";
+  details.appendChild(summaryEl);
+  for (const g of vm.secretGroups) {
+    const item = document.createElement("div");
+    item.className = "secret-group";
+    if (g.what) {
+      const what = document.createElement("p");
+      renderRichText(g.what, what);
+      item.appendChild(what);
+    }
+    if (g.why) {
+      const why = document.createElement("p");
+      renderRichText(g.why, why);
+      item.appendChild(why);
+    }
+    if (g.fix) {
+      const fix = document.createElement("p");
+      renderRichText(g.fix, fix);
+      item.appendChild(fix);
+    }
+    const list = document.createElement("ul");
+    list.className = "mono secret-list";
+    for (const place of g.places) {
+      const li = document.createElement("li");
+      li.textContent = place;
+      li.className = "mono";
+      list.appendChild(li);
+    }
+    item.appendChild(list);
+    details.appendChild(item);
+  }
+  left.appendChild(details);
+  section.appendChild(left);
+  return section;
 }

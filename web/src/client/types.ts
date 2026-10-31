@@ -69,6 +69,7 @@ export interface FixesPayload {
   summary?: string;
   muse: string;
   claude_import?: { file: string; line: string } | null;
+  after?: { done: number; total: number } | null;
   [key: string]: unknown;
 }
 

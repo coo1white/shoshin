@@ -17,8 +17,9 @@ This counts how many rounds of fixes each task needed after the first code came 
 | Split the page | 1 | real page |
 | Static first screen | 1 | test |
 | Move to Astro | 3 | review, test, real page |
+| Result page | 1 | real page |
 
-21 rounds over 13 tasks: a mean of 1.6. Found by review 8, tests 7, the commit check 2, real runs 4.
+22 rounds over 14 tasks: a mean of 1.6. Found by review 8, tests 7, the commit check 2, real runs 5.
 
 Three of the problems no test could have caught: a deploy that left out modules, a page buried by 26 repeated warnings, and a wrong import.
 

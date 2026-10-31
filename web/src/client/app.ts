@@ -1,8 +1,8 @@
 const API = "https://yokoten-doctor--yokoten-doctor-fastapi-app.us-east.modal.run";
 
 import { viewModel, repoFromInput, repoFromQuery } from "./view.ts";
-import { renderResultHeader } from "./ui/result.ts";
-import { renderFixSection } from "./ui/fix.ts";
+import { renderResultHero, renderPrivateSection } from "./ui/result.ts";
+import { renderFixSection, renderGuardSection } from "./ui/fix.ts";
 import { renderProofSection } from "./ui/proof.ts";
 import { captureDetailsState, restoreDetailsState } from "./ui/dom.ts";
 import { renderWorking } from "./ui/working.ts";
@@ -93,17 +93,16 @@ function render(): void {
 
   if (state === "result" && lastResult) {
     const vm = viewModel(lastResult);
-    const checkAnother = document.createElement("a");
-    checkAnother.href = "./";
-    checkAnother.textContent = "Check another repo";
-    checkAnother.className = "check-another";
-    appEl.appendChild(checkAnother);
-    const term = renderResultHeader({ lastResult, vm, lastFixes });
-    const fixSection = renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult });
-    term.appendChild(fixSection);
+    const hero = renderResultHero({ lastResult, vm, lastFixes });
+    appEl.appendChild(hero);
+    const fix = renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult });
+    appEl.appendChild(fix);
+    const guard = renderGuardSection({ vm });
+    if (guard) appEl.appendChild(guard);
+    const priv = renderPrivateSection({ vm });
+    if (priv) appEl.appendChild(priv);
     const proof = renderProofSection({ vm, lastResult, lastRecord });
-    term.appendChild(proof);
-    appEl.appendChild(term);
+    appEl.appendChild(proof);
   }
 
   restoreDetailsState(appEl, openDetailsKeys);

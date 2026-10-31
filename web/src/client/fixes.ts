@@ -142,3 +142,18 @@ export function recordView(record: unknown): { sha256: string; recordedAt: strin
   }
   return { sha256, recordedAt, documentName, documentText, verifyCommand, rekorUrl, solanaUrl, message };
 }
+
+export function projectSection(content: string): string {
+  if (typeof content !== "string") return "";
+  const lines = content.split("\n");
+  let idx = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].trim() === "## This project") {
+      idx = i;
+      break;
+    }
+  }
+  if (idx === -1) return "";
+  const out = lines.slice(idx).join("\n").trim();
+  return out;
+}
