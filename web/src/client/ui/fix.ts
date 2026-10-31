@@ -118,6 +118,15 @@ export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult 
       msgP.textContent = msg;
       left.appendChild(msgP);
     }
+    if (files.length === 0 && hasOpenInstallOnly) {
+      const h2 = document.createElement("h2");
+      h2.className = "section-title";
+      h2.textContent = "No files to add";
+      left.appendChild(h2);
+      const noFilesP = document.createElement("p");
+      noFilesP.textContent = "Files from this page can't add what is left. The next section says what can.";
+      left.appendChild(noFilesP);
+    }
     if (files.length > 0) {
       const count = files.length;
       const h2 = document.createElement("h2");

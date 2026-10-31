@@ -220,6 +220,9 @@ nav a:hover, nav a[aria-current='page'] { color: var(--fg); }
   color: var(--muted);
   font-family: var(--font-mono);
 }
+.checks-groups { display: grid; gap: 32px; margin-bottom: 32px; }
+.checks-group { min-width: 0; }
+.checks-group-title { margin: 0 0 8px; font-size: 13px; font-weight: 600; color: var(--muted); }
 .checks-list { display: flex; flex-direction: column; }
 .check-row {
   display: grid;
@@ -241,7 +244,7 @@ nav a:hover, nav a[aria-current='page'] { color: var(--fg); }
 .check-seg.is-done { background: #13a10e; }
 .check-seg.is-after { background: transparent; border: 1.5px solid #13a10e; box-sizing: border-box; }
 .check-seg.is-open { background: var(--raised); }
-.check-score { font-size: 15px; font-family: var(--font-mono); font-weight: 600; color: var(--fg); text-align: right; }
+.check-score { min-width: 5ch; font-size: 15px; font-family: var(--font-mono); font-weight: 600; color: var(--fg); text-align: right; }
 .check-total { color: var(--muted); font-weight: 400; }
 @media (max-width: 40rem) {
   .check-commit, .check-bar { display: none; }

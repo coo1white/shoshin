@@ -67,23 +67,26 @@
   ],
   "examples": [
     {
-      "repo": "Uniswap/v4-core",
-      "commit": "bea7f6d",
-      "done": 4,
-      "total": 13,
-      "after": 7,
-      "files": 5
-    },
-    {
-      "repo": "OpenZeppelin/openzeppelin-contracts",
-      "commit": "b7f748e",
-      "done": 7,
+      "repo": "biomejs/biome",
+      "group": "web2",
+      "commit": "0e9ca5b",
+      "done": 6,
       "total": 13,
       "after": 7,
       "files": 4
     },
     {
+      "repo": "fastapi/fastapi",
+      "group": "web2",
+      "commit": "45cb225",
+      "done": 3,
+      "total": 13,
+      "after": 8,
+      "files": 7
+    },
+    {
       "repo": "expressjs/express",
+      "group": "web2",
       "commit": "1c6f1b0",
       "done": 2,
       "total": 13,
@@ -91,12 +94,40 @@
       "files": 6
     },
     {
+      "repo": "OpenZeppelin/openzeppelin-contracts",
+      "group": "web3",
+      "commit": "b7f748e",
+      "done": 7,
+      "total": 13,
+      "after": 7,
+      "files": 4
+    },
+    {
+      "repo": "Uniswap/v4-core",
+      "group": "web3",
+      "commit": "bea7f6d",
+      "done": 4,
+      "total": 13,
+      "after": 7,
+      "files": 5
+    },
+    {
       "repo": "jup-ag/jupiter-quote-api-node",
+      "group": "web3",
       "commit": "6dbd33a",
       "done": 2,
       "total": 13,
       "after": 6,
       "files": 8
+    },
+    {
+      "repo": "yokoten-labs/yokoten",
+      "group": "own",
+      "commit": "632d4c1",
+      "done": 12,
+      "total": 13,
+      "after": null,
+      "files": 0
     }
   ],
   "examplesCheckedOn": "2026-10-31"

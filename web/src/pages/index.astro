@@ -3,6 +3,7 @@ import Page from "../layouts/Page.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import TerminalWindow from "../components/TerminalWindow.astro";
+import CheckRows from "../components/CheckRows.astro";
 import sample from "../data/sample-result.json";
 const doneCount = sample.steps.filter((s) => s.mark === "done").length;
 const total = sample.steps.length;
@@ -37,22 +38,20 @@ const ownerRepo = `${sample.owner}/${sample.repo}`;
 </section>
 <section id="checks" class="checks">
   <h2>Real checks <span class="checks-date">Checked {sample.examplesCheckedOn}</span></h2>
-  <div class="checks-list">
-    {sample.examples.map((ex) => (
-      <a class="check-row" href={`/example/${ex.repo.replaceAll("/", "-")}.html`}>
-        <span class="check-repo">{ex.repo}</span>
-        <span class="check-commit">{ex.commit}</span>
-        <span class="check-bar" aria-hidden="true">
-          {Array.from({ length: ex.total }).map((_, i) => {
-            let cls = "is-open";
-            if (i < ex.done) cls = "is-done";
-            else if (ex.after > ex.done && i < ex.after) cls = "is-after";
-            return <span class={`check-seg ${cls}`}></span>;
-          })}
-        </span>
-        <span class="check-score">{ex.done}<span class="check-total">/{ex.total}</span></span>
-      </a>
-    ))}
+  <div class="checks-groups">
+    <div class="checks-group">
+      <h3 class="checks-group-title">Web2</h3>
+      <CheckRows examples={sample.examples.filter((ex) => ex.group === "web2")} />
+    </div>
+    <div class="checks-group">
+      <h3 class="checks-group-title">Web3</h3>
+      <CheckRows examples={sample.examples.filter((ex) => ex.group === "web3")} />
+    </div>
+  </div>
+  <div class="checks-group">
+    <h3 class="checks-group-title">Our own repo</h3>
+    <CheckRows examples={sample.examples.filter((ex) => ex.group === "own")} />
+    <p class="checks-note">yokoten is our own tool. Four of these checks need it, so a repo without it can reach 9 of 13.</p>
   </div>
   <p class="checks-note">Green is done now. Outlined is what the files add.</p>
 </section>

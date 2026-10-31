@@ -269,6 +269,7 @@ describe('static host portability', () => {
       assert.equal(typeof ex.total, 'number', 'example total should be number');
       assert.ok(Number.isInteger(ex.total), 'example total should be integer');
       assert.ok(ex.after === null || (typeof ex.after === 'number' && Number.isInteger(ex.after)), 'example after should be null or integer');
+      assert.ok(['web2', 'web3', 'own'].includes(ex.group), `example group should be web2, web3 or own: ${ex.group}`);
     }
     assert.equal(typeof data.examplesCheckedOn, 'string', 'examplesCheckedOn should be string');
     assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(data.examplesCheckedOn), `examplesCheckedOn should be YYYY-MM-DD: ${data.examplesCheckedOn}`);
@@ -346,17 +347,21 @@ describe('static host portability', () => {
       assert.ok(String(saved.result.commit).startsWith(ex.commit), `${slug} result.commit should start with ${ex.commit}`);
       assert.equal(saved.result.summary.done, ex.done, `${slug} summary.done`);
       assert.equal(saved.result.summary.total, ex.total, `${slug} summary.total`);
-      assert.equal(saved.fixes.after.done, ex.after, `${slug} fixes.after.done`);
+      if (ex.after === null) {
+        assert.ok(saved.fixes.after == null, `${slug} fixes.after should be null or missing when ex.after is null`);
+      } else {
+        assert.equal(saved.fixes.after.done, ex.after, `${slug} fixes.after.done`);
+      }
       assert.equal(saved.fixes.files.length, ex.files, `${slug} fixes.files.length`);
     }
   });
 
-  test('example fixes.muse is ok', () => {
+  test('example fixes.muse finished', () => {
     const sample = JSON.parse(fs.readFileSync(path.resolve('web/src/data/sample-result.json'), 'utf8'));
     for (const ex of sample.examples) {
       const slug = ex.repo.replaceAll("/", "-");
       const saved = JSON.parse(fs.readFileSync(path.resolve(`web/src/data/examples/${slug}.json`), 'utf8'));
-      assert.equal(saved.fixes.muse, "ok", `${slug} fixes.muse should be ok`);
+      assert.ok(saved.fixes.muse === "ok" || saved.fixes.muse === "not needed", `${slug} fixes.muse should be ok or not needed`);
     }
   });
 
@@ -389,6 +394,26 @@ describe('static host portability', () => {
         assert.ok(/\bsrc\s*=/.test(attrs), `script without src in ${slug}.html: <script${attrs}>`);
       }
     }
+  });
+
+  test('sample-result.json has at least three examples in web2 and at least three in web3, and within each of these two groups the highest done is at least 3 more than the lowest', () => {
+    const data = JSON.parse(fs.readFileSync(path.resolve('web/src/data/sample-result.json'), 'utf8'));
+    for (const group of ['web2', 'web3']) {
+      const groupEx = data.examples.filter((ex) => ex.group === group);
+      assert.ok(groupEx.length >= 3, `${group} should have at least three examples`);
+      const dones = groupEx.map((ex) => ex.done);
+      const max = Math.max(...dones);
+      const min = Math.min(...dones);
+      assert.ok(max - min >= 3, `in ${group} highest done (${max}) should be at least 3 more than lowest (${min})`);
+    }
+  });
+
+  test('dist/index.html holds the titles Web2, Web3 and Our own repo, and the sentence a repo without it can reach 9 of 13', () => {
+    const html = fs.readFileSync(indexPath, 'utf8');
+    assert.ok(html.includes('Web2'), 'dist/index.html should contain Web2');
+    assert.ok(html.includes('Web3'), 'dist/index.html should contain Web3');
+    assert.ok(html.includes('Our own repo'), 'dist/index.html should contain Our own repo');
+    assert.ok(html.includes('a repo without it can reach 9 of 13'), 'dist/index.html should contain a repo without it can reach 9 of 13');
   });
 });
 

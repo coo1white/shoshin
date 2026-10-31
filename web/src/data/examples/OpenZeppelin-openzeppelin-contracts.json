@@ -158,31 +158,31 @@
     },
     "secrets": [
       {
+        "file": "CHANGELOG.md",
         "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "grade": "sure",
         "line": 1239,
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "CHANGELOG.md",
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "id": "email"
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
       },
       {
+        "file": "CODE_OF_CONDUCT.md",
         "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "grade": "sure",
         "line": 58,
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "CODE_OF_CONDUCT.md",
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "id": "email"
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
       },
       {
+        "file": "docs/modules/ROOT/pages/index.adoc",
         "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "grade": "sure",
         "line": 81,
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "docs/modules/ROOT/pages/index.adoc",
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "id": "email"
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
       }
     ],
     "default_branch": "master"

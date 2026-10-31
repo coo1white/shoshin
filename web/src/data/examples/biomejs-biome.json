@@ -1,0 +1,841 @@
+{
+  "result": {
+    "owner": "biomejs",
+    "repo": "biome",
+    "commit": "0e9ca5bde52cd526092711b52989e9a703f5cee2",
+    "yokoten_version": "0.2.0",
+    "about": "yokoten stops your AI coding agent from making the mistake you can't undo. One command, no setup.",
+    "rerun": {
+      "doctor": "git clone --filter=blob:none https://github.com/biomejs/biome\ncd biome\ngit checkout 0e9ca5bde52cd526092711b52989e9a703f5cee2\nnpx yokoten@0.2.0 doctor --files --json",
+      "check": "HOME=\"$(mktemp -d)\" npx yokoten@0.2.0 check --json"
+    },
+    "summary": {
+      "done": 6,
+      "total": 13,
+      "next": {
+        "id": "ci",
+        "title": "Run the checks on every pull request",
+        "mark": "to do",
+        "how": "a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten",
+        "why": "a commit made with the hook off would reach main unchecked",
+        "what": "CI does not run `yokoten check`",
+        "fix": "`yokoten init` adds .github/workflows/yokoten.yml"
+      },
+      "steps": [
+        {
+          "id": "rules",
+          "title": "Write the rules for your agents (AGENTS.md)",
+          "mark": "done",
+          "how": "AGENTS.md is at the repo root, and a CLAUDE.md (at the root or in .claude/), when there is one, imports it (`@AGENTS.md`, or `@../AGENTS.md` from .claude/; a Markdown link is not an import): with a CLAUDE.md, Claude Code reads AGENTS.md only through it",
+          "why": "an agent follows the rules it can read, and only those"
+        },
+        {
+          "id": "tool-hook",
+          "title": "Turn on the guard for your agents' commands",
+          "mark": "next",
+          "how": ".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only",
+          "why": "the guard stops a risky command, like a force push, before the agent runs it",
+          "what": "no tool-call guard in .claude/settings.json",
+          "fix": "`yokoten init` adds it"
+        },
+        {
+          "id": "runtime",
+          "title": "Add the yokoten runtime to the project",
+          "mark": "to do",
+          "how": ".yokoten/VERSION is the version of the yokoten that runs doctor; yokoten's own repo needs no copy",
+          "why": "the hooks and CI run this copy, so they work with no network and no global install",
+          "what": "no .yokoten/ runtime",
+          "fix": "`yokoten init` adds it"
+        },
+        {
+          "id": "tests",
+          "title": "Run your tests on every push",
+          "mark": "done",
+          "how": "package.json has a real \"test\" script and a `run:` step in a workflow runs it, or a `run:` step starts a test runner such as `node --test`, `go test`, `pytest`, `tox`, `make test` or `npx vitest`; in a workspaces repo, `npm test --workspaces` or `pnpm -r test` counts too",
+          "why": "tests that run on every push catch a broken change before it reaches main"
+        },
+        {
+          "id": "ci",
+          "title": "Run the checks on every pull request",
+          "mark": "to do",
+          "how": "a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten",
+          "why": "a commit made with the hook off would reach main unchecked",
+          "what": "CI does not run `yokoten check`",
+          "fix": "`yokoten init` adds .github/workflows/yokoten.yml"
+        },
+        {
+          "id": "issues",
+          "title": "Turn on issues",
+          "mark": "done",
+          "how": "there is no TODO.md, TODO, todo.md or docs/todo",
+          "why": "an issue has an owner, a state and a history; a todo file has none"
+        },
+        {
+          "id": "templates",
+          "title": "Add issue and pull request templates",
+          "mark": "done",
+          "how": ".github/ISSUE_TEMPLATE holds a template, and .github holds a pull request template",
+          "why": "a template asks for what a reviewer needs, so nothing is forgotten"
+        },
+        {
+          "id": "no-build-output",
+          "title": "Keep build output out of git",
+          "mark": "to do",
+          "how": "no tracked file is in a dist/, build/ or out/ folder or is a built file by its name, apart from yokoten.json \"allowBuild\"",
+          "why": "a build makes these files again from the source, and a reviewer can't read a binary",
+          "what": "build output in the repo (crates/biome_module_graph/tests/fixtures/shared/dist/index.js, crates/biome_resolver/tests/fixtures/resolver_cases_2/node_modules/qux/dist/index.js, crates/biome_resolver/tests/fixtures/resolver_cases_2/node_modules/qux/dist/prelude.js, and 38 more)",
+          "fix": "remove it with `git rm --cached` and add dist/, build/, out/ to .gitignore"
+        },
+        {
+          "id": "changelog",
+          "title": "Keep a changelog",
+          "mark": "done",
+          "how": "CHANGELOG.md has an Unreleased heading, or the repo has a changes/ folder or a .changeset/ folder (Changesets)",
+          "why": "each pull request adds its entry as it goes, so a release needs no digging"
+        },
+        {
+          "id": "titles",
+          "title": "Check pull request titles",
+          "mark": "to do",
+          "how": "a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check --pr`, or runs on pull requests with a step that uses yokoten-labs/yokoten and does not set `pr-check: false`",
+          "why": "a pull request title becomes the commit on main, so it must say what changed and why",
+          "what": "CI does not check pull requests (`yokoten check --pr`)",
+          "fix": "`yokoten init` adds .github/workflows/pr.yml"
+        },
+        {
+          "id": "codeowners",
+          "title": "Name the owner (CODEOWNERS)",
+          "mark": "done",
+          "how": "a CODEOWNERS file is in .github/, at the root or in docs/, and the first one GitHub reads names an owner, not init's placeholder @YOUR_GITHUB_HANDLE; full doctor also reads whether the repo belongs to an organization, and an organization alone (@org, not @org/team) is not an owner",
+          "why": "the host then asks you to review a pull request that changes those paths, and `check --pr` makes it tier A"
+        },
+        {
+          "id": "sandbox",
+          "title": "Keep your agents in a sandbox",
+          "mark": "to do",
+          "how": ".claude/settings.json turns the sandbox on with no * host; .codex/config.toml pins workspace-write, on-request and no network; .gemini/settings.json blocks YOLO mode; .grok/sandbox.toml holds a workspace profile; writable paths stay in the project",
+          "why": "a worker writes only where the sandbox allows, so it must cover the worktree",
+          "what": "no sandbox in .claude/settings.json",
+          "fix": "`yokoten init` adds it"
+        },
+        {
+          "id": "security-files",
+          "title": "Add a license and a security policy",
+          "mark": "to do",
+          "how": "a SECURITY.md, a Dependabot config and a license file are in the repo",
+          "why": "people can then report a hole in private, old dependencies get updates, and others know how they may use the code",
+          "what": "no security policy (SECURITY.md)",
+          "fix": "run `yokoten init` to add the security policy and Dependabot"
+        }
+      ],
+      "install_only": [
+        {
+          "id": "tool-hook",
+          "title": "Turn on the guard for your agents' commands",
+          "mark": "next",
+          "how": ".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only",
+          "why": "the guard stops a risky command, like a force push, before the agent runs it",
+          "what": "no tool-call guard in .claude/settings.json",
+          "fix": "`yokoten init` adds it"
+        },
+        {
+          "id": "runtime",
+          "title": "Add the yokoten runtime to the project",
+          "mark": "to do",
+          "how": ".yokoten/VERSION is the version of the yokoten that runs doctor; yokoten's own repo needs no copy",
+          "why": "the hooks and CI run this copy, so they work with no network and no global install",
+          "what": "no .yokoten/ runtime",
+          "fix": "`yokoten init` adds it"
+        },
+        {
+          "id": "sandbox",
+          "title": "Keep your agents in a sandbox",
+          "mark": "to do",
+          "how": ".claude/settings.json turns the sandbox on with no * host; .codex/config.toml pins workspace-write, on-request and no network; .gemini/settings.json blocks YOLO mode; .grok/sandbox.toml holds a workspace profile; writable paths stay in the project",
+          "why": "a worker writes only where the sandbox allows, so it must cover the worktree",
+          "what": "no sandbox in .claude/settings.json",
+          "fix": "`yokoten init` adds it"
+        }
+      ]
+    },
+    "secrets": [
+      {
+        "file": "CODE_OF_CONDUCT.md",
+        "line": 5,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "CODE_OF_CONDUCT.md",
+        "line": 72,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "GOVERNANCE.md",
+        "line": 348,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_html_formatter/src/html/auxiliary/attribute_initializer_clause.rs",
+        "line": 158,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_html_formatter/src/html/auxiliary/attribute_initializer_clause.rs",
+        "line": 163,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_html_formatter/tests/specs/html/attributes/srcset.html",
+        "line": 13,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_html_formatter/tests/specs/html/attributes/srcset.html",
+        "line": 14,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_html_formatter/tests/specs/html/attributes/srcset.html.snap",
+        "line": 21,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_html_formatter/tests/specs/html/attributes/srcset.html.snap",
+        "line": 22,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_html_formatter/tests/specs/html/attributes/srcset.html.snap",
+        "line": 53,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_html_formatter/tests/specs/html/attributes/srcset.html.snap",
+        "line": 62,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_html_formatter/tests/specs/prettier/html/attributes/srcset.html",
+        "line": 2,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_html_formatter/tests/specs/prettier/html/attributes/srcset.html",
+        "line": 5,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_html_formatter/tests/specs/prettier/html/attributes/srcset.html",
+        "line": 8,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_html_formatter/tests/specs/prettier/html/attributes/srcset.html.prettier-snap",
+        "line": 3,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_html_formatter/tests/specs/prettier/html/attributes/srcset.html.prettier-snap",
+        "line": 10,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_html_formatter/tests/specs/prettier/html/attributes/srcset.html.prettier-snap",
+        "line": 21,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_html_parser/benches/fixtures/real/wikipedia-JavaScript.html",
+        "line": 725,
+        "why": "an IP address can lead to your server or your home network",
+        "what": "an IP address",
+        "grade": "sure",
+        "id": "ip",
+        "fix": "use a placeholder from 192.0.2.0/24"
+      },
+      {
+        "file": "crates/biome_html_parser/benches/fixtures/real/wikipedia-JavaScript.html",
+        "line": 737,
+        "why": "an IP address can lead to your server or your home network",
+        "what": "an IP address",
+        "grade": "sure",
+        "id": "ip",
+        "fix": "use a placeholder from 192.0.2.0/24"
+      },
+      {
+        "file": "crates/biome_html_parser/benches/fixtures/real/wikipedia-Unix.html",
+        "line": 1023,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_html_parser/benches/fixtures/real/wikipedia-Unix.html",
+        "line": 1023,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_html_parser/benches/fixtures/synthetic/attribute-heavy.html",
+        "line": 246,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_js_analyze/tests/specs/security/noSecrets/invalid.js",
+        "line": 5,
+        "why": "a secret opens your accounts to anyone who can read the repo, and git keeps it after the file is gone",
+        "what": "a secret (private key)",
+        "grade": "sure",
+        "id": "secret",
+        "fix": "remove it, rotate it, and keep it outside the repo"
+      },
+      {
+        "file": "crates/biome_js_analyze/tests/specs/security/noSecrets/invalid.js.snap",
+        "line": 11,
+        "why": "a secret opens your accounts to anyone who can read the repo, and git keeps it after the file is gone",
+        "what": "a secret (private key)",
+        "grade": "sure",
+        "id": "secret",
+        "fix": "remove it, rotate it, and keep it outside the repo"
+      },
+      {
+        "file": "crates/biome_js_analyze/tests/specs/security/noSecrets/invalid.js.snap",
+        "line": 91,
+        "why": "a secret opens your accounts to anyone who can read the repo, and git keeps it after the file is gone",
+        "what": "a secret (private key)",
+        "grade": "sure",
+        "id": "secret",
+        "fix": "remove it, rotate it, and keep it outside the repo"
+      },
+      {
+        "file": "crates/biome_js_analyze/tests/specs/security/noSecrets/invalid.js.snap",
+        "line": 113,
+        "why": "a secret opens your accounts to anyone who can read the repo, and git keeps it after the file is gone",
+        "what": "a secret (private key)",
+        "grade": "sure",
+        "id": "secret",
+        "fix": "remove it, rotate it, and keep it outside the repo"
+      },
+      {
+        "file": "crates/biome_js_analyze/tests/specs/security/noSecrets/invalid.js.snap",
+        "line": 134,
+        "why": "a secret opens your accounts to anyone who can read the repo, and git keeps it after the file is gone",
+        "what": "a secret (private key)",
+        "grade": "sure",
+        "id": "secret",
+        "fix": "remove it, rotate it, and keep it outside the repo"
+      },
+      {
+        "file": "crates/biome_js_analyze/tests/specs/security/noSecrets/invalid.js.snap",
+        "line": 156,
+        "why": "a secret opens your accounts to anyone who can read the repo, and git keeps it after the file is gone",
+        "what": "a secret (private key)",
+        "grade": "sure",
+        "id": "secret",
+        "fix": "remove it, rotate it, and keep it outside the repo"
+      },
+      {
+        "file": "crates/biome_js_analyze/tests/specs/security/noSecrets/invalid.js.snap",
+        "line": 178,
+        "why": "a secret opens your accounts to anyone who can read the repo, and git keeps it after the file is gone",
+        "what": "a secret (private key)",
+        "grade": "sure",
+        "id": "secret",
+        "fix": "remove it, rotate it, and keep it outside the repo"
+      },
+      {
+        "file": "crates/biome_js_formatter/report-challenge.md",
+        "line": 14,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_js_formatter/tests/specs/prettier/js/method-chain/issue-4125.js",
+        "line": 59,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_js_formatter/tests/specs/prettier/js/method-chain/issue-4125.js.prettier-snap",
+        "line": 70,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_json_analyze/tests/compat_sortpkg/data.json",
+        "line": 396,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_json_analyze/tests/compat_sortpkg/data.json",
+        "line": 404,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_markdown_formatter/tests/specs/prettier/markdown/spec/example-560.md",
+        "line": 1,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_markdown_formatter/tests/specs/prettier/markdown/spec/example-560.md.prettier-snap",
+        "line": 1,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_markdown_formatter/tests/specs/prettier/markdown/spec/example-567.md",
+        "line": 1,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_markdown_formatter/tests/specs/prettier/markdown/spec/example-567.md.prettier-snap",
+        "line": 1,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_markdown_formatter/tests/specs/prettier/markdown/spec/example-568.md",
+        "line": 1,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_markdown_formatter/tests/specs/prettier/markdown/spec/example-568.md.prettier-snap",
+        "line": 1,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_markdown_formatter/tests/specs/prettier/markdown/spec/example-569.md",
+        "line": 1,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_markdown_formatter/tests/specs/prettier/markdown/spec/example-569.md.prettier-snap",
+        "line": 1,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_markdown_formatter/tests/specs/prettier/markdown/spec/example-575.md",
+        "line": 1,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_markdown_formatter/tests/specs/prettier/markdown/spec/example-575.md.prettier-snap",
+        "line": 1,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_markdown_parser/benches/fixtures/spec/autolinks.md",
+        "line": 10,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_markdown_parser/benches/fixtures/spec/autolinks.md",
+        "line": 31,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_markdown_parser/benches/fixtures/spec/autolinks.md",
+        "line": 34,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_markdown_parser/benches/fixtures/spec/autolinks.md",
+        "line": 37,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_markdown_parser/benches/fixtures/spec/autolinks.md",
+        "line": 55,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_module_graph/benches/astro_server.mjs",
+        "line": 919,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_package/src/license/generated.rs",
+        "line": 635,
+        "why": "an IP address can lead to your server or your home network",
+        "what": "an IP address",
+        "grade": "sure",
+        "id": "ip",
+        "fix": "use a placeholder from 192.0.2.0/24"
+      },
+      {
+        "file": "crates/biome_package/src/license/generated.rs",
+        "line": 1973,
+        "why": "an IP address can lead to your server or your home network",
+        "what": "an IP address",
+        "grade": "sure",
+        "id": "ip",
+        "fix": "use a placeholder from 192.0.2.0/24"
+      },
+      {
+        "file": "crates/biome_package/src/license/generated.rs",
+        "line": 6546,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "crates/biome_package/src/node_semver/version.rs",
+        "line": 518,
+        "why": "an IP address can lead to your server or your home network",
+        "what": "an IP address",
+        "grade": "sure",
+        "id": "ip",
+        "fix": "use a placeholder from 192.0.2.0/24"
+      },
+      {
+        "file": "packages/@biomejs/biome/CHANGELOG.md",
+        "line": 3471,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "packages/@biomejs/biome/CHANGELOG.md",
+        "line": 3474,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "xtask/coverage/src/markdown/spec.json",
+        "line": 4771,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "xtask/coverage/src/markdown/spec.json",
+        "line": 4772,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "xtask/coverage/src/markdown/spec.json",
+        "line": 4772,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "xtask/coverage/src/markdown/spec.json",
+        "line": 4827,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "xtask/coverage/src/markdown/spec.json",
+        "line": 4828,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "xtask/coverage/src/markdown/spec.json",
+        "line": 4828,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "xtask/coverage/src/markdown/spec.json",
+        "line": 4835,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "xtask/coverage/src/markdown/spec.json",
+        "line": 4836,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "xtask/coverage/src/markdown/spec.json",
+        "line": 4836,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "xtask/coverage/src/markdown/spec.json",
+        "line": 4843,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "xtask/coverage/src/markdown/spec.json",
+        "line": 4844,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "xtask/coverage/src/markdown/spec.json",
+        "line": 4891,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": "xtask/coverage/src/markdown/spec.json",
+        "line": 4892,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "what": "an email address",
+        "grade": "sure",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+      },
+      {
+        "file": ".github/CODEOWNERS",
+        "line": 1,
+        "why": "a moved or renamed file leaves its CODEOWNERS line behind, so the new path has no owner review",
+        "what": "/.github/workflows/ja-translation.yaml matches no file: this rule protects nothing; point it at the new path",
+        "grade": null,
+        "id": "stale-codeowners",
+        "fix": "ask the lead or owner to change it in .github/CODEOWNERS"
+      }
+    ],
+    "default_branch": "main"
+  },
+  "fixes": {
+    "files": [
+      {
+        "path": ".github/ISSUE_TEMPLATE/incident.yml",
+        "content": "name: Incident\ndescription: \"Something went wrong in how we work. The rca skill turns it into a check. Title: `area: symptom` (what you saw, not the fix), for example `check: misses a key in a JSON file`. At most 60 characters, no full stop, no #N.\"\ntitle: \"area: \"\nlabels: [incident]\nbody:\n  - type: textarea\n    id: what\n    attributes:\n      label: What happened\n      description: Facts only, in order, with times in UTC.\n    validations:\n      required: true\n  - type: textarea\n    id: matters\n    attributes:\n      label: Why it matters\n      description: \"What it cost, or can cost, when it happens again. One or two sentences. `yokoten learn` uses it as the check's reason.\"\n  - type: textarea\n    id: why\n    attributes:\n      label: Why it got through\n      description: Which check should have caught it, and why it did not (or that there was none).\n  - type: textarea\n    id: fix\n    attributes:\n      label: Fix\n      description: What changed so it can't happen again, and the check that now holds it.\n  - type: textarea\n    id: spread\n    attributes:\n      label: Other places it can happen\n      description: Other projects or paths with the same gap (yokoten).\n",
+        "source": "yokoten"
+      },
+      {
+        "path": ".github/ISSUE_TEMPLATE/task.yml",
+        "content": "name: Task\ndescription: \"A piece of work. Every change starts here. Title: `area: verb phrase`, for example `doctor: add the review step`. At most 60 characters, no full stop, no #N.\"\ntitle: \"area: \"\nbody:\n  - type: textarea\n    id: goal\n    attributes:\n      label: Goal\n      description: What is true when this is done, in one or two sentences.\n    validations:\n      required: true\n  - type: textarea\n    id: done\n    attributes:\n      label: Done when\n      description: The checks that prove it. A command and its expected output is best.\n    validations:\n      required: true\n  - type: textarea\n    id: scope\n    attributes:\n      label: Out of scope\n      description: What this task must not change.\n",
+        "source": "yokoten"
+      },
+      {
+        "path": ".github/SECURITY.md",
+        "content": "# Security\n\n## Reporting a vulnerability\n\nPlease report it privately, not in a public issue. Go to this repo's **Security** tab\nand choose **Report a vulnerability**. Only the maintainers see the report.\n\nInclude what you did, what happened, and what you expected. Add the version or commit\nyou used. Steps that show the problem help most.\n\n## What not to put in a public issue\n\nA public issue is open to everyone, at once. Don't put any of these in one:\n\n- the details of a vulnerability, or how to use it;\n- a password, token, key or other secret, even an old one;\n- personal data about anyone.\n\nIf a secret is already public, say so in the private report. It must be revoked, not\nonly deleted.\n\n## What counts\n\nA vulnerability is a fault that lets someone do what they should not be able to do.\nFor example:\n\n- run code on a machine or server that uses this project;\n- read or change data they have no right to;\n- get a secret, or get past a login or a permission check.\n\nA bug that only breaks things, with no gain for an attacker, is a normal issue. Open\nit in public.\n",
+        "source": "yokoten"
+      },
+      {
+        "path": ".github/dependabot.yml",
+        "content": "# Monthly, one grouped pull request, so updates don't each cost a review (core rule 8).\n# A release is taken only once it is a week old, so one pulled for being bad never\n# reaches you. The actions CI runs are always on. `yokoten init` adds a block below for\n# each package manager it finds (npm, cargo, pip, gomod, ...), at the root and one folder\n# down. `check --pr` holds these pull requests to the title rule, and shows the rest as notes.\n#\n# To add one it missed, copy a block. Change package-ecosystem, directory, the group\n# name, and the commit-message prefix (to chore). Keep the schedule, cooldown and groups:\n# then they come the same way, monthly, in one pull request, a week old. The ecosystem names:\n# https://docs.github.com/en/code-security/dependabot/working-with-dependabot/dependabot-options-reference\nversion: 2\nupdates:\n  - package-ecosystem: github-actions\n    directory: /\n    schedule:\n      interval: monthly\n    cooldown:\n      default-days: 7\n    groups:\n      actions:\n        patterns: ['*']\n    commit-message:\n      prefix: ci\n  - package-ecosystem: npm\n    directory: /\n    schedule:\n      interval: monthly\n    cooldown:\n      default-days: 7\n    groups:\n      npm:\n        patterns: ['*']\n    commit-message:\n      prefix: chore\n  - package-ecosystem: cargo\n    directory: /\n    schedule:\n      interval: monthly\n    cooldown:\n      default-days: 7\n    groups:\n      cargo:\n        patterns: ['*']\n    commit-message:\n      prefix: chore\n",
+        "source": "yokoten"
+      }
+    ],
+    "summary": "",
+    "muse": "not needed",
+    "claude_import": null,
+    "after": {
+      "done": 7,
+      "total": 13
+    }
+  },
+  "record": {
+    "sha256": "97c5aa813b3c7006b49772a60e4f206467dc9e1061446be905b1a39f7850ef07",
+    "recorded_at": "2026-10-31T23:53:15Z",
+    "document": "{\n  \"recorded_at\": \"2026-10-31T23:53:15Z\",\n  \"result\": {\n    \"about\": \"yokoten stops your AI coding agent from making the mistake you can't undo. One command, no setup.\",\n    \"commit\": \"0e9ca5bde52cd526092711b52989e9a703f5cee2\",\n    \"default_branch\": \"main\",\n    \"owner\": \"biomejs\",\n    \"repo\": \"biome\",\n    \"rerun\": {\n      \"check\": \"HOME=\\\"$(mktemp -d)\\\" npx yokoten@0.2.0 check --json\",\n      \"doctor\": \"git clone --filter=blob:none https://github.com/biomejs/biome\\ncd biome\\ngit checkout 0e9ca5bde52cd526092711b52989e9a703f5cee2\\nnpx yokoten@0.2.0 doctor --files --json\"\n    },\n    \"secrets\": [\n      {\n        \"file\": \"CODE_OF_CONDUCT.md\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 5,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"CODE_OF_CONDUCT.md\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 72,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"GOVERNANCE.md\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 348,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_html_formatter/src/html/auxiliary/attribute_initializer_clause.rs\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 158,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_html_formatter/src/html/auxiliary/attribute_initializer_clause.rs\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 163,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_html_formatter/tests/specs/html/attributes/srcset.html\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 13,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_html_formatter/tests/specs/html/attributes/srcset.html\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 14,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_html_formatter/tests/specs/html/attributes/srcset.html.snap\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 21,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_html_formatter/tests/specs/html/attributes/srcset.html.snap\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 22,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_html_formatter/tests/specs/html/attributes/srcset.html.snap\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 53,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_html_formatter/tests/specs/html/attributes/srcset.html.snap\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 62,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_html_formatter/tests/specs/prettier/html/attributes/srcset.html\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 2,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_html_formatter/tests/specs/prettier/html/attributes/srcset.html\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 5,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_html_formatter/tests/specs/prettier/html/attributes/srcset.html\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 8,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_html_formatter/tests/specs/prettier/html/attributes/srcset.html.prettier-snap\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 3,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_html_formatter/tests/specs/prettier/html/attributes/srcset.html.prettier-snap\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 10,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_html_formatter/tests/specs/prettier/html/attributes/srcset.html.prettier-snap\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 21,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_html_parser/benches/fixtures/real/wikipedia-JavaScript.html\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 725,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"crates/biome_html_parser/benches/fixtures/real/wikipedia-JavaScript.html\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 737,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"crates/biome_html_parser/benches/fixtures/real/wikipedia-Unix.html\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 1023,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_html_parser/benches/fixtures/real/wikipedia-Unix.html\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 1023,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_html_parser/benches/fixtures/synthetic/attribute-heavy.html\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 246,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_js_analyze/tests/specs/security/noSecrets/invalid.js\",\n        \"fix\": \"remove it, rotate it, and keep it outside the repo\",\n        \"grade\": \"sure\",\n        \"id\": \"secret\",\n        \"line\": 5,\n        \"what\": \"a secret (private key)\",\n        \"why\": \"a secret opens your accounts to anyone who can read the repo, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_js_analyze/tests/specs/security/noSecrets/invalid.js.snap\",\n        \"fix\": \"remove it, rotate it, and keep it outside the repo\",\n        \"grade\": \"sure\",\n        \"id\": \"secret\",\n        \"line\": 11,\n        \"what\": \"a secret (private key)\",\n        \"why\": \"a secret opens your accounts to anyone who can read the repo, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_js_analyze/tests/specs/security/noSecrets/invalid.js.snap\",\n        \"fix\": \"remove it, rotate it, and keep it outside the repo\",\n        \"grade\": \"sure\",\n        \"id\": \"secret\",\n        \"line\": 91,\n        \"what\": \"a secret (private key)\",\n        \"why\": \"a secret opens your accounts to anyone who can read the repo, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_js_analyze/tests/specs/security/noSecrets/invalid.js.snap\",\n        \"fix\": \"remove it, rotate it, and keep it outside the repo\",\n        \"grade\": \"sure\",\n        \"id\": \"secret\",\n        \"line\": 113,\n        \"what\": \"a secret (private key)\",\n        \"why\": \"a secret opens your accounts to anyone who can read the repo, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_js_analyze/tests/specs/security/noSecrets/invalid.js.snap\",\n        \"fix\": \"remove it, rotate it, and keep it outside the repo\",\n        \"grade\": \"sure\",\n        \"id\": \"secret\",\n        \"line\": 134,\n        \"what\": \"a secret (private key)\",\n        \"why\": \"a secret opens your accounts to anyone who can read the repo, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_js_analyze/tests/specs/security/noSecrets/invalid.js.snap\",\n        \"fix\": \"remove it, rotate it, and keep it outside the repo\",\n        \"grade\": \"sure\",\n        \"id\": \"secret\",\n        \"line\": 156,\n        \"what\": \"a secret (private key)\",\n        \"why\": \"a secret opens your accounts to anyone who can read the repo, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_js_analyze/tests/specs/security/noSecrets/invalid.js.snap\",\n        \"fix\": \"remove it, rotate it, and keep it outside the repo\",\n        \"grade\": \"sure\",\n        \"id\": \"secret\",\n        \"line\": 178,\n        \"what\": \"a secret (private key)\",\n        \"why\": \"a secret opens your accounts to anyone who can read the repo, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_js_formatter/report-challenge.md\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 14,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_js_formatter/tests/specs/prettier/js/method-chain/issue-4125.js\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 59,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_js_formatter/tests/specs/prettier/js/method-chain/issue-4125.js.prettier-snap\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 70,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_json_analyze/tests/compat_sortpkg/data.json\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 396,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_json_analyze/tests/compat_sortpkg/data.json\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 404,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_markdown_formatter/tests/specs/prettier/markdown/spec/example-560.md\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 1,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_markdown_formatter/tests/specs/prettier/markdown/spec/example-560.md.prettier-snap\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 1,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_markdown_formatter/tests/specs/prettier/markdown/spec/example-567.md\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 1,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_markdown_formatter/tests/specs/prettier/markdown/spec/example-567.md.prettier-snap\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 1,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_markdown_formatter/tests/specs/prettier/markdown/spec/example-568.md\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 1,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_markdown_formatter/tests/specs/prettier/markdown/spec/example-568.md.prettier-snap\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 1,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_markdown_formatter/tests/specs/prettier/markdown/spec/example-569.md\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 1,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_markdown_formatter/tests/specs/prettier/markdown/spec/example-569.md.prettier-snap\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 1,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_markdown_formatter/tests/specs/prettier/markdown/spec/example-575.md\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 1,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_markdown_formatter/tests/specs/prettier/markdown/spec/example-575.md.prettier-snap\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 1,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_markdown_parser/benches/fixtures/spec/autolinks.md\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 10,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_markdown_parser/benches/fixtures/spec/autolinks.md\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 31,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_markdown_parser/benches/fixtures/spec/autolinks.md\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 34,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_markdown_parser/benches/fixtures/spec/autolinks.md\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 37,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_markdown_parser/benches/fixtures/spec/autolinks.md\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 55,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_module_graph/benches/astro_server.mjs\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 919,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_package/src/license/generated.rs\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 635,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"crates/biome_package/src/license/generated.rs\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 1973,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"crates/biome_package/src/license/generated.rs\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 6546,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"crates/biome_package/src/node_semver/version.rs\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 518,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"packages/@biomejs/biome/CHANGELOG.md\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 3471,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"packages/@biomejs/biome/CHANGELOG.md\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 3474,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"xtask/coverage/src/markdown/spec.json\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 4771,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"xtask/coverage/src/markdown/spec.json\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 4772,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"xtask/coverage/src/markdown/spec.json\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 4772,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"xtask/coverage/src/markdown/spec.json\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 4827,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"xtask/coverage/src/markdown/spec.json\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 4828,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"xtask/coverage/src/markdown/spec.json\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 4828,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"xtask/coverage/src/markdown/spec.json\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 4835,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"xtask/coverage/src/markdown/spec.json\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 4836,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"xtask/coverage/src/markdown/spec.json\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 4836,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"xtask/coverage/src/markdown/spec.json\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 4843,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"xtask/coverage/src/markdown/spec.json\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 4844,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"xtask/coverage/src/markdown/spec.json\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 4891,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"xtask/coverage/src/markdown/spec.json\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 4892,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \".github/CODEOWNERS\",\n        \"fix\": \"ask the lead or owner to change it in .github/CODEOWNERS\",\n        \"grade\": null,\n        \"id\": \"stale-codeowners\",\n        \"line\": 1,\n        \"what\": \"/.github/workflows/ja-translation.yaml matches no file: this rule protects nothing; point it at the new path\",\n        \"why\": \"a moved or renamed file leaves its CODEOWNERS line behind, so the new path has no owner review\"\n      }\n    ],\n    \"summary\": {\n      \"done\": 6,\n      \"install_only\": [\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only\",\n          \"id\": \"tool-hook\",\n          \"mark\": \"next\",\n          \"title\": \"Turn on the guard for your agents' commands\",\n          \"what\": \"no tool-call guard in .claude/settings.json\",\n          \"why\": \"the guard stops a risky command, like a force push, before the agent runs it\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".yokoten/VERSION is the version of the yokoten that runs doctor; yokoten's own repo needs no copy\",\n          \"id\": \"runtime\",\n          \"mark\": \"to do\",\n          \"title\": \"Add the yokoten runtime to the project\",\n          \"what\": \"no .yokoten/ runtime\",\n          \"why\": \"the hooks and CI run this copy, so they work with no network and no global install\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json turns the sandbox on with no * host; .codex/config.toml pins workspace-write, on-request and no network; .gemini/settings.json blocks YOLO mode; .grok/sandbox.toml holds a workspace profile; writable paths stay in the project\",\n          \"id\": \"sandbox\",\n          \"mark\": \"to do\",\n          \"title\": \"Keep your agents in a sandbox\",\n          \"what\": \"no sandbox in .claude/settings.json\",\n          \"why\": \"a worker writes only where the sandbox allows, so it must cover the worktree\"\n        }\n      ],\n      \"next\": {\n        \"fix\": \"`yokoten init` adds .github/workflows/yokoten.yml\",\n        \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten\",\n        \"id\": \"ci\",\n        \"mark\": \"to do\",\n        \"title\": \"Run the checks on every pull request\",\n        \"what\": \"CI does not run `yokoten check`\",\n        \"why\": \"a commit made with the hook off would reach main unchecked\"\n      },\n      \"steps\": [\n        {\n          \"how\": \"AGENTS.md is at the repo root, and a CLAUDE.md (at the root or in .claude/), when there is one, imports it (`@AGENTS.md`, or `@../AGENTS.md` from .claude/; a Markdown link is not an import): with a CLAUDE.md, Claude Code reads AGENTS.md only through it\",\n          \"id\": \"rules\",\n          \"mark\": \"done\",\n          \"title\": \"Write the rules for your agents (AGENTS.md)\",\n          \"why\": \"an agent follows the rules it can read, and only those\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only\",\n          \"id\": \"tool-hook\",\n          \"mark\": \"next\",\n          \"title\": \"Turn on the guard for your agents' commands\",\n          \"what\": \"no tool-call guard in .claude/settings.json\",\n          \"why\": \"the guard stops a risky command, like a force push, before the agent runs it\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".yokoten/VERSION is the version of the yokoten that runs doctor; yokoten's own repo needs no copy\",\n          \"id\": \"runtime\",\n          \"mark\": \"to do\",\n          \"title\": \"Add the yokoten runtime to the project\",\n          \"what\": \"no .yokoten/ runtime\",\n          \"why\": \"the hooks and CI run this copy, so they work with no network and no global install\"\n        },\n        {\n          \"how\": \"package.json has a real \\\"test\\\" script and a `run:` step in a workflow runs it, or a `run:` step starts a test runner such as `node --test`, `go test`, `pytest`, `tox`, `make test` or `npx vitest`; in a workspaces repo, `npm test --workspaces` or `pnpm -r test` counts too\",\n          \"id\": \"tests\",\n          \"mark\": \"done\",\n          \"title\": \"Run your tests on every push\",\n          \"why\": \"tests that run on every push catch a broken change before it reaches main\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/yokoten.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten\",\n          \"id\": \"ci\",\n          \"mark\": \"to do\",\n          \"title\": \"Run the checks on every pull request\",\n          \"what\": \"CI does not run `yokoten check`\",\n          \"why\": \"a commit made with the hook off would reach main unchecked\"\n        },\n        {\n          \"how\": \"there is no TODO.md, TODO, todo.md or docs/todo\",\n          \"id\": \"issues\",\n          \"mark\": \"done\",\n          \"title\": \"Turn on issues\",\n          \"why\": \"an issue has an owner, a state and a history; a todo file has none\"\n        },\n        {\n          \"how\": \".github/ISSUE_TEMPLATE holds a template, and .github holds a pull request template\",\n          \"id\": \"templates\",\n          \"mark\": \"done\",\n          \"title\": \"Add issue and pull request templates\",\n          \"why\": \"a template asks for what a reviewer needs, so nothing is forgotten\"\n        },\n        {\n          \"fix\": \"remove it with `git rm --cached` and add dist/, build/, out/ to .gitignore\",\n          \"how\": \"no tracked file is in a dist/, build/ or out/ folder or is a built file by its name, apart from yokoten.json \\\"allowBuild\\\"\",\n          \"id\": \"no-build-output\",\n          \"mark\": \"to do\",\n          \"title\": \"Keep build output out of git\",\n          \"what\": \"build output in the repo (crates/biome_module_graph/tests/fixtures/shared/dist/index.js, crates/biome_resolver/tests/fixtures/resolver_cases_2/node_modules/qux/dist/index.js, crates/biome_resolver/tests/fixtures/resolver_cases_2/node_modules/qux/dist/prelude.js, and 38 more)\",\n          \"why\": \"a build makes these files again from the source, and a reviewer can't read a binary\"\n        },\n        {\n          \"how\": \"CHANGELOG.md has an Unreleased heading, or the repo has a changes/ folder or a .changeset/ folder (Changesets)\",\n          \"id\": \"changelog\",\n          \"mark\": \"done\",\n          \"title\": \"Keep a changelog\",\n          \"why\": \"each pull request adds its entry as it goes, so a release needs no digging\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/pr.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check --pr`, or runs on pull requests with a step that uses yokoten-labs/yokoten and does not set `pr-check: false`\",\n          \"id\": \"titles\",\n          \"mark\": \"to do\",\n          \"title\": \"Check pull request titles\",\n          \"what\": \"CI does not check pull requests (`yokoten check --pr`)\",\n          \"why\": \"a pull request title becomes the commit on main, so it must say what changed and why\"\n        },\n        {\n          \"how\": \"a CODEOWNERS file is in .github/, at the root or in docs/, and the first one GitHub reads names an owner, not init's placeholder @YOUR_GITHUB_HANDLE; full doctor also reads whether the repo belongs to an organization, and an organization alone (@org, not @org/team) is not an owner\",\n          \"id\": \"codeowners\",\n          \"mark\": \"done\",\n          \"title\": \"Name the owner (CODEOWNERS)\",\n          \"why\": \"the host then asks you to review a pull request that changes those paths, and `check --pr` makes it tier A\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json turns the sandbox on with no * host; .codex/config.toml pins workspace-write, on-request and no network; .gemini/settings.json blocks YOLO mode; .grok/sandbox.toml holds a workspace profile; writable paths stay in the project\",\n          \"id\": \"sandbox\",\n          \"mark\": \"to do\",\n          \"title\": \"Keep your agents in a sandbox\",\n          \"what\": \"no sandbox in .claude/settings.json\",\n          \"why\": \"a worker writes only where the sandbox allows, so it must cover the worktree\"\n        },\n        {\n          \"fix\": \"run `yokoten init` to add the security policy and Dependabot\",\n          \"how\": \"a SECURITY.md, a Dependabot config and a license file are in the repo\",\n          \"id\": \"security-files\",\n          \"mark\": \"to do\",\n          \"title\": \"Add a license and a security policy\",\n          \"what\": \"no security policy (SECURITY.md)\",\n          \"why\": \"people can then report a hole in private, old dependencies get updates, and others know how they may use the code\"\n        }\n      ],\n      \"total\": 13\n    },\n    \"yokoten_version\": \"0.2.0\"\n  },\n  \"schema\": \"yokoten-doctor/1\"\n}\n",
+    "rekor": {
+      "uuid": "108e9186e8c5677a8452c3dd8b84a57774ef9ec3bc0a283693a4997e3d62a30f5011fe7e6f1ef5da",
+      "log_index": 3616339490,
+      "integrated_time": 1793490795,
+      "url": "https://search.sigstore.dev/?logIndex=3616339490"
+    },
+    "solana": {
+      "signature": "254vzUfcShBQ4PK6gy9F36RwXZkUHXVQDCDwgF3P38AgtNWm2Eouq3TkjqDFg6YafCd5QHVvTbRnnJEvJ2s1n4xW",
+      "url": "https://explorer.solana.com/tx/254vzUfcShBQ4PK6gy9F36RwXZkUHXVQDCDwgF3P38AgtNWm2Eouq3TkjqDFg6YafCd5QHVvTbRnnJEvJ2s1n4xW?cluster=devnet"
+    }
+  }
+}
