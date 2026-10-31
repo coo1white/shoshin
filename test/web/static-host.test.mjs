@@ -125,6 +125,7 @@ describe('static host portability', () => {
     assert.ok(html.includes('How this was made'), 'dist/index.html should contain "How this was made"');
     assert.ok(html.includes('Muse Spark Open'), 'dist/index.html should contain "Muse Spark Open"');
     assert.ok(html.includes('Claude Opus 5.5'), 'dist/index.html should contain "Claude Opus 5.5"');
+    assert.ok(html.includes('from before this project'), 'dist/index.html should contain "from before this project"');
   });
 
   test('every imported name in web/src/client exists in its source file', () => {
@@ -179,6 +180,9 @@ describe('static host portability', () => {
     for (const ex of exampleTexts) assert.ok(html.includes(ex), `example "${ex}" not in dist/index.html`);
     assert.ok(html.includes('This page needs JavaScript to run a check. You can also run it yourself: npx yokoten'), 'noscript text incorrect');
     assert.ok(html.includes('How this was made'), 'How this was made sentence not found');
+    assert.ok(html.includes('Muse Spark Open'), 'dist/index.html should contain "Muse Spark Open"');
+    assert.ok(html.includes('Claude Opus 5.5'), 'dist/index.html should contain "Claude Opus 5.5"');
+    assert.ok(html.includes('from before this project'), 'dist/index.html should contain "from before this project"');
   });
 
   test('example links in dist/index.html are relative and start with ?repo=', () => {
@@ -218,6 +222,9 @@ describe('static host portability', () => {
     const howIdx = html.indexOf('How this was made');
     assert.ok(howIdx !== -1, 'How this was made not found');
     assert.ok(howIdx > mainIdx, 'How this was made should come after <main id="app"');
+    assert.ok(html.includes('Muse Spark Open'), 'dist/index.html should contain "Muse Spark Open"');
+    assert.ok(html.includes('Claude Opus 5.5'), 'dist/index.html should contain "Claude Opus 5.5"');
+    assert.ok(html.includes('from before this project'), 'dist/index.html should contain "from before this project"');
   });
 
   test('web/src/data/sample-result.json has a 40-character commit, total equal to the number of steps, and done equal to the steps marked done', () => {

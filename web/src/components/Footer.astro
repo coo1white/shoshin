@@ -1,4 +1,37 @@
+---
+import Mark from "./Mark.astro";
+---
 <footer class="site-footer">
-  <p>How this was made: Muse Spark Open wrote the code and writes each repo's project section. Claude Opus 5.5 wrote the design and task briefs, reviewed the code, and set the API address. yokoten, its logo and its site style existed before this project.</p>
-  <p>A wrong result or a broken page? <a href="https://github.com/yokoten-labs/yokoten/issues">Tell yokoten</a>.</p>
+  <div class="footer-brand">
+    <div class="brand-lockup">
+      <Mark id="footer-mark" size={24} />
+      <span class="brand-name">yokoten doctor</span>
+    </div>
+    <p class="brand-note">A free check for public GitHub repos.</p>
+  </div>
+  <div class="footer-made">
+    <h2>How this was made</h2>
+    <dl>
+      <div>
+        <dt>Muse Spark Open</dt>
+        <dd>The code, and each repo's project section</dd>
+      </div>
+      <div>
+        <dt>Claude Opus 5.5</dt>
+        <dd>Design, task briefs, code review, API address</dd>
+      </div>
+      <div>
+        <dt>yokoten</dt>
+        <dd>The checks, logo and site style, from before this project</dd>
+      </div>
+    </dl>
+  </div>
+  <nav class="footer-links" aria-labelledby="footer-links-title">
+    <h2 id="footer-links-title">Links</h2>
+    <ul>
+      <li><a href="https://yokoten.app/docs">Docs</a></li>
+      <li><a href="https://github.com/yokoten-labs/yokoten">GitHub</a></li>
+      <li><a href="https://github.com/yokoten-labs/yokoten/issues">Report a problem</a></li>
+    </ul>
+  </nav>
 </footer>
