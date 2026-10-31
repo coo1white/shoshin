@@ -90,8 +90,7 @@ and a small Python service in `server/` that runs on Modal. The design is in
 
 - Web: static files in `web/` (`index.html`, `app.js`, `view.js`, `style.css`).
   There is no build step; serve `web/` as static files.
-- Server: Python in `server/`. Its runtime dependencies are `modal` and
-  `fastapi`, listed in `server/requirements.txt`. The entry point is
+- Server: Python in `server/`. Its runtime dependencies are `modal`, `fastapi` and `cryptography`, listed in `server/requirements.txt`. The entry point is
   `server/app.py`; `modal deploy server/app.py` deploys it.
 
 ### Test
@@ -101,6 +100,9 @@ and a small Python service in `server/` that runs on Modal. The design is in
 - `python3 -m pytest test/server` runs the server tests in `test/server/`.
   Use the project environment in `.venv` when the system Python has no pytest:
   `python3 -m venv .venv`, then `.venv/bin/python -m pytest test/server`.
+- `python3 -m pytest test/server test/record` runs the server tests in `test/server/` and `test/record/`.
+  Use the project environment in `.venv` when the system Python has no pytest:
+  `python3 -m venv .venv`, then `.venv/bin/python -m pytest test/server test/record`.
 - Most tests run on saved JSON in `test/fixtures/`, with no network, no Modal
   and no Muse.
 

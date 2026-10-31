@@ -81,7 +81,6 @@ export function buildPatch(files) {
     out += `--- /dev/null\n`;
     out += `+++ b/${path}\n`;
     if (content === "") {
-      // only first four lines, no hunk
     } else {
       const endsWithNewline = content.endsWith("\n");
       let lines = content.split("\n");
@@ -146,3 +145,35 @@ export const PATCH_COMMANDS = [
   "git push -u origin yokoten-doctor-fixes",
   "gh pr create --fill",
 ].join("\n");
+
+/**
+ * @param {object|null|undefined} record
+ * @returns {{sha256:string, recordedAt:string, documentName:string, documentText:string, verifyCommand:string, rekorUrl:string|null, solanaUrl:string|null, message:string}|null
+ */
+export function recordView(record) {
+  if (!record || typeof record !== "object") return null;
+  const sha256 = record.sha256;
+  const recordedAt = record.recorded_at;
+  const documentText = record.document;
+  if (typeof sha256 !== "string" || typeof recordedAt !== "string" || typeof documentText !== "string") return null;
+  if (!/^[0-9a-f]{64}$/.test(sha256)) return null;
+  const documentName = `yokoten-doctor-${sha256.slice(0, 12)}.json`;
+  const verifyCommand = `sha256sum ${documentName}`;
+  let rekorUrl = null;
+  let solanaUrl = null;
+  if (record.rekor && typeof record.rekor.url === "string" && record.rekor.url.startsWith("https://search.sigstore.dev/")) {
+    rekorUrl = record.rekor.url;
+  }
+  if (record.solana && typeof record.solana.url === "string" && record.solana.url.startsWith("https://explorer.solana.com/") && record.solana.url.endsWith("?cluster=devnet")) {
+    solanaUrl = record.solana.url;
+  }
+  let message = "";
+  if (rekorUrl && solanaUrl) {
+    message = "";
+  } else if (rekorUrl && !solanaUrl) {
+    message = "The devnet record could not be written this time.";
+  } else if (!rekorUrl) {
+    message = "The public record could not be written this time. The result above is still right.";
+  }
+  return { sha256, recordedAt, documentName, documentText, verifyCommand, rekorUrl, solanaUrl, message };
+}

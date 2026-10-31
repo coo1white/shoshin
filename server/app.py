@@ -30,12 +30,13 @@ NO_FIXES = {"files": [], "summary": "", "muse": "failed", "claude_import": None}
 HERE = pathlib.Path(__file__).parent
 
 web_image = (
-    modal.Image.debian_slim().pip_install("fastapi", "modal")
+    modal.Image.debian_slim().pip_install("fastapi", "modal", "cryptography")
     .add_local_file(HERE / "sandbox_run.py", f"/root/sandbox_run.py")
     .add_local_file(HERE / "github_check.py", f"/root/github_check.py")
     .add_local_file(HERE / "repo_url.py", f"/root/repo_url.py")
     .add_local_file(HERE / "result.py", f"/root/result.py")
     .add_local_dir(HERE / "fixes", "/root/fixes")
+    .add_local_dir(HERE / "record", "/root/record")
 )
 app = modal.App("yokoten-doctor")
 
@@ -66,7 +67,6 @@ class RateLimiter:
                 ip_count = 0
             if ip_count >= self.HOURLY_LIMIT_PER_IP:
                 return "ip"
-            # allowed - increment both
             try:
                 self.store.put(day_key, day_count + 1)
             except Exception:
@@ -115,7 +115,13 @@ def build_result(res) -> dict:
     }
 
 
-def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_default, make_fixes=None, limiter=None):  # type: ignore
+def build_result_event(res) -> dict:
+    payload = build_result(res)
+    payload["default_branch"] = res.get("branch") if isinstance(res, dict) else None
+    return payload
+
+
+def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_default, make_fixes=None, limiter=None, write_public_record=None):  # type: ignore
     if make_fixes is None:
         def _default_make_fixes(result):
             cache = open_cache()
@@ -215,6 +221,14 @@ def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_
                     except Exception as e:
                         logger.error(type(e).__name__)
                         q.put(("fixes", NO_FIXES))
+                    if write_public_record is not None:
+                        try:
+                            payload_out = build_result_event(res)
+                            rec = write_public_record(payload_out)
+                            q.put(("record", rec))
+                        except Exception as e:
+                            logger.error(type(e).__name__)
+                            q.put(("record", None))
                 except (BadRepoUrl, RepoRefused) as e:
                     q.put(("error_known", str(e)))
                 except Exception:
@@ -226,31 +240,30 @@ def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_
 
             start = time.monotonic()
             result_sent = False
+            fixes_sent = False
             while True:
                 elapsed = time.monotonic() - start
                 remaining = 170 - elapsed
                 if remaining <= 0:
-                    if result_sent:
-                        yield sse_event("fixes", NO_FIXES)
-                    else:
+                    if not result_sent:
                         yield sse_event("error", {"message": GENERIC_ERROR})
+                    elif result_sent and not fixes_sent:
+                        yield sse_event("fixes", NO_FIXES)
                     return
                 try:
                     item = q.get(timeout=remaining)
                 except queue.Empty:
-                    if result_sent:
-                        yield sse_event("fixes", NO_FIXES)
-                    else:
+                    if not result_sent:
                         yield sse_event("error", {"message": GENERIC_ERROR})
+                    elif result_sent and not fixes_sent:
+                        yield sse_event("fixes", NO_FIXES)
                     return
                 kind = item[0]
                 if kind == "progress":
                     yield sse_event("progress", {"step": item[1]})
                 elif kind == "done":
                     try:
-                        payload_out = build_result(item[1])
-                        default_branch = item[1].get("branch") if isinstance(item[1], dict) else None
-                        payload_out["default_branch"] = default_branch
+                        payload_out = build_result_event(item[1])
                         yield sse_event("result", payload_out)
                     except Exception:
                         logger.exception("building result failed")
@@ -259,6 +272,12 @@ def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_
                     result_sent = True
                 elif kind == "fixes":
                     yield sse_event("fixes", item[1])
+                    fixes_sent = True
+                    if write_public_record is None:
+                        return
+                elif kind == "record":
+                    if item[1] is not None:
+                        yield sse_event("record", item[1])
                     return
                 elif kind == "error_known":
                     yield sse_event("error", {"message": item[1]})
@@ -272,7 +291,7 @@ def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_
     return api
 
 
-@app.function(image=web_image, timeout=180, max_containers=3, secrets=[modal.Secret.from_name("yokoten-doctor-baseten")])
+@app.function(image=web_image, timeout=180, max_containers=3, secrets=[modal.Secret.from_name("yokoten-doctor-baseten"), modal.Secret.from_name("yokoten-doctor-record")])
 @modal.concurrent(max_inputs=10)
 @modal.asgi_app()
 def fastapi_app():
@@ -283,4 +302,7 @@ def fastapi_app():
             limiter = RateLimiter(cache)
         except Exception:
             limiter = None
-    return create_api(limiter=limiter)
+    def _write_public_record(result):
+        from record.write import write_record
+        return write_record(result, store=open_cache())
+    return create_api(limiter=limiter, write_public_record=_write_public_record)

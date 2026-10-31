@@ -1,5 +1,6 @@
 import json
 import hashlib
+import time
 from fastapi.testclient import TestClient
 from app import create_api, GENERIC_ERROR, BAD_URL_MSG, NO_FIXES, RateLimiter
 from github_check import RepoRefused
@@ -492,3 +493,87 @@ def test_api_spoofed_x_forwarded_for_does_not_change_address():
     assert seen[0] != "192.0.2.3"
     # the address passed is testclient host, typically testclient
     assert "192.0.2.3" not in seen[0]
+
+# ---------------------------------------------------------------------------
+# recorder tests (step 8)
+# ---------------------------------------------------------------------------
+def test_recorder_good_run_ends_result_fixes_record_and_gets_same_object():
+    def fake_public(o, r):
+        pass
+    def fake_run(o, r, on_progress=None):
+        return _base_result(o, r)
+    seen = []
+    def fake_recorder(payload):
+        seen.append(payload)
+        return {"sha256": "abc", "url": "https://search.sigstore.dev/?logIndex=1"}
+    api = create_api(run=fake_run, public=fake_public, make_fixes=lambda r: {"files": [], "summary": "", "muse": "ok"}, write_public_record=fake_recorder)
+    client = TestClient(api)
+    resp = client.post("/api/check", json={"url": "https://github.com/owner/repo"})
+    events = parse_sse(resp.text)
+    assert [e[0] for e in events] == ["progress", "result", "fixes", "record"]
+    # recorder gets same object sent in result
+    result_payload = [e for e in events if e[0]=="result"][0][1]
+    assert seen[0] == result_payload
+    assert events[-1][0] == "record"
+    assert events[-1][1]["sha256"] == "abc"
+
+def test_recorder_returning_none_gives_no_record_event_and_ends_quickly():
+    def fake_public(o, r):
+        pass
+    def fake_run(o, r, on_progress=None):
+        return _base_result(o, r)
+    def fake_recorder(payload):
+        return None
+    api = create_api(run=fake_run, public=fake_public, make_fixes=lambda r: {"files": [], "summary": "", "muse": "ok"}, write_public_record=fake_recorder)
+    client = TestClient(api)
+    start = time.time()
+    resp = client.post("/api/check", json={"url": "https://github.com/owner/repo"})
+    elapsed = time.time() - start
+    events = parse_sse(resp.text)
+    assert not any(e[0]=="record" for e in events)
+    assert [e[0] for e in events] == ["progress", "result", "fixes"]
+    assert elapsed < 5, f"took too long: {elapsed}"
+
+def test_recorder_raising_gives_no_record_and_no_error():
+    def fake_public(o, r):
+        pass
+    def fake_run(o, r, on_progress=None):
+        return _base_result(o, r)
+    def fake_recorder(payload):
+        raise RuntimeError("recorder boom SECRET")
+    api = create_api(run=fake_run, public=fake_public, make_fixes=lambda r: {"files": [], "summary": "", "muse": "ok"}, write_public_record=fake_recorder)
+    client = TestClient(api)
+    resp = client.post("/api/check", json={"url": "https://github.com/owner/repo"})
+    events = parse_sse(resp.text)
+    assert not any(e[0]=="record" for e in events)
+    assert not any(e[0]=="error" for e in events)
+    assert [e[0] for e in events] == ["progress", "result", "fixes"]
+
+def test_no_recorder_means_stream_ends_at_fixes():
+    def fake_public(o, r):
+        pass
+    def fake_run(o, r, on_progress=None):
+        return _base_result(o, r)
+    api = create_api(run=fake_run, public=fake_public, make_fixes=lambda r: {"files": [], "summary": "", "muse": "ok"}, write_public_record=None)
+    client = TestClient(api)
+    resp = client.post("/api/check", json={"url": "https://github.com/owner/repo"})
+    events = parse_sse(resp.text)
+    assert [e[0] for e in events] == ["progress", "result", "fixes"]
+    assert not any(e[0]=="record" for e in events)
+
+def test_run_failing_never_calls_recorder():
+    def fake_public(o, r):
+        pass
+    called = []
+    def fake_run(o, r, on_progress=None):
+        raise RuntimeError("run fail")
+    def fake_recorder(payload):
+        called.append(1)
+        return {"sha256": "x"}
+    api = create_api(run=fake_run, public=fake_public, make_fixes=lambda r: {"files": [], "summary": "", "muse": "ok"}, write_public_record=fake_recorder)
+    client = TestClient(api)
+    resp = client.post("/api/check", json={"url": "https://github.com/owner/repo"})
+    events = parse_sse(resp.text)
+    assert called == []
+    assert any(e[0]=="error" for e in events)
+    assert not any(e[0]=="record" for e in events)

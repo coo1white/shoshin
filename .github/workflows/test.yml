@@ -17,4 +17,4 @@ jobs:
           python-version: "3.12"
       - run: pip install pytest -r server/requirements.txt httpx
       - run: npm test
-      - run: python -m pytest test/server
+      - run: python -m pytest test/server test/record
