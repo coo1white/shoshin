@@ -3,7 +3,7 @@
 This counts how many rounds of fixes each task needed after the first code came back, and what found the problem. Counted from the task files on 2026-10-31.
 
 | Task | Fix rounds | Found by |
-|---|---|
+|---|---|---|
 | 1. Repo base | 1 | test |
 | 2. Sandbox run | 1 | review |
 | 3 and 4. API and page | 4 | review, test, real deploy, real page |
@@ -21,8 +21,12 @@ This counts how many rounds of fixes each task needed after the first code came 
 | Fix the Node version | 0 | none |
 | Match the main site | 2 | test, test |
 | Score after the fix files | 1 | review |
+| First screen rebuild | 4 | real page, test, real page, test |
+| Readable record | 2 | test, test |
+| Footer layout | 1 | real page |
+| Pull request reviewer | 1 | review |
 
-25 rounds over 17 tasks: a mean of 1.5. Found by review 9, tests 9, the commit check 2, real runs 5.
+33 rounds over 21 tasks: a mean of 1.6. Found by review 10, tests 13, the commit check 2, real runs 8.
 
 Three of the problems no test could have caught: a deploy that left out modules, a page buried by 26 repeated warnings, and a wrong import.
 
