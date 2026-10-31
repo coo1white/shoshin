@@ -82,7 +82,7 @@ Not in v1 (said out loud so nobody builds it):
 
 **State A, empty.**
 
-- Headline: "What an AI agent finds in your repo. And what it doesn't."
+- Headline: "A health check for repos that AI agents work in."
 - One input: GitHub repo URL. One button: Check.
 - Under the button, before any click, the privacy line (always visible):
   "We copy the public files of this repo into a throwaway sandbox, run yokoten
