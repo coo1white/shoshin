@@ -104,6 +104,16 @@ and a small Python service in `server/` that runs on Modal. The design is in
 - Most tests run on saved JSON in `test/fixtures/`, with no network, no Modal
   and no Muse.
 
+### How a change reaches main
+
+- Work starts as an issue with an area in its title, a type label and a milestone.
+- `yokoten bot --` opens every issue and pull request. The owner's account only approves.
+- The `pr` check holds the title, tier, sections, issue, change file, milestone and labels.
+- The `review` workflow asks Muse to review each pull request, as `yokoten-reviewer[bot]`.
+- Muse also writes most code here, so its review is not a review by another model.
+  The lead (Claude Opus 5.5) reads every pull request, and the owner approves it.
+- The bot squash merges in UTC. A merge to main deploys the page.
+
 ### What not to touch
 
 - No secrets in this repo: no keys, tokens, `.env` files or private marks.
