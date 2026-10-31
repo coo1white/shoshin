@@ -45,7 +45,7 @@ export function cleanText(text) {
 }
 
 export function buildReviewBody(answer, model) {
-  const lastLine = `Reviewed by GLM 5.3 Flash (${model})`;
+  const lastLine = `Reviewed by DeepSeek 4.1 Flash (${model})`;
   if (answer === null) {
     return `${cleanText("The reviewer could not read the model's answer. This is not an approval.")}\n${lastLine}`;
   }
