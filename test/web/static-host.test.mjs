@@ -219,3 +219,25 @@ describe('static host portability', () => {
     assert.equal(data.done, doneCount);
   });
 });
+
+describe('node version pin', () => {
+  test('every node-version in workflows matches engines.node and has three parts', () => {
+    const pkg = JSON.parse(fs.readFileSync(path.resolve('package.json'), 'utf8'));
+    const expected = pkg.engines.node.replace(/^>=/, '');
+    assert.match(expected, /^\d+\.\d+\.\d+$/);
+    const workflowFiles = ['.github/workflows/test.yml', '.github/workflows/pages.yml'];
+    for (const rel of workflowFiles) {
+      const content = fs.readFileSync(path.resolve(rel), 'utf8');
+      const re = /node-version:\s*["']?([^"'\s]+)["']?/g;
+      let m;
+      let count = 0;
+      while ((m = re.exec(content)) !== null) {
+        count++;
+        const v = m[1];
+        assert.match(v, /^\d+\.\d+\.\d+$/, `${rel} node-version should have three number parts: ${v}`);
+        assert.equal(v, expected, `${rel} node-version ${v} should equal engines.node without >= (${expected})`);
+      }
+      assert.ok(count > 0, `${rel} should contain node-version`);
+    }
+  });
+});

@@ -18,8 +18,9 @@ This counts how many rounds of fixes each task needed after the first code came 
 | Static first screen | 1 | test |
 | Move to Astro | 3 | review, test, real page |
 | Result page | 1 | real page |
+| Fix the Node version | 0 | none |
 
-22 rounds over 14 tasks: a mean of 1.6. Found by review 8, tests 7, the commit check 2, real runs 5.
+22 rounds over 15 tasks: a mean of 1.5. Found by review 8, tests 7, the commit check 2, real runs 5.
 
 Three of the problems no test could have caught: a deploy that left out modules, a page buried by 26 repeated warnings, and a wrong import.
 
