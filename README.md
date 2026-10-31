@@ -26,7 +26,7 @@ shares the demo's keys.
 1. Put your Baseten key in the server secret store as `BASETEN_API_KEY`.
    Keep it out of this repo and out of the browser.
 2. Deploy the Python app in `server/` to Modal.
-3. Serve the static files in `web/` on any static host.
+3. Serve the static files in `web/` on any static host. See `docs/hosting.md`.
 4. Open the page and paste a public repo URL.
 
 For the full check on your own machine, run `npx yokoten`.
