@@ -197,6 +197,7 @@ function createFixCard(owner, repo, branch, file) {
     const wrap = document.createElement("div");
     wrap.className = "fix-card-actions";
     const copyBtn = addCopyButton("1. Copy the text", file.content, code);
+    copyBtn.className = "button-link";
     wrap.appendChild(copyBtn);
     const link = createLink(plan.href, "2. Open GitHub and paste");
     link.className = "button-link";
@@ -827,15 +828,20 @@ function render() {
     term.appendChild(closingP);
 
     appEl.appendChild(term);
-
-    const footer = document.createElement("footer");
-    footer.className = "footer small muted";
-    footer.appendChild(document.createTextNode("A wrong check result or a broken page? Tell yokoten: "));
-    const footLink1 = createLink("https://github.com/yokoten-labs/yokoten/issues", "github.com/yokoten-labs/yokoten/issues");
-    footer.appendChild(footLink1);
-    footer.appendChild(document.createTextNode("."));
-    appEl.appendChild(footer);
   }
+
+  const footer = document.createElement("footer");
+  footer.className = "footer small muted";
+  const howMade = document.createElement("p");
+  howMade.textContent = "How this was made: Muse Spark Open wrote the code and writes each repo's project section. Claude Opus 5.5 wrote the design and task briefs, reviewed the code, and set the API address. yokoten is an existing tool, used as a dependency.";
+  footer.appendChild(howMade);
+  const tellP = document.createElement("p");
+  tellP.appendChild(document.createTextNode("A wrong check result or a broken page? Tell yokoten: "));
+  const footLink1 = createLink("https://github.com/yokoten-labs/yokoten/issues", "github.com/yokoten-labs/yokoten/issues");
+  tellP.appendChild(footLink1);
+  tellP.appendChild(document.createTextNode("."));
+  footer.appendChild(tellP);
+  appEl.appendChild(footer);
   restoreDetailsState(appEl);
   if (errorMessage && hasChecked) {
     const inputEl = document.getElementById("repo-input");

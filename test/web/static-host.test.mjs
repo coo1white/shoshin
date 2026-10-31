@@ -120,4 +120,11 @@ describe('static host portability', () => {
 
     assert.equal(connectSrc, api, `connect-src (${connectSrc}) should equal API (${api})`);
   });
+
+  test('web/app.js holds the words "How this was made", "Muse Spark Open" and "Claude Opus 5.5"', () => {
+    const app = fs.readFileSync(appPath, 'utf8');
+    assert.ok(app.includes('How this was made'), 'web/app.js should contain "How this was made"');
+    assert.ok(app.includes('Muse Spark Open'), 'web/app.js should contain "Muse Spark Open"');
+    assert.ok(app.includes('Claude Opus 5.5'), 'web/app.js should contain "Claude Opus 5.5"');
+  });
 });
