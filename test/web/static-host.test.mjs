@@ -10,11 +10,15 @@ const appPath = path.join(webDir, 'app.js');
 describe('static host portability', () => {
   test('every href and src in web/index.html is relative', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
-    const re = /\b(?:href|src)\s*=\s*["']([^"']+)["']/g;
-    let match;
+    const tagRe = /<(?:link|script)\b[^>]*>/gi;
+    let tagMatch;
     const values = [];
-    while ((match = re.exec(html)) !== null) {
-      values.push(match[1]);
+    while ((tagMatch = tagRe.exec(html)) !== null) {
+      const tag = tagMatch[0];
+      const attrMatch = tag.match(/\b(?:href|src)\s*=\s*["']([^"']+)["']/i);
+      if (attrMatch) {
+        values.push(attrMatch[1]);
+      }
     }
     assert.ok(values.length > 0, 'expected at least one href or src');
     for (const v of values) {
@@ -162,6 +166,88 @@ describe('static host portability', () => {
           assert.ok(exportRe.test(targetContent), `${path.relative(process.cwd(), file)} imports ${name} from ${importPath} but ${path.relative(process.cwd(), targetPath)} does not export it`);
         }
       }
+    }
+  });
+
+  test('static HTML holds the same strings as the scripts', () => {
+    const html = fs.readFileSync(indexPath, 'utf8');
+    const appDivMatch = html.match(/<div[^>]*id=["']app["'][^>]*>([\s\S]*?)<\/div>\s*<script/i);
+    assert.ok(appDivMatch, '#app content not found');
+    const appHtml = appDivMatch[1];
+    function walkJs(dir) {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      const files = [];
+      for (const e of entries) {
+        const full = path.join(dir, e.name);
+        if (e.isDirectory()) files.push(...walkJs(full));
+        else if (e.isFile() && path.extname(e.name) === '.js') files.push(full);
+      }
+      return files;
+    }
+    const jsFiles = walkJs(webDir);
+    const jsJoined = jsFiles.map(f => fs.readFileSync(f, 'utf8')).join('\n');
+    const h1Re = /<h1[^>]*>([^<]+)<\/h1>/i;
+    const h1 = html.match(h1Re);
+    assert.ok(h1, 'heading not found in static HTML');
+    const heading = h1[1].trim();
+    assert.ok(heading.length > 0, 'heading empty');
+    assert.ok(jsJoined.includes(heading), `heading "${heading}" not in web/*.js`);
+    const labelRe = /<label[^>]*>([^<]+)<\/label>/i;
+    const labelMatch = appHtml.match(labelRe);
+    assert.ok(labelMatch, 'label not found in static HTML');
+    const labelText = labelMatch[1].trim();
+    assert.ok(jsJoined.includes(labelText), `label "${labelText}" not in web/*.js`);
+    const buttonRe = /<button[^>]*>([^<]+)<\/button>/i;
+    const buttonMatch = appHtml.match(buttonRe);
+    assert.ok(buttonMatch, 'Check button not found');
+    const buttonText = buttonMatch[1].trim();
+    assert.ok(jsJoined.includes(buttonText), `button "${buttonText}" not in web/*.js`);
+    const pRe = /<p[^>]*>([\s\S]*?)<\/p>/gi;
+    let pm;
+    const paragraphs = [];
+    while ((pm = pRe.exec(appHtml)) !== null) {
+      const inner = pm[1].replace(/<[^>]+>/g, '').trim();
+      if (inner) paragraphs.push(inner);
+    }
+    const sentence1 = 'We copy the public files of this repo into a throwaway sandbox, run yokoten on them, and keep nothing. Public repos only.';
+    const sentence2 = 'An AI coding agent can run commands, change files and push code. These checks show whether a repo tells it the rules.';
+    const howMade = 'How this was made: Muse Spark Open wrote the code and writes each repo\'s project section. Claude Opus 5.5 wrote the design and task briefs, reviewed the code, and set the API address. yokoten is an existing tool, used as a dependency.';
+    for (const s of [sentence1, sentence2, howMade]) {
+      assert.ok(appHtml.includes(s), `static HTML should contain sentence: ${s.slice(0, 40)}`);
+      assert.ok(jsJoined.includes(s), `sentence not in web/*.js: ${s.slice(0, 40)}`);
+    }
+    const tryRe = /Try one:/;
+    assert.ok(tryRe.test(appHtml), '"Try one:" not found in static HTML');
+    assert.ok(jsJoined.includes('Try one:'), '"Try one:" not in web/*.js');
+    const exampleTexts = ['Uniswap/v4-core', 'OpenZeppelin/openzeppelin-contracts', 'jup-ag/jupiter-quote-api-node'];
+    for (const ex of exampleTexts) {
+      assert.ok(appHtml.includes(ex), `example "${ex}" not in static HTML`);
+      assert.ok(jsJoined.includes(ex), `example "${ex}" not in web/*.js`);
+    }
+    const noscriptRe = /<noscript[^>]*>([\s\S]*?)<\/noscript>/i;
+    const noscriptMatch = appHtml.match(noscriptRe);
+    assert.ok(noscriptMatch, '<noscript> not found inside #app');
+    const noscriptText = noscriptMatch[1].replace(/<[^>]+>/g, '').trim();
+    assert.ok(noscriptText.includes('This page needs JavaScript to run a check. You can also run it yourself: npx yokoten'), 'noscript text incorrect');
+  });
+
+  test('example links in static HTML are relative and start with ?repo=', () => {
+    const html = fs.readFileSync(indexPath, 'utf8');
+    const anchorRe = /<a[^>]*href=["']([^"']+)["'][^>]*>([^<]+)<\/a>/gi;
+    let m;
+    const repoLinks = [];
+    while ((m = anchorRe.exec(html)) !== null) {
+      const href = m[1];
+      const text = m[2].trim();
+      if (text.includes('/') && (text === 'Uniswap/v4-core' || text === 'OpenZeppelin/openzeppelin-contracts' || text === 'jup-ag/jupiter-quote-api-node')) {
+        repoLinks.push(href);
+      }
+    }
+    assert.ok(repoLinks.length === 3, `expected 3 example links, found ${repoLinks.length}`);
+    for (const href of repoLinks) {
+      assert.ok(href.startsWith('?repo='), `example href should start with ?repo=: ${href}`);
+      assert.equal(href.startsWith('/'), false, `example href should not start with /: ${href}`);
+      assert.equal(/^[a-zA-Z][a-zA-Z0-9+.\-]*:/.test(href), false, `example href should not have scheme: ${href}`);
     }
   });
 });

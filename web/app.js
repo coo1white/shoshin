@@ -24,6 +24,11 @@ let hasScrolledForResult = false;
 /** @type {Set<string>} */
 let openDetailsKeys = new Set();
 
+const _staticInput = document.getElementById("repo-input");
+if (_staticInput && typeof _staticInput.value === "string" && _staticInput.value) {
+  inputValue = _staticInput.value;
+}
+
 function markFixesLost() {
   if (lastResult && lastFixes == null) {
     lastFixes = { files: [], summary: "", muse: "lost" };
