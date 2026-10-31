@@ -50,10 +50,11 @@ Each tool does what it is good at. Claude Opus 5.5 plans and reviews. Muse Spark
 This entry was built during the hackathon, with these tools:
 
 - **Muse Spark Open** (`muse-spark-open-1026`, on Baseten) wrote the code in this repo, from task briefs. At run time it writes each repo's "This project" section.
-- **Claude Opus 5.5** (Claude Code) wrote `docs/design.md` and the task briefs in `docs/tasks/`, reviewed the code, ran the tests and deploys, and made the commits. It chose what to build and how with the owner, so the briefs are detailed. It typed a few lines by hand: the API address in `web/src/client/app.ts`, and small edits to docs.
-- **yokoten** (`yokoten@0.2.0`) is a tool that existed before the hackathon. It is an npm dependency, and no yokoten code is copied here. The checks on the page are yokoten's.
+- **Claude Opus 5.5** (Claude Code) wrote `docs/design.md` and the task briefs in `docs/tasks/`, reviewed the code, ran the tests and deploys, and made the commits. It chose what to build and how with the owner, so the briefs are detailed. It typed a few lines by hand: the API address in `web/src/client/app.ts`, small edits to docs, and small fixes that each pull request names.
+- **yokoten** (`yokoten@0.2.0`) started before the hackathon, and it kept changing during it, in its own repo. This page uses version 0.2.0, released on 2026-10-30. That version holds two things made during the hackathon that this page uses: `doctor --files`, and the `how` field in its JSON. None of yokoten's commits from that time name Muse. yokoten is an npm dependency, no yokoten code is copied here, and its work is not part of this entry. The checks on the page are yokoten's.
+- **A reviewer model** that writes no code here reviews each pull request, through OpenCode Go, from PR #22 on. Each review names its model.
 
-yokoten, its logo and its site style existed before this project, and the page's style follows them.
+yokoten's logo and site style existed before this project, and the page's style follows them.
 
 A `Co-Authored-By` line names Muse on commits whose code it wrote. Claude's part is stated here instead of in those lines, and some commit messages also name it. Commit messages were edited once, before the first push, to change those lines.
 
