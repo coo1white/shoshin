@@ -4,6 +4,10 @@ import "@fontsource-variable/jetbrains-mono/index.css";
 import "../styles/global.css";
 import interLatin from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
 import monoLatin from "@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2?url";
+interface Props {
+  noindex?: boolean;
+}
+const { noindex } = Astro.props as Props;
 ---
 <!doctype html>
 <html lang="en">
@@ -12,6 +16,7 @@ import monoLatin from "@fontsource-variable/jetbrains-mono/files/jetbrains-mono-
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src https://yokoten-doctor--yokoten-doctor-fastapi-app.us-east.modal.run; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="color-scheme" content="light dark" />
+{noindex ? <meta name="robots" content="noindex" /> : null}
 <link rel="preload" as="font" type="font/woff2" crossorigin href={interLatin} />
 <link rel="preload" as="font" type="font/woff2" crossorigin href={monoLatin} />
 <script is:inline src="/js/theme.js"></script>

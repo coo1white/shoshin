@@ -1,0 +1,30 @@
+---
+import Page from "../../layouts/Page.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+
+export function getStaticPaths() {
+  const mods = import.meta.glob("../../data/examples/*.json", { eager: true, import: "default" });
+  return Object.entries(mods).map(([p, data]) => {
+    const slug = p.split("/").pop()?.replace(".json", "") ?? "";
+    return { params: { slug }, props: { data } };
+  });
+}
+
+const { data } = Astro.props as { data: { result: any; fixes: any; record: any } };
+const result = data.result;
+const record = data.record;
+const date = String(record.recorded_at).slice(0, 10);
+const shortCommit = String(result.commit).slice(0, 7);
+const liveHref = `/?repo=${result.owner}/${result.repo}`;
+const text = JSON.stringify(data).replace(/</g, "\\u003c");
+---
+<Page noindex>
+<Header />
+<p class="saved-note small muted">Saved check from {date}, at commit {shortCommit}. <a href={liveHref}>Check again</a> for a live result.</p>
+<noscript><p class="saved-note small muted">This page needs JavaScript to show the saved check. You can also run it yourself: npx yokoten</p></noscript>
+<main id="app" hidden></main>
+<Footer />
+<div id="saved-check" data-check={text} hidden></div>
+<script src="../../client/app.ts"></script>
+</Page>

@@ -39,7 +39,7 @@ const ownerRepo = `${sample.owner}/${sample.repo}`;
   <h2>Real checks <span class="checks-date">Checked {sample.examplesCheckedOn}</span></h2>
   <div class="checks-list">
     {sample.examples.map((ex) => (
-      <a class="check-row" href={`?repo=${ex.repo}`}>
+      <a class="check-row" href={`/example/${ex.repo.replaceAll("/", "-")}.html`}>
         <span class="check-repo">{ex.repo}</span>
         <span class="check-commit">{ex.commit}</span>
         <span class="check-bar" aria-hidden="true">
