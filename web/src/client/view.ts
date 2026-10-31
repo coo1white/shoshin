@@ -1,15 +1,12 @@
-// @ts-check
-
-/** @type {Record<string,string>} */
-export const PROGRESS = {
+export const PROGRESS: Record<string, string> = {
   reading: "Reading the repo's details…",
   copying: "Copying the public files into a throwaway sandbox…",
   checking: "yokoten is checking, with the network off…",
 };
 
-export function splitCode(text) {
+export function splitCode(text: string): { text: string; isCode: boolean }[] {
   if (typeof text !== "string") return [{ text: String(text), isCode: false }];
-  const out = [];
+  const out: { text: string; isCode: boolean }[] = [];
   let i = 0;
   while (i < text.length) {
     const start = text.indexOf("`", i);
@@ -29,11 +26,11 @@ export function splitCode(text) {
   return out;
 }
 
-export function formatRecordTime(iso) {
+export function formatRecordTime(iso: string): string {
   if (typeof iso !== "string") return iso;
   const d = new Date(iso);
   if (isNaN(d.getTime())) return iso;
-  const pad = (n) => String(n).padStart(2, "0");
+  const pad = (n: number): string => String(n).padStart(2, "0");
   const y = d.getUTCFullYear();
   const m = pad(d.getUTCMonth() + 1);
   const day = pad(d.getUTCDate());
@@ -42,52 +39,43 @@ export function formatRecordTime(iso) {
   return `${y}-${m}-${day} ${h}:${min} UTC`;
 }
 
-function isValidRepoPart(part) {
+function isValidRepoPart(part: string): boolean {
   if (part.length === 0) return false;
   if (part === "." || part === "..") return false;
   return /^[A-Za-z0-9._-]+$/.test(part);
 }
 
-function isValidRepo(owner, repo) {
+function isValidRepo(owner: string, repo: string): boolean {
   return isValidRepoPart(owner) && isValidRepoPart(repo);
 }
 
-export function repoFromInput(text) {
+export function repoFromInput(text: string): string | null {
   if (typeof text !== "string") return null;
   let t = text.trim();
   if (!t) return null;
-  // strip github url prefix
   const prefixRe = /^https:\/\/github\.com\//i;
   if (prefixRe.test(t)) {
     t = t.replace(prefixRe, "");
-    // remove trailing slash
     t = t.replace(/\/+$/, "");
-    // remove optional .git suffix
     if (t.toLowerCase().endsWith(".git")) t = t.slice(0, -4);
-    // after stripping, may still have extra path? Take first two segments only if exactly two? Spec accepts only owner/repo so reject extra path.
     const parts = t.split("/").filter((p) => p.length > 0);
-    // allow trailing slash already removed, but if extra segments ignore? Should return null if more than 2 parts.
     if (parts.length !== 2) return null;
     const [owner, repo] = parts;
     if (!isValidRepo(owner, repo)) return null;
     return `${owner}/${repo}`;
   }
-  // owner/repo form
-  // reject if contains protocol or spaces
   if (t.includes(" ") || t.includes("://")) return null;
   const cleaned = t.replace(/\/+$/, "");
   const parts = cleaned.split("/");
   if (parts.length !== 2) return null;
   const [owner, repo] = parts;
-  // strip .git if present in this form? spec says optional .git only for URL form, but handle anyway
   let r = repo;
   if (r.toLowerCase().endsWith(".git")) r = r.slice(0, -4);
   if (!isValidRepo(owner, r)) return null;
-  // if original repo part had .git suffix, we already stripped; but ensure owner didn't contain extra
   return `${owner}/${r}`;
 }
 
-export function repoFromQuery(search) {
+export function repoFromQuery(search: string): string | null {
   if (typeof search !== "string") return null;
   let s = search;
   if (s.startsWith("?")) s = s.slice(1);
@@ -102,12 +90,7 @@ export function repoFromQuery(search) {
   return `${owner}/${repo}`;
 }
 
-/**
- * @param {string} mark
- * @param {string|undefined} reason
- * @returns {string}
- */
-export function markLabel(mark, reason) {
+export function markLabel(mark: string, reason: string | undefined): string {
   if (mark === "done") return "done";
   if (mark === "to do" || mark === "next") return "to do";
   if (mark === "not now") {
@@ -118,21 +101,19 @@ export function markLabel(mark, reason) {
   return "unknown";
 }
 
-/**
- * @param {any} result
- * @returns {{headline:string, score:{done:number,total:number,text:string}, next:any, others:any[], installOnly:any[], secretGroups:any[], secretCount:number, evidence:any}}
- */
-export function viewModel(result) {
-  const summary = result.summary || {};
+import type { CheckResult, ViewModel, Rerun } from "./types.ts";
+
+export function viewModel(result: CheckResult): ViewModel {
+  const summary = (result.summary ?? {}) as NonNullable<CheckResult["summary"]>;
   const done = summary.done ?? 0;
   const total = summary.total ?? 0;
-  const nextRaw = summary.next || null;
-  const steps = summary.steps || [];
-  const installOnlyRaw = summary.install_only || summary.installOnly || [];
+  const nextRaw = summary.next ?? null;
+  const steps = summary.steps ?? [];
+  const installOnlyRaw = summary.install_only ?? summary.installOnly ?? [];
 
   const scoreText = `${done} of ${total} file checks are done`;
   let headline = `done ${done} of ${total} file checks`;
-  let next = null;
+  let next: ViewModel["next"] = null;
   if (nextRaw) {
     headline += ` \u00b7 next: ${nextRaw.title}`;
     next = {
@@ -149,7 +130,7 @@ export function viewModel(result) {
   const installOnlyIds = new Set(installOnlyRaw.map((s) => s.id));
   const nextId = next ? next.id : null;
 
-  const others = [];
+  const others: ViewModel["others"] = [];
   for (const s of steps) {
     if (nextId && s.id === nextId) continue;
     if (installOnlyIds.has(s.id)) continue;
@@ -180,12 +161,18 @@ export function viewModel(result) {
     reason: s.reason,
   }));
 
-  const rawSecrets = result.secrets || [];
+  const rawSecrets = result.secrets ?? [];
   const secretCount = rawSecrets.length;
-  const groupsMap = new Map();
+  const groupsMap = new Map<string, { what?: string; why?: string; fix?: string; places: string[] }>();
   for (const s of rawSecrets) {
     const id = s.id;
-    const place = s.file ? (s.line != null && s.line !== "" ? `${s.file}:${s.line}` : s.file) : (s.line != null && s.line !== "" ? `:${s.line}` : "");
+    const filePart = s.file ?? "";
+    const linePart = s.line != null && s.line !== "" ? String(s.line) : "";
+    let place = "";
+    if (filePart && linePart) place = `${filePart}:${linePart}`;
+    else if (filePart) place = filePart;
+    else if (linePart) place = `:${linePart}`;
+    else place = "";
     if (!groupsMap.has(id)) {
       groupsMap.set(id, {
         what: s.what,
@@ -194,17 +181,18 @@ export function viewModel(result) {
         places: [place],
       });
     } else {
-      groupsMap.get(id).places.push(place);
+      const g = groupsMap.get(id);
+      if (g) g.places.push(place);
     }
   }
   const secretGroups = Array.from(groupsMap.values());
 
-  const version = result.yokoten_version || result.version || "";
-  const commit = result.commit || "";
+  const version = (result.yokoten_version as string | undefined) ?? (result.version as string | undefined) ?? "";
+  const commit = (result.commit as string | undefined) ?? "";
   const shortCommit = commit ? commit.slice(0, 7) : "";
-  const rerun = result.rerun || {};
-  const doctorCommand = rerun.doctor || "";
-  const checkCommand = rerun.check || "";
+  const rerun = (result.rerun as Rerun | undefined) ?? {};
+  const doctorCommand = rerun.doctor ?? "";
+  const checkCommand = rerun.check ?? "";
 
   return {
     headline,

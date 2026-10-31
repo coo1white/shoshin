@@ -1,7 +1,7 @@
-// @ts-check
-import { createLink, renderRichText, appendLabeledSection, addCopyButton, fallbackSelect } from "./dom.js";
+import { createLink, renderRichText, appendLabeledSection } from "./dom.ts";
+import type { CheckResult, FixesPayload, ViewModel } from "../types.ts";
 
-export function renderResultHeader({ lastResult, vm, lastFixes }) {
+export function renderResultHeader({ lastResult, vm, lastFixes }: { lastResult: CheckResult; vm: ViewModel; lastFixes: FixesPayload | null }): HTMLDivElement {
   const term = document.createElement("div");
   term.className = "terminal";
   term.id = "result-panel";
@@ -25,11 +25,17 @@ export function renderResultHeader({ lastResult, vm, lastFixes }) {
         btn.textContent = "Copied";
         setTimeout(() => { btn.textContent = "Copy link to this result"; }, 2000);
       }).catch(() => {
-        fallbackSelect(fakeCode);
+        const range = document.createRange();
+        range.selectNodeContents(fakeCode);
+        const sel = window.getSelection();
+        if (sel) { sel.removeAllRanges(); sel.addRange(range); }
         btn.textContent = "Press Ctrl+C to copy";
       });
     } else {
-      fallbackSelect(fakeCode);
+      const range = document.createRange();
+      range.selectNodeContents(fakeCode);
+      const sel = window.getSelection();
+      if (sel) { sel.removeAllRanges(); sel.addRange(range); }
       copyLinkBtn.textContent = "Press Ctrl+C to copy";
     }
   });

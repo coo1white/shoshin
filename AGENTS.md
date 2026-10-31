@@ -88,15 +88,13 @@ and a small Python service in `server/` that runs on Modal. The design is in
 
 ### Build
 
-- Web: static files in `web/` (`index.html`, `app.js`, `view.js`, `style.css`).
-  There is no build step; serve `web/` as static files.
+- Web: Astro and TypeScript in `web/src/` (`web/src/pages/index.astro`, `web/src/layouts/Page.astro`, `web/src/components/*.astro`, `web/src/styles/global.css`). Client code is in `web/src/client/`. Run `npm run build` to write the site to `dist/`, and `npm run typecheck` to check types.
 - Server: Python in `server/`. Its runtime dependencies are `modal`, `fastapi` and `cryptography`, listed in `server/requirements.txt`. The entry point is
   `server/app.py`; `modal deploy server/app.py` deploys it.
 
 ### Test
 
-- `npm test` runs the web tests in `test/web/` (Node 22 or newer, no runtime
-  dependencies to install).
+- `npm test` builds first through `pretest` and then runs the web tests in `test/web/` (Node 22 or newer, no runtime dependencies to install).
 - `python3 -m pytest test/server` runs the server tests in `test/server/`.
   Use the project environment in `.venv` when the system Python has no pytest:
   `python3 -m venv .venv`, then `.venv/bin/python -m pytest test/server`.
@@ -129,3 +127,4 @@ These come from mistakes already made in this repo. Each one was caught in revie
 - When an optional step fails, say so once and end. Check what the reader does in that case.
 - Leave no comments that think out loud, no branches that cannot run, and no repeated blocks.
 - A module on Modal must be in `web_image`. A test that imports it does not prove the deploy works.
+- Client code uses only TypeScript syntax that Node can strip, and imports name the `.ts` file.

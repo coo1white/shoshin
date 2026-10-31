@@ -1,13 +1,6 @@
-// @ts-check
-
-/** GitHub accepted a 6,000-character link and failed from 7,000, measured 2026-10-31. */
 export const MAX_GITHUB_LINK = 6000;
 
-/**
- * @param {string} path
- * @returns {boolean}
- */
-export function isSafePath(path) {
+export function isSafePath(path: string): boolean {
   if (typeof path !== "string") return false;
   if (path.length === 0) return false;
   if (path.includes("\\")) return false;
@@ -22,15 +15,7 @@ export function isSafePath(path) {
   return true;
 }
 
-/**
- * @param {string} owner
- * @param {string} repo
- * @param {string|null} branch
- * @param {string} path
- * @param {string|null} content
- * @returns {string}
- */
-export function newFileLink(owner, repo, branch, path, content) {
+export function newFileLink(owner: string, repo: string, branch: string | null, path: string, content: string | null): string {
   const b = branch == null ? "main" : branch;
   const encodedBranch = b.split("/").map(encodeURIComponent).join("/");
   let href =
@@ -48,14 +33,7 @@ export function newFileLink(owner, repo, branch, path, content) {
   return href;
 }
 
-/**
- * @param {string} owner
- * @param {string} repo
- * @param {string|null} branch
- * @param {{path:string, content:string}} file
- * @returns {{kind:string, href:string}}
- */
-export function fileLinkPlan(owner, repo, branch, file) {
+export function fileLinkPlan(owner: string, repo: string, branch: string | null, file: { path: string; content: string }): { kind: string; href: string } {
   const filled = newFileLink(owner, repo, branch, file.path, file.content);
   if (filled.length <= MAX_GITHUB_LINK) {
     return { kind: "filled", href: filled };
@@ -64,11 +42,7 @@ export function fileLinkPlan(owner, repo, branch, file) {
   return { kind: "copy first", href };
 }
 
-/**
- * @param {{path:string, content:string}[]} files
- * @returns {string}
- */
-export function buildPatch(files) {
+export function buildPatch(files: { path: string; content: string }[]): string {
   const safe = files.filter((f) => isSafePath(f.path));
   if (safe.length === 0) return "";
   let out = "";
@@ -99,11 +73,7 @@ export function buildPatch(files) {
   return out;
 }
 
-/**
- * @param {{path:string, content:string}[]} files
- * @returns {{first: {path:string,content:string,source?:string}|null, rest: {path:string,content:string,source?:string}[]}}
- */
-export function orderFiles(files) {
+export function orderFiles(files: { path: string; content: string; source?: string }[]): { first: { path: string; content: string; source?: string } | null; rest: { path: string; content: string; source?: string }[] } {
   const safe = files.filter((f) => isSafePath(f.path));
   if (safe.length === 0) return { first: null, rest: [] };
   let firstIdx = safe.findIndex((f) => f.path === "AGENTS.md");
@@ -113,11 +83,7 @@ export function orderFiles(files) {
   return { first, rest };
 }
 
-/**
- * @param {{files:{path:string}[], muse:string}} fixes
- * @returns {string}
- */
-export function fixMessage(fixes) {
+export function fixMessage(fixes: { files?: { path: string }[]; muse: string }): string {
   if (fixes.muse === "failed") {
     return "Muse could not write the project section this time. Please fill in the section called This project yourself.";
   }
@@ -127,11 +93,7 @@ export function fixMessage(fixes) {
   return "";
 }
 
-/**
- * @param {{claude_import: {file:string, line:string}|null|undefined}} fixes
- * @returns {string}
- */
-export function claudeImportMessage(fixes) {
+export function claudeImportMessage(fixes: { claude_import?: { file: string; line: string } | null }): string {
   if (fixes && fixes.claude_import && fixes.claude_import.file && fixes.claude_import.line) {
     return `Your repo already has ${fixes.claude_import.file}. Add this line to it, so Claude Code reads the new rules: ${fixes.claude_import.line}`;
   }
@@ -146,26 +108,29 @@ export const PATCH_COMMANDS = [
   "gh pr create --fill",
 ].join("\n");
 
-/**
- * @param {object|null|undefined} record
- * @returns {{sha256:string, recordedAt:string, documentName:string, documentText:string, verifyCommand:string, rekorUrl:string|null, solanaUrl:string|null, message:string}|null
- */
-export function recordView(record) {
+export function recordView(record: unknown): { sha256: string; recordedAt: string; documentName: string; documentText: string; verifyCommand: string; rekorUrl: string | null; solanaUrl: string | null; message: string } | null {
   if (!record || typeof record !== "object") return null;
-  const sha256 = record.sha256;
-  const recordedAt = record.recorded_at;
-  const documentText = record.document;
+  const r = record as Record<string, unknown>;
+  const sha256 = r.sha256;
+  const recordedAt = r.recorded_at;
+  const documentText = r.document;
   if (typeof sha256 !== "string" || typeof recordedAt !== "string" || typeof documentText !== "string") return null;
   if (!/^[0-9a-f]{64}$/.test(sha256)) return null;
   const documentName = `yokoten-doctor-${sha256.slice(0, 12)}.json`;
   const verifyCommand = `sha256sum ${documentName}`;
-  let rekorUrl = null;
-  let solanaUrl = null;
-  if (record.rekor && typeof record.rekor.url === "string" && record.rekor.url.startsWith("https://search.sigstore.dev/")) {
-    rekorUrl = record.rekor.url;
+  let rekorUrl: string | null = null;
+  let solanaUrl: string | null = null;
+  if (r.rekor && typeof r.rekor === "object") {
+    const rekor = r.rekor as Record<string, unknown>;
+    if (typeof rekor.url === "string" && rekor.url.startsWith("https://search.sigstore.dev/")) {
+      rekorUrl = rekor.url;
+    }
   }
-  if (record.solana && typeof record.solana.url === "string" && record.solana.url.startsWith("https://explorer.solana.com/") && record.solana.url.endsWith("?cluster=devnet")) {
-    solanaUrl = record.solana.url;
+  if (r.solana && typeof r.solana === "object") {
+    const solana = r.solana as Record<string, unknown>;
+    if (typeof solana.url === "string" && solana.url.startsWith("https://explorer.solana.com/") && solana.url.endsWith("?cluster=devnet")) {
+      solanaUrl = solana.url;
+    }
   }
   let message = "";
   if (rekorUrl && solanaUrl) {

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="yokoten doctor">
+<style>
+  .fg { fill: #171717; stroke: #171717; }
+  @media (prefers-color-scheme: dark) {
+    .fg { fill: #ededed; stroke: #ededed; }
+  }
+</style>
+<defs><mask id="yk-logo" maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512"><rect width="512" height="512" fill="white"/><path d="M116.2 132.3 L195.7 132.3 L258.2 233.1 L314.4 132.3 L391.8 132.3 L238.5 406.0 L161.1 406.0 L220.3 300.4 Z" fill="black"/></mask></defs>
+<polygon points="164.04,34 347.96,34 478,164.04 478,347.96 347.96,478 164.04,478 34,347.96 34,164.04" class="fg" stroke-width="28" stroke-linejoin="round" mask="url(#yk-logo)"/>
+</svg>

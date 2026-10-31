@@ -1,0 +1,114 @@
+---
+import Page from "../layouts/Page.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import TerminalWindow from "../components/TerminalWindow.astro";
+import sample from "../data/sample-result.json";
+const doneCount = sample.steps.filter((s) => s.mark === "done").length;
+const total = sample.steps.length;
+const visible = [
+  ...sample.steps.filter((s) => s.mark === "done"),
+  ...sample.steps.filter((s) => s.mark === "next").slice(0, 1),
+  ...sample.steps.filter((s) => s.mark === "to do").slice(0, 1)
+];
+const hiddenCount = total - visible.length;
+const commitShort = (sample.commit as string).slice(0, 7).toUpperCase();
+const ownerRepo = `${sample.owner}/${sample.repo}`;
+---
+<Page>
+<Header />
+<div id="landing">
+<section id="top" class="hero">
+  <div class="hero-copy">
+    <ul class="badges">
+      <li class="badge-green">yokoten {sample.yokotenVersion}</li>
+      <li class="badge-outline">Public repos</li>
+    </ul>
+    <h1 class="hero-title">Is your repo ready for AI agents?</h1>
+    <p class="hero-sub">See what is missing. Get the files that fix it.</p>
+    <form id="check-form" novalidate class="check-form">
+      <label for="repo-input">GitHub repo URL</label>
+      <div class="input-row">
+        <input id="repo-input" name="url" type="url" placeholder="https://github.com/owner/repo" autocomplete="off" />
+        <button type="submit">Check</button>
+      </div>
+    </form>
+    <p id="check-error" class="error-box" role="alert" hidden></p>
+    <noscript><p>This page needs JavaScript to run a check. You can also run it yourself: npx yokoten</p></noscript>
+    <div class="try-row">
+      <span class="try-label">Try one</span>
+      <a href="?repo=Uniswap/v4-core" class="chip">Uniswap/v4-core</a>
+      <a href="?repo=OpenZeppelin/openzeppelin-contracts" class="chip">OpenZeppelin/openzeppelin-contracts</a>
+      <a href="?repo=jup-ag/jupiter-quote-api-node" class="chip">jup-ag/jupiter-quote-api-node</a>
+    </div>
+  </div>
+  <TerminalWindow title="REAL RESULT" aside={commitShort}>
+    <div class="sample-title">{ownerRepo} · {doneCount} of {total} steps</div>
+    <div class="spacer"></div>
+    <div class="steps-grid">
+      {visible.map((s) => {
+        if (s.mark === "done") return (<><span class="step-done">✓ done</span><span>{s.title}</span></>);
+        if (s.mark === "next") return (<><span class="step-next">● next</span><span class="step-next-text">{s.title}</span></>);
+        return (<><span class="step-todo">● to do</span><span>{s.title}</span></>);
+      })}
+      <span class="step-more">+{hiddenCount}</span><span class="step-more">more to do</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="muse-label">Muse wrote for this repo:</div>
+    {sample.museLines.map((line: string) => <div>{line}</div>)}
+  </TerminalWindow>
+</section>
+<section class="band">
+  <div class="band-inner">
+    <p class="section-label"><span>01 ·</span> The result</p>
+    <h2 class="section-title">What you get</h2>
+    <ul class="cards">
+      <li class="card">
+        <div aria-hidden="true" class="card-bars">
+          <span class="bar bar-green"></span><span class="bar bar-green"></span><span class="bar bar-green"></span><span class="bar bar-green"></span><span class="bar bar-fg"></span><span class="bar bar-raised"></span><span class="bar bar-raised"></span><span class="bar bar-raised"></span><span class="bar bar-raised"></span><span class="bar bar-raised"></span><span class="bar bar-raised"></span><span class="bar bar-raised"></span><span class="bar bar-raised"></span>
+        </div>
+        <p class="card-title">Where the repo stands, and the one next step.</p>
+        <p class="card-foot">yokoten doctor, 13 checks</p>
+      </li>
+      <li class="card">
+        <svg width="72" height="56" viewBox="0 0 72 56" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h22l10 10v34H8z"></path><path d="M30 6v10h10"></path><path d="M15 26h18M15 33h18M15 40h11"></path><path d="M52 28h14M59 21v14" stroke="#13a10e"></path></svg>
+        <p class="card-title">Files written for this repo, ready to commit.</p>
+        <p class="card-foot">Muse writes the project section</p>
+      </li>
+      <li class="card">
+        <svg width="72" height="56" viewBox="0 0 72 56" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="10" width="42" height="36" rx="4"></rect><path d="M14 21h26M14 29h26M14 37h14"></path><circle cx="54" cy="36" r="11" fill="var(--surface)"></circle><path d="M49 36l4 4 6-7" stroke="#13a10e"></path></svg>
+        <p class="card-title">A public record you can check yourself.</p>
+        <p class="card-foot">SHA-256 on Rekor and Solana devnet</p>
+      </li>
+    </ul>
+  </div>
+</section>
+<section id="how" class="section-inner">
+  <p class="section-label"><span>02 ·</span> Behind the button</p>
+  <h2 class="section-title">How it works</h2>
+  <ol class="steps-list">
+    <li class="step-item"><span aria-hidden="true" class="step-num">1</span><span>Copies the public files into a throwaway sandbox.</span></li>
+    <li class="step-item"><span aria-hidden="true" class="step-num">2</span><span>Cuts the network and runs yokoten. Your code never runs.</span></li>
+    <li class="step-item"><span aria-hidden="true" class="step-num">3</span><span>Muse reads the repo and writes its project section.</span></li>
+  </ol>
+</section>
+<section id="questions" class="section-inner">
+  <p class="section-label"><span>03 ·</span> Questions</p>
+  <h2 class="section-title">Three questions</h2>
+  <dl class="questions">
+    <div class="qa"><dt>Can it change my repo?</dt><dd>No. It has no access. Nothing changes until you click Commit on GitHub.</dd></div>
+    <div class="qa"><dt>Does it keep my code?</dt><dd>No. The sandbox is thrown away. Muse's text stays in a cache for 24 hours.</dd></div>
+    <div class="qa"><dt>Is it free?</dt><dd>Yes, with no account. Each visitor gets 10 checks an hour.</dd></div>
+  </dl>
+</section>
+<section class="cta">
+  <div class="cta-inner">
+    <p class="cta-title">This page looks once. yokoten stays on guard.</p>
+    <a href="https://yokoten.app/" class="cta-link">See what it stops</a>
+  </div>
+</section>
+</div>
+<main id="app" hidden></main>
+<Footer />
+<script src="../client/app.ts"></script>
+</Page>

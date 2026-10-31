@@ -1,35 +1,30 @@
-// @ts-check
 const API = "https://yokoten-doctor--yokoten-doctor-fastapi-app.us-east.modal.run";
 
-import { PROGRESS, viewModel, repoFromInput, repoFromQuery } from "./view.js";
-import { renderStartPanel } from "./ui/start.js";
-import { renderResultHeader } from "./ui/result.js";
-import { renderFixSection } from "./ui/fix.js";
-import { renderProofSection, renderFooter } from "./ui/proof.js";
-import { captureDetailsState, restoreDetailsState } from "./ui/dom.js";
+import { viewModel, repoFromInput, repoFromQuery } from "./view.ts";
+import { renderResultHeader } from "./ui/result.ts";
+import { renderFixSection } from "./ui/fix.ts";
+import { renderProofSection } from "./ui/proof.ts";
+import { captureDetailsState, restoreDetailsState } from "./ui/dom.ts";
+import { renderWorking } from "./ui/working.ts";
+import type { CheckResult, FixesPayload, RecordPayload } from "./types.ts";
 
-const appEl = document.getElementById("app");
+const appEl = document.getElementById("app") as HTMLElement | null;
+const landingEl = document.getElementById("landing") as HTMLElement | null;
+const checkForm = document.getElementById("check-form") as HTMLFormElement | null;
+const repoInput = document.getElementById("repo-input") as HTMLInputElement | null;
+const checkError = document.getElementById("check-error") as HTMLParagraphElement | null;
 
-let state = "empty";
-let currentProgress = [];
-let lastResult = null;
-let errorMessage = "";
-let inputValue = "";
-let lastFixes = null;
+let state: "empty" | "working" | "result" = "empty";
+let currentProgress: string[] = [];
+let lastResult: CheckResult | null = null;
+let lastFixes: FixesPayload | null = null;
 let isWaitingForFixes = false;
-let hasChecked = false;
-let lastRecord = null;
+let lastRecord: RecordPayload | null = null;
 let hasScrolledForResult = false;
 
-/** @type {Set<string>} */
-let openDetailsKeys = new Set();
+const openDetailsKeys = new Set<string>();
 
-const _staticInput = document.getElementById("repo-input");
-if (_staticInput && typeof _staticInput.value === "string" && _staticInput.value) {
-  inputValue = _staticInput.value;
-}
-
-function markFixesLost() {
+function markFixesLost(): void {
   if (lastResult && lastFixes == null) {
     lastFixes = { files: [], summary: "", muse: "lost" };
     isWaitingForFixes = false;
@@ -37,7 +32,7 @@ function markFixesLost() {
   }
 }
 
-function maybeUpdateUrl(inputText) {
+function maybeUpdateUrl(inputText: string): void {
   const repo = repoFromInput(inputText);
   if (repo) {
     const next = "?repo=" + encodeURIComponent(repo);
@@ -47,64 +42,62 @@ function maybeUpdateUrl(inputText) {
   }
 }
 
-function scrollResultIntoView() {
+function scrollResultIntoView(): void {
   const el = document.getElementById("result-panel");
   if (!el) return;
   const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const behavior = prefersReduced ? "auto" : "smooth";
+  const behavior: ScrollBehavior = prefersReduced ? "auto" : "smooth";
   try {
     el.scrollIntoView({ behavior, block: "start" });
   } catch {}
 }
 
-function render() {
+function updateVisibility(): void {
+  if (state === "empty") {
+    if (landingEl) landingEl.hidden = false;
+    if (appEl) appEl.hidden = true;
+  } else {
+    if (landingEl) landingEl.hidden = true;
+    if (appEl) appEl.hidden = false;
+  }
+}
+
+function showError(message: string): void {
+  if (checkError) {
+    checkError.textContent = message;
+    checkError.hidden = false;
+  }
+  if (repoInput) repoInput.focus();
+}
+
+function clearError(): void {
+  if (checkError) {
+    checkError.textContent = "";
+    checkError.hidden = true;
+  }
+}
+
+function render(): void {
   if (appEl) captureDetailsState(appEl, openDetailsKeys);
   if (!appEl) return;
   while (appEl.firstChild) appEl.removeChild(appEl.firstChild);
 
-  const h1 = document.createElement("h1");
-  h1.textContent = "Is your repo ready for AI agents?";
-  appEl.appendChild(h1);
-
-  const startPanel = renderStartPanel({
-    state,
-    inputValue,
-    onInput: (v) => { inputValue = v; },
-    onSubmit: () => startCheck(),
-  });
-  appEl.appendChild(startPanel);
-
-  if (errorMessage) {
-    const err = document.createElement("p");
-    err.setAttribute("role", "alert");
-    err.textContent = errorMessage;
-    err.className = "error-box";
-    appEl.appendChild(err);
-  }
+  updateVisibility();
 
   if (state === "working") {
-    const progWrap = document.createElement("div");
-    progWrap.className = "panel";
-    const title = document.createElement("h2");
-    title.textContent = "Checking…";
-    progWrap.appendChild(title);
-    const stepsOrder = ["reading", "copying", "checking"];
-    stepsOrder.forEach((step) => {
-      const idx = stepsOrder.indexOf(step);
-      const currentIdx = stepsOrder.indexOf(currentProgress[currentProgress.length - 1]);
-      if (currentProgress.length === 0) return;
-      if (idx > currentIdx) return;
-      const p = document.createElement("p");
-      p.className = "progress-item";
-      const prefix = idx < currentIdx ? "✓ " : "";
-      p.textContent = prefix + (PROGRESS[step] || step);
-      progWrap.appendChild(p);
-    });
-    appEl.appendChild(progWrap);
+    const rawUrl = repoInput ? repoInput.value.trim() : "";
+    const repoName = repoFromInput(rawUrl) ?? (rawUrl || "");
+    const working = renderWorking({ repoName, progress: currentProgress });
+    appEl.appendChild(working);
   }
 
   if (state === "result" && lastResult) {
     const vm = viewModel(lastResult);
+    const checkAnother = document.createElement("a");
+    checkAnother.href = "./";
+    checkAnother.textContent = "Check another repo";
+    checkAnother.className = "check-another";
+    appEl.appendChild(checkAnother);
     const term = renderResultHeader({ lastResult, vm, lastFixes });
     const fixSection = renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult });
     term.appendChild(fixSection);
@@ -113,23 +106,17 @@ function render() {
     appEl.appendChild(term);
   }
 
-  const footer = renderFooter();
-  appEl.appendChild(footer);
   restoreDetailsState(appEl, openDetailsKeys);
-  if (errorMessage && hasChecked) {
-    const inputEl = document.getElementById("repo-input");
-    if (inputEl) inputEl.focus();
-  }
 }
 
-async function startCheck() {
-  errorMessage = "";
-  const url = inputValue.trim();
+async function startCheck(): Promise<void> {
+  clearError();
+  const url = repoInput ? repoInput.value.trim() : "";
   if (!url) {
-    errorMessage = "That doesn't look like a public GitHub repo. Try https://github.com/owner/repo.";
-    hasChecked = true;
+    const msg = "That doesn't look like a public GitHub repo. Try https://github.com/owner/repo.";
     state = "empty";
     render();
+    showError(msg);
     return;
   }
   maybeUpdateUrl(url);
@@ -141,7 +128,6 @@ async function startCheck() {
   isWaitingForFixes = false;
   hasScrolledForResult = false;
   openDetailsKeys.clear();
-  hasChecked = true;
   render();
 
   try {
@@ -160,7 +146,7 @@ async function startCheck() {
       const { done, value } = await reader.read();
       if (done) break;
       buffer += decoder.decode(value, { stream: true });
-      let idx;
+      let idx: number;
       while ((idx = buffer.indexOf("\n\n")) !== -1) {
         const raw = buffer.slice(0, idx);
         buffer = buffer.slice(idx + 2);
@@ -173,14 +159,15 @@ async function startCheck() {
           else if (line.startsWith("data:")) dataStr = line.slice(5).trim();
         }
         if (!eventName) continue;
-        let data = null;
+        let data: unknown = null;
         try { data = JSON.parse(dataStr); } catch { data = {}; }
         if (eventName === "progress") {
-          const step = data.step;
+          const d = data as Record<string, unknown>;
+          const step = d.step as string | undefined;
           if (step) { currentProgress.push(step); render(); }
         } else if (eventName === "result") {
           hasResultOrError = true;
-          lastResult = data;
+          lastResult = data as CheckResult;
           state = "result";
           isWaitingForFixes = true;
           render();
@@ -192,33 +179,44 @@ async function startCheck() {
           }
         } else if (eventName === "fixes") {
           if (!lastResult) continue;
-          lastFixes = data;
+          lastFixes = data as FixesPayload;
           isWaitingForFixes = false;
           render();
         } else if (eventName === "record") {
-          lastRecord = data;
+          lastRecord = data as RecordPayload;
           render();
         } else if (eventName === "error") {
           hasResultOrError = true;
-          errorMessage = data.message || "The check could not finish. Please try again in a minute.";
+          const d = data as Record<string, unknown>;
+          const msg = typeof d.message === "string" ? d.message : "The check could not finish. Please try again in a minute.";
           state = "empty";
           render();
+          showError(msg);
         }
       }
     }
     if (!hasResultOrError) {
-      errorMessage = "The connection dropped. Please try again.";
+      const msg = "The connection dropped. Please try again.";
       state = "empty";
       render();
+      showError(msg);
     } else {
       markFixesLost();
     }
-  } catch (e) {
+  } catch (_e) {
     if (lastResult) { markFixesLost(); return; }
-    errorMessage = "The connection dropped. Please try again.";
+    const msg = "The connection dropped. Please try again.";
     state = "empty";
     render();
+    showError(msg);
   }
+}
+
+if (checkForm) {
+  checkForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    void startCheck();
+  });
 }
 
 render();
@@ -227,9 +225,7 @@ try {
   const fromQ = repoFromQuery(window.location.search);
   if (fromQ) {
     const full = "https://github.com/" + fromQ;
-    inputValue = full;
-    const el = document.getElementById("repo-input");
-    if (el) el.value = full;
-    startCheck();
+    if (repoInput) repoInput.value = full;
+    void startCheck();
   }
 } catch {}

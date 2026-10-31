@@ -1,7 +1,6 @@
-// @ts-check
-import { splitCode } from "../view.js";
+import { splitCode } from "../view.ts";
 
-export function safeUrl(href) {
+export function safeUrl(href: string): string | null {
   if (typeof href !== "string") return null;
   if (href.startsWith("https://github.com/")) return href;
   if (href.startsWith("https://yokoten.app/")) return href;
@@ -9,7 +8,7 @@ export function safeUrl(href) {
   return null;
 }
 
-export function createLink(href, text) {
+export function createLink(href: string, text: string): HTMLElement {
   const a = document.createElement("a");
   const safe = safeUrl(href);
   if (safe) {
@@ -25,7 +24,7 @@ export function createLink(href, text) {
   return a;
 }
 
-export function fallbackSelect(el) {
+export function fallbackSelect(el: HTMLElement): void {
   const range = document.createRange();
   range.selectNodeContents(el);
   const sel = window.getSelection();
@@ -35,7 +34,7 @@ export function fallbackSelect(el) {
   }
 }
 
-export function addCopyButton(label, text, codeEl) {
+export function addCopyButton(label: string, text: string, codeEl: HTMLElement): HTMLButtonElement {
   const btn = document.createElement("button");
   btn.textContent = label;
   btn.className = "button-quiet";
@@ -53,46 +52,46 @@ export function addCopyButton(label, text, codeEl) {
           fallbackSelect(codeEl);
           btn.textContent = "Press Ctrl+C to copy";
           const details = codeEl.closest("details");
-          if (details) details.open = true;
+          if (details) (details as HTMLDetailsElement).open = true;
         },
       ).catch(() => {
         fallbackSelect(codeEl);
         btn.textContent = "Press Ctrl+C to copy";
         const details = codeEl.closest("details");
-        if (details) details.open = true;
+        if (details) (details as HTMLDetailsElement).open = true;
       });
     } else {
       fallbackSelect(codeEl);
       btn.textContent = "Press Ctrl+C to copy";
       const details = codeEl.closest("details");
-      if (details) details.open = true;
+      if (details) (details as HTMLDetailsElement).open = true;
     }
   });
   return btn;
 }
 
-export function captureDetailsState(root, openSet) {
+export function captureDetailsState(root: Element | null, openSet: Set<string>): void {
   if (!root) return;
   const detailsEls = root.querySelectorAll("details[data-key]");
   for (const d of detailsEls) {
     const key = d.getAttribute("data-key");
     if (!key) continue;
-    if (d.open) openSet.add(key);
+    if ((d as HTMLDetailsElement).open) openSet.add(key);
     else openSet.delete(key);
   }
 }
 
-export function restoreDetailsState(root, openSet) {
+export function restoreDetailsState(root: Element | null, openSet: Set<string>): void {
   if (!root) return;
   const detailsEls = root.querySelectorAll("details[data-key]");
   for (const d of detailsEls) {
     const key = d.getAttribute("data-key");
     if (!key) continue;
-    if (openSet.has(key)) d.open = true;
+    if (openSet.has(key)) (d as HTMLDetailsElement).open = true;
   }
 }
 
-export function renderRichText(text, parent) {
+export function renderRichText(text: string | null | undefined, parent: HTMLElement): void {
   if (text == null || text === "") return;
   const parts = splitCode(text);
   for (const p of parts) {
@@ -106,7 +105,7 @@ export function renderRichText(text, parent) {
   }
 }
 
-export function appendLabeledSection(parent, labelText, value) {
+export function appendLabeledSection(parent: HTMLElement, labelText: string, value: string | null | undefined): void {
   if (value == null || value === "") return;
   const block = document.createElement("div");
   block.className = "field-block";

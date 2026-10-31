@@ -16,8 +16,9 @@ This counts how many rounds of fixes each task needed after the first code came 
 | Confirm the Solana memo | 0 | none |
 | Split the page | 1 | real page |
 | Static first screen | 1 | test |
+| Move to Astro | 3 | review, test, real page |
 
-18 rounds over 12 tasks: a mean of 1.5. Found by review 7, tests 6, the commit check 2, real runs 3.
+21 rounds over 13 tasks: a mean of 1.6. Found by review 8, tests 7, the commit check 2, real runs 4.
 
 Three of the problems no test could have caught: a deploy that left out modules, a page buried by 26 repeated warnings, and a wrong import.
 

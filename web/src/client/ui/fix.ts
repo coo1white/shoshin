@@ -1,8 +1,8 @@
-// @ts-check
-import { createLink, addCopyButton } from "./dom.js";
-import { fileLinkPlan, buildPatch, orderFiles, fixMessage, claudeImportMessage, PATCH_COMMANDS } from "../fixes.js";
+import { createLink, addCopyButton } from "./dom.ts";
+import { fileLinkPlan, buildPatch, orderFiles, fixMessage, claudeImportMessage, PATCH_COMMANDS } from "../fixes.ts";
+import type { CheckResult, FixesPayload, ViewModel } from "../types.ts";
 
-function createFixCard(owner, repo, branch, file, lastFixes) {
+function createFixCard(owner: string, repo: string, branch: string | null, file: { path: string; content: string; source?: string }, lastFixes: FixesPayload | null): HTMLDivElement {
   const card = document.createElement("div");
   card.className = "fix-card";
 
@@ -73,7 +73,7 @@ function createFixCard(owner, repo, branch, file, lastFixes) {
   return card;
 }
 
-export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult }) {
+export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult }: { vm: ViewModel; lastFixes: FixesPayload | null; isWaitingForFixes: boolean; lastResult: CheckResult }): HTMLDivElement {
   const fixSection = document.createElement("div");
   fixSection.className = "fix-section";
   const fixTitle = document.createElement("h3");
@@ -107,9 +107,9 @@ export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult 
       const notice = document.createElement("p");
       notice.textContent = "Nothing changes until you click Commit on GitHub. We have no access to your repo.";
       fixSection.appendChild(notice);
-      const owner = lastResult.owner;
-      const repo = lastResult.repo;
-      const branch = lastResult.default_branch || lastResult.branch || null;
+      const owner = String(lastResult.owner ?? "");
+      const repo = String(lastResult.repo ?? "");
+      const branch = (lastResult.default_branch as string | null) ?? (lastResult.branch as string | null) ?? null;
       const ordered = orderFiles(files);
       if (ordered.first) {
         const card = createFixCard(owner, repo, branch, ordered.first, lastFixes);

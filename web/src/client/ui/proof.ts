@@ -1,9 +1,9 @@
-// @ts-check
-import { formatRecordTime } from "../view.js";
-import { recordView } from "../fixes.js";
-import { createLink, addCopyButton } from "./dom.js";
+import { formatRecordTime } from "../view.ts";
+import { recordView } from "../fixes.ts";
+import { createLink, addCopyButton } from "./dom.ts";
+import type { CheckResult, ViewModel } from "../types.ts";
 
-export function renderProofSection({ vm, lastResult, lastRecord }) {
+export function renderProofSection({ vm, lastResult, lastRecord }: { vm: ViewModel; lastResult: CheckResult; lastRecord: unknown }): HTMLDivElement {
   const checkYourself = document.createElement("div");
   checkYourself.className = "check-yourself";
   const hCheck = document.createElement("h3");
@@ -14,7 +14,7 @@ export function renderProofSection({ vm, lastResult, lastRecord }) {
   checkedBy.textContent = `Checked by yokoten ${vm.evidence.version} at commit ${vm.evidence.shortCommit}.`;
   checkYourself.appendChild(checkedBy);
 
-  function addCodeBlockWithCopy(text) {
+  function addCodeBlockWithCopy(text: string): HTMLDivElement {
     const wrap = document.createElement("div");
     wrap.className = "code-wrap";
     const pre = document.createElement("pre");
@@ -128,7 +128,7 @@ export function renderProofSection({ vm, lastResult, lastRecord }) {
   if (lastResult.about) {
     const aboutP = document.createElement("p");
     aboutP.className = "small";
-    aboutP.textContent = lastResult.about;
+    aboutP.textContent = lastResult.about as string;
     checkYourself.appendChild(aboutP);
   }
   const closingP = document.createElement("p");
@@ -141,19 +141,4 @@ export function renderProofSection({ vm, lastResult, lastRecord }) {
   checkYourself.appendChild(closingP);
 
   return checkYourself;
-}
-
-export function renderFooter() {
-  const footer = document.createElement("footer");
-  footer.className = "footer small muted";
-  const howMade = document.createElement("p");
-  howMade.textContent = "How this was made: Muse Spark Open wrote the code and writes each repo's project section. Claude Opus 5.5 wrote the design and task briefs, reviewed the code, and set the API address. yokoten is an existing tool, used as a dependency.";
-  footer.appendChild(howMade);
-  const tellP = document.createElement("p");
-  tellP.appendChild(document.createTextNode("A wrong check result or a broken page? Tell yokoten: "));
-  const footLink1 = createLink("https://github.com/yokoten-labs/yokoten/issues", "github.com/yokoten-labs/yokoten/issues");
-  tellP.appendChild(footLink1);
-  tellP.appendChild(document.createTextNode("."));
-  footer.appendChild(tellP);
-  return footer;
 }
