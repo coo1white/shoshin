@@ -116,3 +116,16 @@ and a small Python service in `server/` that runs on Modal. The design is in
 - Never run a scanned repo's code: no install, no build, no tests and no
   scripts from a repo this page checks. The sandbox only clones, reads files
   and runs yokoten on them.
+
+### Rules for writing code here
+
+These come from mistakes already made in this repo. Each one was caught in review or by a check.
+
+- Return every test that was in a file. Never drop a test to make a file shorter.
+- Tests use only `node:test` and `node:assert/strict`, or `pytest`. Add no test framework.
+- Test data uses `example.com` for email and `192.0.2.0/24` for IP addresses. The commit check refuses others.
+- A task that adds a file type or a folder also updates the test that limits them.
+- A worker thread always puts a final item on its queue, so a reader never waits for a time limit.
+- When an optional step fails, say so once and end. Check what the reader does in that case.
+- Leave no comments that think out loud, no branches that cannot run, and no repeated blocks.
+- A module on Modal must be in `web_image`. A test that imports it does not prove the deploy works.
