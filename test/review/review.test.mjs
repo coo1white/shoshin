@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { parseAnswer, decideEvent, cleanText, buildReviewBody } from "../../.github/review/review.mjs";
+import { parseAnswer, decideEvent, cleanText, buildReviewBody, splitSavedData } from "../../.github/review/review.mjs";
 
 describe("parseAnswer", () => {
   it("parses a good object", () => {
@@ -112,5 +112,67 @@ describe("buildReviewBody", () => {
     const body = buildReviewBody(null, "m");
     const first = body.split("\n")[0];
     assert.equal(first, "The reviewer could not read the model's answer. This is not an approval.");
+  });
+});
+
+describe("splitSavedData", () => {
+  it("removes a section under web/src/data/examples/, keeps the sections before and after it unchanged, and names the path", () => {
+    const secA = "diff --git a/foo.txt b/foo.txt\n--- a/foo.txt\n+++ b/foo.txt\n+hello";
+    const secSaved = "diff --git a/web/src/data/examples/one.json b/web/src/data/examples/one.json\n--- a/web/src/data/examples/one.json\n+++ b/web/src/data/examples/one.json\n+{}";
+    const secC = "diff --git a/bar.txt b/bar.txt\n--- a/bar.txt\n+++ b/bar.txt\n+world";
+    const diff = [secA, secSaved, secC].join("\n");
+    const res = splitSavedData(diff);
+    assert.deepEqual(res.skipped, ["web/src/data/examples/one.json"]);
+    assert.equal(res.diff, [secA, secC].join("\n"));
+  });
+  it("keeps web/src/data/sample-result.json and web/src/data/examples/deep/x.json", () => {
+    const sec1 = "diff --git a/web/src/data/sample-result.json b/web/src/data/sample-result.json\ncontent1";
+    const sec2 = "diff --git a/web/src/data/examples/deep/x.json b/web/src/data/examples/deep/x.json\ncontent2";
+    const diff = [sec1, sec2].join("\n");
+    const res = splitSavedData(diff);
+    assert.deepEqual(res.skipped, []);
+    assert.equal(res.diff, diff);
+  });
+  it("returns an empty skipped for a diff with no such section, and an unchanged diff", () => {
+    const diff = "diff --git a/a.txt b/a.txt\nhello\nworld";
+    const res = splitSavedData(diff);
+    assert.deepEqual(res.skipped, []);
+    assert.equal(res.diff, diff);
+  });
+  it("a line inside a section text that holds the words diff --git but does not start with them does not start a new section", () => {
+    const secA = "diff --git a/a.txt b/a.txt\n+hello";
+    const secSaved = "diff --git a/web/src/data/examples/keep.json b/web/src/data/examples/keep.json\n+data";
+    const diff = secA + "\n some text diff --git inside\n" + secSaved;
+    const res = splitSavedData(diff);
+    assert.deepEqual(res.skipped, ["web/src/data/examples/keep.json"]);
+    assert.equal(res.skipped.length, 1);
+    assert.ok(res.diff.includes("some text diff --git inside"));
+    assert.ok(!res.diff.includes("web/src/data/examples/keep.json"));
+  });
+});
+
+describe("buildReviewBody with skipped", () => {
+  it("names the skipped paths above the last line, with an answer", () => {
+    const answer = { summary: "ok", findings: [] };
+    const body = buildReviewBody(answer, "m", ["web/src/data/examples/a.json", "web/src/data/examples/b.json"]);
+    const lines = body.split("\n");
+    assert.equal(lines[lines.length - 1], "Reviewed by DeepSeek 4.1 Flash (m)");
+    assert.equal(lines[lines.length - 2], "Not reviewed, saved data: web/src/data/examples/a.json, web/src/data/examples/b.json");
+  });
+  it("names the skipped paths above the last line, with a null answer", () => {
+    const body = buildReviewBody(null, "m", ["web/src/data/examples/a.json"]);
+    const lines = body.split("\n");
+    assert.equal(lines[lines.length - 1], "Reviewed by DeepSeek 4.1 Flash (m)");
+    assert.equal(lines[lines.length - 2], "Not reviewed, saved data: web/src/data/examples/a.json");
+    assert.match(body, /not an approval/i);
+  });
+  it("with no skipped paths, its output is the same as before", () => {
+    const answer = { summary: "ok", findings: [{ severity: "low", text: "minor" }] };
+    const a = buildReviewBody(answer, "m", []);
+    const b = buildReviewBody(answer, "m");
+    assert.equal(a, b);
+    const nullA = buildReviewBody(null, "m", []);
+    const nullB = buildReviewBody(null, "m");
+    assert.equal(nullA, nullB);
   });
 });

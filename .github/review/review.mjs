@@ -44,9 +44,50 @@ export function cleanText(text) {
   return s;
 }
 
-export function buildReviewBody(answer, model) {
+export function splitSavedData(diff) {
+  if (typeof diff !== "string" || diff === "") {
+    return { diff: diff ?? "", skipped: [] };
+  }
+  const lines = diff.split("\n");
+  const sections = [];
+  let current = null;
+  for (const line of lines) {
+    if (line.startsWith("diff --git ")) {
+      if (current !== null) sections.push(current);
+      current = [line];
+    } else {
+      if (current === null) {
+        current = [line];
+      } else {
+        current.push(line);
+      }
+    }
+  }
+  if (current !== null) sections.push(current);
+  const kept = [];
+  const skipped = [];
+  const re = /^diff --git a\/(.+?) b\/(.+)$/;
+  const allowedPath = /^web\/src\/data\/examples\/[^\/]+\.json$/;
+  for (const sec of sections) {
+    const first = sec[0] ?? "";
+    const m = first.match(re);
+    if (m && m[1] === m[2] && allowedPath.test(m[1])) {
+      skipped.push(m[1]);
+    } else {
+      kept.push(sec);
+    }
+  }
+  const outDiff = kept.map((s) => s.join("\n")).join("\n");
+  return { diff: outDiff, skipped };
+}
+
+export function buildReviewBody(answer, model, skipped = []) {
   const lastLine = `Reviewed by DeepSeek 4.1 Flash (${model})`;
+  const skippedLine = skipped.length > 0 ? cleanText(`Not reviewed, saved data: ${skipped.join(", ")}`) : null;
   if (answer === null) {
+    if (skippedLine) {
+      return `${cleanText("The reviewer could not read the model's answer. This is not an approval.")}\n${skippedLine}\n${lastLine}`;
+    }
     return `${cleanText("The reviewer could not read the model's answer. This is not an approval.")}\n${lastLine}`;
   }
   const lines = [];
@@ -54,6 +95,7 @@ export function buildReviewBody(answer, model) {
   for (const f of answer.findings) {
     lines.push(`- ${f.severity}: ${cleanText(f.text)}`);
   }
+  if (skippedLine) lines.push(skippedLine);
   lines.push(lastLine);
   return lines.join("\n");
 }
@@ -67,8 +109,8 @@ function systemMessage() {
   ].join("\n\n");
 }
 
-function userMessage(title, body, diff) {
-  return [
+function userMessage(title, body, diff, skipped = []) {
+  const parts = [
     "Title:",
     "<<<TITLE",
     title ?? "",
@@ -78,15 +120,17 @@ function userMessage(title, body, diff) {
     "<<<BODY",
     body ?? "",
     ">>>",
-    "",
-    "Diff:",
-    "<<<DIFF",
-    diff ?? "",
-    ">>>"
-  ].join("\n");
+    ""
+  ];
+  if (skipped.length > 0) {
+    parts.push(`These saved data files are left out of the diff: ${skipped.join(", ")}`);
+    parts.push("");
+  }
+  parts.push("Diff:", "<<<DIFF", diff ?? "", ">>>");
+  return parts.join("\n");
 }
 
-async function callModel(apiKey, model, title, body, diff, prNumber) {
+async function callModel(apiKey, model, title, body, diff, prNumber, skipped = []) {
   const controller = new AbortController();
   const t = setTimeout(() => controller.abort(), 300000);
   try {
@@ -104,7 +148,7 @@ async function callModel(apiKey, model, title, body, diff, prNumber) {
         reasoning_effort: "high",
         messages: [
           { role: "system", content: systemMessage() },
-          { role: "user", content: userMessage(title, body, diff) }
+          { role: "user", content: userMessage(title, body, diff, skipped) }
         ]
       }),
       signal: controller.signal
@@ -170,8 +214,14 @@ export async function main() {
     throw new Error(`failed to fetch diff with ${diffRes.status}`);
   }
   const diff = await diffRes.text();
+  const { diff: filteredDiff, skipped } = splitSavedData(diff);
 
-  if (diff.length > 200000) {
+  if (skipped.length > 0 && filteredDiff.trim() === "") {
+    await postReview(repo, prNumber, token, headSha, "COMMENT", buildReviewBody(null, model, skipped));
+    return;
+  }
+
+  if (filteredDiff.length > 200000) {
     const event = "COMMENT";
     const body = "This diff is too large for one review. It needs a person.";
     await postReview(repo, prNumber, token, headSha, event, body);
@@ -180,27 +230,34 @@ export async function main() {
 
   let answer = null;
   let modelError = false;
+  let lastText = "";
   try {
-    let text = await callModel(apiKey, model, title, bodyText, diff, prNumber);
+    let text = await callModel(apiKey, model, title, bodyText, filteredDiff, prNumber, skipped);
+    lastText = text;
     answer = parseAnswer(text);
     if (answer === null) {
-      text = await callModel(apiKey, model, title, bodyText, diff, prNumber);
+      text = await callModel(apiKey, model, title, bodyText, filteredDiff, prNumber, skipped);
+      lastText = text;
       answer = parseAnswer(text);
+    }
+    if (answer === null) {
+      console.log(`review: no usable answer, length ${lastText.length}`);
     }
   } catch {
     modelError = true;
     answer = null;
+    console.log("review: model request failed");
   }
 
   if (modelError) {
     const event = "COMMENT";
-    const reviewBody = buildReviewBody(null, model);
+    const reviewBody = buildReviewBody(null, model, skipped);
     await postReview(repo, prNumber, token, headSha, event, reviewBody);
     return;
   }
 
   const event = decideEvent(answer);
-  const reviewBody = buildReviewBody(answer, model);
+  const reviewBody = buildReviewBody(answer, model, skipped);
   await postReview(repo, prNumber, token, headSha, event, reviewBody);
 }
 
