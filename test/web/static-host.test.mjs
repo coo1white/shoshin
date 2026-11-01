@@ -251,6 +251,16 @@ describe('static host portability', () => {
     assert.ok(html.includes('devnet'), 'dist/index.html should contain "devnet"');
   });
 
+  test('dist/llms.txt and dist/agent-view.html both come from web/src/data/agent-view.md, and the home page links to the agent view', () => {
+    const source = fs.readFileSync(path.resolve('web/src/data/agent-view.md'), 'utf8');
+    const dist = path.dirname(indexPath);
+    assert.equal(fs.readFileSync(path.join(dist, 'llms.txt'), 'utf8'), source);
+    const page = fs.readFileSync(path.join(dist, 'agent-view.html'), 'utf8');
+    assert.ok(page.includes('<pre>'), 'dist/agent-view.html should show the text in <pre>');
+    assert.ok(page.includes('## Rules for agents'), 'dist/agent-view.html should hold the agent view text');
+    assert.ok(fs.readFileSync(indexPath, 'utf8').includes('href="/agent-view.html"'), 'dist/index.html should link to the agent view');
+  });
+
   test('web/src/data/sample-result.json has a 40-character commit, total equal to the number of steps, and done equal to the steps marked done', () => {
     const p = path.resolve('web/src/data/sample-result.json');
     const data = JSON.parse(fs.readFileSync(p, 'utf8'));

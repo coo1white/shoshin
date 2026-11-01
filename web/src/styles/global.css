@@ -117,6 +117,7 @@ nav a:hover, nav a[aria-current='page'] { color: var(--fg); }
 .skip:focus { position: fixed; left: 1rem; top: 1rem; background: var(--bg); padding: 0.5rem 0.75rem; z-index: 100; border: 1px solid var(--line); border-radius: 6px; }
 .tools-link { margin-right: 0.5rem; font-family: var(--font-sans); font-size: 0.9rem; font-weight: 500; color: var(--muted); text-decoration: none; }
 .tools-link:hover { color: var(--fg); }
+@media (max-width: 40rem) { .head { flex-wrap: nowrap; gap: 0.5rem; } .home .word { white-space: nowrap; } }
 .hero {
   max-width: calc(84rem + 2 * var(--gutter));
   margin: 0 auto;
@@ -516,6 +517,12 @@ nav a:hover, nav a[aria-current='page'] { color: var(--fg); }
   line-height: 1.6;
   color: var(--muted);
 }
+.view-switch { display: flex; justify-content: center; gap: 2px; width: fit-content; margin: 24px auto 0; padding: 3px; border-radius: 8px; background: var(--band); border: 1px solid var(--line); }
+.view-switch a { min-height: 32px; display: inline-flex; align-items: center; padding: 0 14px; border-radius: 6px; font-family: var(--font-mono); font-size: 13px; color: var(--muted); text-decoration: none; }
+.view-switch a[aria-current='page'] { background: var(--fg); color: var(--bg); }
+.agent-view { max-width: calc(52rem + 2 * var(--gutter)); }
+.agent-view .view-switch { margin: 0 0 32px; }
+.agent-view pre { margin: 0; padding: 0; max-height: none; overflow: visible; background: transparent; border: none; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
 .about { max-width: calc(52rem + 2 * var(--gutter)); }
 .about h1 { margin: 0 0 16px; font-size: 40px; line-height: 1.15; letter-spacing: -0.02em; font-weight: 700; }
 .about-lede { margin: 0; font-size: 18px; color: var(--muted); }
