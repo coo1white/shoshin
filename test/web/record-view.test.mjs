@@ -41,7 +41,7 @@ describe('recordView', () => {
     });
     assert.equal(r.rekorUrl, 'https://search.sigstore.dev/?uuid=abc');
     assert.equal(r.solanaUrl, null);
-    assert.equal(r.message, 'The devnet record could not be written this time.');
+    assert.equal(r.message, "The devnet record couldn't be written this time.");
   });
 
   it('neither gives other message', () => {
@@ -55,13 +55,13 @@ describe('recordView', () => {
     });
     assert.equal(r.rekorUrl, null);
     assert.equal(r.solanaUrl, null);
-    assert.equal(r.message, 'The public record could not be written this time. The result above is still right.');
+    assert.equal(r.message, "The public record couldn't be written this time. The result above is still correct.");
     const r2 = recordView({
       sha256: sha,
       recorded_at: '2024-01-01T00:00:00Z',
       document: '{}',
     });
-    assert.equal(r2.message, 'The public record could not be written this time. The result above is still right.');
+    assert.equal(r2.message, "The public record couldn't be written this time. The result above is still correct.");
   });
 
   it('rekor url on another host is dropped', () => {
@@ -74,7 +74,7 @@ describe('recordView', () => {
       solana: { url: 'https://explorer.solana.com/tx/abc?cluster=devnet' },
     });
     assert.equal(r.rekorUrl, null);
-    assert.equal(r.message, 'The public record could not be written this time. The result above is still right.');
+    assert.equal(r.message, "The public record couldn't be written this time. The result above is still correct.");
   });
 
   it('solana link without ?cluster=devnet is dropped', () => {
@@ -87,7 +87,7 @@ describe('recordView', () => {
       solana: { url: 'https://explorer.solana.com/tx/abc' },
     });
     assert.equal(r.solanaUrl, null);
-    assert.equal(r.message, 'The devnet record could not be written this time.');
+    assert.equal(r.message, "The devnet record couldn't be written this time.");
   });
 
   it('mainnet explorer link is dropped', () => {
@@ -100,7 +100,7 @@ describe('recordView', () => {
       solana: { url: 'https://explorer.solana.com/tx/abc?cluster=mainnet' },
     });
     assert.equal(r.solanaUrl, null);
-    assert.equal(r.message, 'The devnet record could not be written this time.');
+    assert.equal(r.message, "The devnet record couldn't be written this time.");
   });
 
   it('documentName and verifyCommand', () => {

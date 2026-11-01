@@ -1,4 +1,4 @@
-import { createLink, addCopyButton } from "./dom.ts";
+import { createLink, addCopyButton, createPanel } from "./dom.ts";
 import { fileLinkPlan, buildPatch, orderFiles, fixMessage, claudeImportMessage, PATCH_COMMANDS, projectSection } from "../fixes.ts";
 import type { CheckResult, FixesPayload, ViewModel } from "../types.ts";
 
@@ -20,6 +20,7 @@ function createFileRow(owner: string, repo: string, branch: string | null, file:
   li.appendChild(action);
 
   const details = document.createElement("details");
+  if (isFirst) details.open = true;
   details.setAttribute("data-key", "read-" + file.path);
   const sum = document.createElement("summary");
   sum.textContent = "Read this file";
@@ -27,7 +28,7 @@ function createFileRow(owner: string, repo: string, branch: string | null, file:
   if (file.source === "yokoten and Muse") {
     const museNote = document.createElement("p");
     museNote.className = "small";
-    museNote.textContent = "The section called This project is suggested by Muse. Read it before you apply it.";
+    museNote.textContent = "Muse wrote the “This project” section. Read it before you commit it.";
     details.appendChild(museNote);
   }
   const preWrap = document.createElement("div");
@@ -52,12 +53,12 @@ function createFileRow(owner: string, repo: string, branch: string | null, file:
   if (plan.kind !== "filled") {
     const hint = document.createElement("p");
     hint.className = "small muted";
-    hint.textContent = "Paste it into the empty box on GitHub. Then choose a new branch to open a pull request.";
+    hint.textContent = "GitHub will open an empty file. Paste this in, then pick a new branch to open a pull request.";
     details.appendChild(hint);
   } else {
     const hint = document.createElement("p");
     hint.className = "small muted";
-    hint.textContent = "GitHub asks you to commit. Choose a new branch to open a pull request.";
+    hint.textContent = "GitHub will open a commit form. Pick a new branch to open a pull request.";
     details.appendChild(hint);
   }
   const wrap = document.createElement("div");
@@ -69,10 +70,10 @@ function createFileRow(owner: string, repo: string, branch: string | null, file:
 
 export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult }: { vm: ViewModel; lastFixes: FixesPayload | null; isWaitingForFixes: boolean; lastResult: CheckResult }): HTMLElement {
   const section = document.createElement("section");
-  section.id = "fix";
-  section.className = "section-band";
+  section.id = "files";
+  section.className = "band";
   const inner = document.createElement("div");
-  inner.className = "section-band-inner";
+  inner.className = "band-inner files-grid";
   section.appendChild(inner);
 
   const left = document.createElement("div");
@@ -81,19 +82,16 @@ export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult 
 
   const label = document.createElement("p");
   label.className = "section-label";
-  const num = document.createElement("span");
-  num.textContent = "01 \u00b7";
-  label.appendChild(num);
-  label.appendChild(document.createTextNode(" Fix it"));
+  label.textContent = "Files";
   left.appendChild(label);
 
   if (isWaitingForFixes && !lastFixes) {
     const h2 = document.createElement("h2");
     h2.className = "section-title";
-    h2.textContent = "Fix it";
+    h2.textContent = "Your files";
     left.appendChild(h2);
     const waitingP = document.createElement("p");
-    waitingP.textContent = "Writing the fix files…";
+    waitingP.textContent = "Writing the files…";
     left.appendChild(waitingP);
     return section;
   }
@@ -102,10 +100,10 @@ export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult 
     if (lastFixes.muse === "lost") {
       const h2 = document.createElement("h2");
       h2.className = "section-title";
-      h2.textContent = "Fix it";
+      h2.textContent = "Your files";
       left.appendChild(h2);
       const lostP = document.createElement("p");
-      lostP.textContent = "The fix files did not arrive. Please run the check again.";
+      lostP.textContent = "The files didn't arrive. Run the check again.";
       left.appendChild(lostP);
       return section;
     }
@@ -116,6 +114,7 @@ export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult 
     if (msg && shouldShowFixMessage) {
       const msgP = document.createElement("p");
       msgP.textContent = msg;
+      if (lastFixes.muse === "failed") msgP.className = "error-box";
       left.appendChild(msgP);
     }
     if (files.length === 0 && hasOpenInstallOnly) {
@@ -124,18 +123,18 @@ export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult 
       h2.textContent = "No files to add";
       left.appendChild(h2);
       const noFilesP = document.createElement("p");
-      noFilesP.textContent = "Files from this page can't add what is left. The next section says what can.";
+      noFilesP.textContent = "What's left can't be fixed by adding files. The next section explains.";
       left.appendChild(noFilesP);
     }
     if (files.length > 0) {
       const count = files.length;
       const h2 = document.createElement("h2");
       h2.className = "section-title";
-      h2.textContent = count === 1 ? "1 file for this repo" : `${count} files for this repo`;
+      h2.textContent = count === 1 ? "1 file, written for this repo" : `${count} files, written for this repo`;
       left.appendChild(h2);
       const notice = document.createElement("p");
-      notice.className = "muted";
-      notice.textContent = "Nothing changes until you click Commit on GitHub. We have no access to your repo.";
+      notice.className = "files-notice";
+      notice.textContent = "Nothing changes until you commit on GitHub. We can't write to your repo.";
       left.appendChild(notice);
       const owner = String(lastResult.owner ?? "");
       const repo = String(lastResult.repo ?? "");
@@ -155,11 +154,11 @@ export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult 
       const termDetails = document.createElement("details");
       termDetails.setAttribute("data-key", "use-terminal");
       const termSum = document.createElement("summary");
-      termSum.textContent = "Use the terminal instead";
+      termSum.textContent = "Prefer the terminal?";
       termDetails.appendChild(termSum);
       const p2 = document.createElement("p");
       p2.className = "muted";
-      p2.textContent = "Download the patch, then apply it in your repo.";
+      p2.textContent = "Download the patch and apply it in your repo.";
       termDetails.appendChild(p2);
       const dlBtn = document.createElement("button");
       dlBtn.textContent = "Download the patch";
@@ -179,7 +178,7 @@ export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult 
       });
       termDetails.appendChild(dlBtn);
       const putP = document.createElement("p");
-      putP.textContent = "Put the file in your repo's folder, then run:";
+      putP.textContent = "Save it in your repo's folder, then run:";
       termDetails.appendChild(putP);
       const wrap = document.createElement("div");
       wrap.className = "code-wrap";
@@ -198,23 +197,23 @@ export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult 
         if (!hasOpen) {
           const h2 = document.createElement("h2");
           h2.className = "section-title";
-          h2.textContent = "0 files for this repo";
+          h2.textContent = "Nothing to add";
           left.appendChild(h2);
           const nothingP = document.createElement("p");
-          nothingP.textContent = "Nothing to fix here.";
+          nothingP.textContent = "This repo already has everything these files would add.";
           left.appendChild(nothingP);
         }
       } else {
         const h2 = document.createElement("h2");
         h2.className = "section-title";
-        h2.textContent = "Fix it";
+        h2.textContent = "Your files";
         left.appendChild(h2);
       }
     }
   } else {
     const h2 = document.createElement("h2");
     h2.className = "section-title";
-    h2.textContent = "Fix it";
+    h2.textContent = "Your files";
     left.appendChild(h2);
   }
 
@@ -223,26 +222,9 @@ export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult 
     const agentsFile = (lastFixes as FixesPayload).files.find((f) => f.path === "AGENTS.md");
     const content = agentsFile ? agentsFile.content : "";
     const text = projectSection(content);
-    const fig = document.createElement("figure");
-    fig.className = "terminal-window";
-    const head = document.createElement("figcaption");
-    head.className = "terminal-head";
-    for (let i = 0; i < 3; i++) {
-      const dot = document.createElement("span");
-      dot.className = "terminal-dot";
-      dot.setAttribute("aria-hidden", "true");
-      head.appendChild(dot);
-    }
-    const t1 = document.createElement("span");
-    t1.textContent = "AGENTS.MD";
-    head.appendChild(t1);
-    const t2 = document.createElement("span");
-    t2.textContent = "WRITTEN BY MUSE. READ IT FIRST.";
-    t2.className = "muse-label";
-    head.appendChild(t2);
-    fig.appendChild(head);
-    const body = document.createElement("div");
-    body.className = "terminal-body agents-terminal-body";
+    const { panel, body } = createPanel("AGENTS.md", "Written by Muse. Read it first.");
+    panel.classList.add("agents-panel");
+    body.classList.add("agents-body");
     const pre = document.createElement("pre");
     pre.className = "agents-pre";
     const lines = text.split("\n");
@@ -257,8 +239,7 @@ export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult 
       if (i < lines.length - 1) pre.appendChild(document.createTextNode("\n"));
     }
     body.appendChild(pre);
-    fig.appendChild(body);
-    inner.appendChild(fig);
+    inner.appendChild(panel);
   }
 
   return section;
@@ -267,32 +248,39 @@ export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult 
 export function renderGuardSection({ vm }: { vm: ViewModel }): HTMLElement | null {
   if (!vm.installOnly || vm.installOnly.length === 0) return null;
   const section = document.createElement("section");
-  section.className = "section-split guard-section";
+  section.className = "section-inner guard-section guard-grid";
   const left = document.createElement("div");
+  left.className = "guard-left";
   const label = document.createElement("p");
   label.className = "section-label";
-  const num = document.createElement("span");
-  num.textContent = "02 \u00b7";
-  label.appendChild(num);
-  label.appendChild(document.createTextNode(" The guard"));
+  label.textContent = "Needs yokoten";
   left.appendChild(label);
   const n = vm.installOnly.length;
   const h2 = document.createElement("h2");
   h2.className = "section-title";
-  h2.textContent = n === 1 ? "1 step needs yokoten" : `${n} steps need yokoten`;
+  h2.textContent = n === 1 ? "1 check needs yokoten installed" : `${n} checks need yokoten installed`;
   left.appendChild(h2);
   const ul = document.createElement("ul");
   ul.className = "guard-list";
   for (const s of vm.installOnly) {
     const li = document.createElement("li");
-    li.textContent = s.title;
+    const box = document.createElement("span");
+    box.className = "chart-box";
+    box.setAttribute("aria-hidden", "true");
+    li.appendChild(box);
+    const titleSpan = document.createElement("span");
+    titleSpan.textContent = s.title;
+    li.appendChild(titleSpan);
     ul.appendChild(li);
   }
   left.appendChild(ul);
+  section.appendChild(left);
+  const right = document.createElement("div");
+  right.className = "guard-right";
   const p2 = document.createElement("p");
-  p2.className = "muted";
-  p2.textContent = "Files from this page can't add them.";
-  left.appendChild(p2);
+  p2.className = "guard-note";
+  p2.textContent = "Adding files can't do these. Install yokoten in your repo:";
+  right.appendChild(p2);
   const cmdRow = document.createElement("div");
   cmdRow.className = "cmd-row";
   const code = document.createElement("code");
@@ -301,9 +289,9 @@ export function renderGuardSection({ vm }: { vm: ViewModel }): HTMLElement | nul
   cmdRow.appendChild(code);
   const copyBtn = addCopyButton("Copy", "npx yokoten init", code);
   cmdRow.appendChild(copyBtn);
-  const link = createLink("https://yokoten.app/", "See what it stops");
+  const link = createLink("https://yokoten.app/", "See what yokoten does");
   cmdRow.appendChild(link);
-  left.appendChild(cmdRow);
-  section.appendChild(left);
+  right.appendChild(cmdRow);
+  section.appendChild(right);
   return section;
 }

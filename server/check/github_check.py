@@ -24,24 +24,24 @@ def check_public(owner: str, repo: str) -> dict:
             raise RepoRefused("That repo was not found or is private.") from e
         if e.code == 403 or e.code == 429:
             return {"default_branch": None, "size_kb": None}
-        raise RepoRefused("GitHub could not be reached. Please try again.") from e
+        raise RepoRefused("We couldn't reach GitHub. Try again.") from e
     except urllib.error.URLError as e:
-        raise RepoRefused("GitHub could not be reached. Please try again.") from e
+        raise RepoRefused("We couldn't reach GitHub. Try again.") from e
     except Exception as e:
         # Any other error is treated as unreachable
         if isinstance(e, RepoRefused):
             raise
-        raise RepoRefused("GitHub could not be reached. Please try again.") from e
+        raise RepoRefused("We couldn't reach GitHub. Try again.") from e
 
     if data.get("private") is True:
         raise RepoRefused("That repo is private.")
 
     size = data.get("size")
     if type(size) is not int:
-        raise RepoRefused("GitHub did not say how big this repo is. Please try again.")
+        raise RepoRefused("GitHub didn't say how big this repo is. Try again.")
     # size is KB, and it counts the full history. The sandbox clones one commit, under a time limit.
     if size > 15728640:
-        raise RepoRefused("This repo is over 15 GB, too big to check here.")
+        raise RepoRefused("This repo is over 15 GB. That's too big to check here.")
 
     return {
         "default_branch": data.get("default_branch"),
