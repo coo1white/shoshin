@@ -56,6 +56,12 @@ def test_over_15gb_raises():
         with pytest.raises(RepoRefused, match="15 GB"):
             check_public("owner", "repo")
 
+def test_missing_size_raises():
+    payload = {"default_branch": "main", "private": False}
+    with patch("urllib.request.urlopen", return_value=_make_response(payload)):
+        with pytest.raises(RepoRefused, match="how big"):
+            check_public("owner", "repo")
+
 def test_exactly_15gb_does_not_raise():
     payload = {"default_branch": "main", "size": 15728640, "private": False}
     with patch("urllib.request.urlopen", return_value=_make_response(payload)):

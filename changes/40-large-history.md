@@ -1,3 +1,3 @@
 Changed
 
-The page now checks repos with up to 15 GB of history, so popular large repos are no longer refused at 500 MB (#40).
+The page now tries repos with up to 15 GB of history, not 500 MB. A very large repo may still not finish in time (#40).
