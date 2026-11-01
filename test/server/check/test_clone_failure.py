@@ -56,17 +56,17 @@ def test_clone_that_raises_says_it_may_be_too_big(monkeypatch):
 
 
 def test_failed_doctor_says_it_may_be_too_big(monkeypatch):
-    sandbox = run_with(monkeypatch, {"doctor": lambda: FakeProcess(-1)}, "couldn't finish checking this repo in time")
+    sandbox = run_with(monkeypatch, {"doctor": lambda: FakeProcess(-1)}, "This repo took too long to check")
     assert sandbox.is_ended
 
 
 def test_failed_check_says_it_may_be_too_big(monkeypatch):
     steps = {"doctor": lambda: FakeProcess(0, "{}"), "check": lambda: FakeProcess(-1)}
-    sandbox = run_with(monkeypatch, steps, "couldn't finish checking this repo in time")
+    sandbox = run_with(monkeypatch, steps, "This repo took too long to check")
     assert sandbox.is_ended
 
 
 def test_check_that_raises_says_it_may_be_too_big(monkeypatch):
     steps = {"doctor": lambda: FakeProcess(0, "{}"), "check": raise_timeout}
-    sandbox = run_with(monkeypatch, steps, "couldn't finish checking this repo in time")
+    sandbox = run_with(monkeypatch, steps, "This repo took too long to check")
     assert sandbox.is_ended

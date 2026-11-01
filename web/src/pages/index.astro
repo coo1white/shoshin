@@ -15,14 +15,14 @@ const ownerRepo = `${sample.owner}/${sample.repo}`;
 <div id="landing">
 <section id="top" class="hero">
   <h1>Check your repo before you hand it to an AI agent.</h1>
-  <p>Paste a public GitHub URL. yokoten runs 13 file checks, tells you the one thing to fix next, and writes the files that fix it. Your code never runs.</p>
+  <p>13 file checks, the one thing to fix next, and the files that fix it. Your code never runs.</p>
   <form id="check-form" novalidate class="check-form">
     <label for="repo-input">Public GitHub repo URL</label>
     <div class="input-row">
       <input id="repo-input" name="url" type="url" placeholder="https://github.com/owner/repo" autocomplete="off" />
       <button type="submit">Check</button>
     </div>
-    <p class="check-form-note">Free, no account. 10 checks an hour per visitor.</p>
+    <p class="check-form-note">Free, no account. 10 checks an hour.</p>
   </form>
   <p id="check-error" class="error-box" role="alert" hidden></p>
   <noscript><p>Running a check needs JavaScript. You can also run it on your machine: npx yokoten</p></noscript>
@@ -40,8 +40,8 @@ const ownerRepo = `${sample.owner}/${sample.repo}`;
       <ExampleRows examples={sample.examples.filter((ex) => ex.group === "web3")} />
     </div>
   </div>
-  <p class="checks-note">A filled block is a check that passes today. An outlined block is one the files would add.</p>
-  <p class="checks-note">Five of the 13 checks only pass once yokoten is installed, so a repo without it tops out at 8 of 13.</p>
+  <p class="checks-note">Filled: passes today. Outlined: the files would add it.</p>
+  <p class="checks-note">Five checks need yokoten installed, so a repo without it tops out at 8 of 13.</p>
 </section>
 <section id="result" class="band">
   <div class="band-inner result-columns">
@@ -50,8 +50,8 @@ const ownerRepo = `${sample.owner}/${sample.repo}`;
       <h2 class="section-title">One next step, and the files to take it.</h2>
       <ul class="get-list">
         <li>Where the repo stands, and the one thing to do next.</li>
-        <li>Files written for your repo, ready to commit. Muse writes the part that's specific to your project.</li>
-        <li>The exact commands to run the same check on your own machine.</li>
+        <li>Files for your repo, ready to commit. Muse writes the part specific to your project.</li>
+        <li>The commands to run the same check yourself.</li>
       </ul>
     </div>
     <div class="result-right">
@@ -72,18 +72,18 @@ const ownerRepo = `${sample.owner}/${sample.repo}`;
   <h2 class="section-title">It reads your repo. That's all.</h2>
   <ul class="facts">
     <li><strong>Your code never runs.</strong> No install, no build, no tests.</li>
-    <li><strong>The network is cut.</strong> yokoten runs in a throwaway sandbox that can't reach anything.</li>
-    <li><strong>Your repo doesn't change.</strong> Nothing happens until you commit on GitHub. We can't write to it.</li>
+    <li><strong>The network is cut.</strong> A throwaway sandbox, no connection.</li>
+    <li><strong>Your repo doesn't change.</strong> We can't write to it. Nothing happens until you commit.</li>
   </ul>
-  <p class="facts-note">Public repos only. It doesn't scan your code for vulnerabilities. Some of your repo's files go to Muse Spark Open on Baseten so it can write the project section, and Muse's text stays in a cache for 24 hours.</p>
+  <p class="facts-note">Public repos only. It doesn't scan your code for vulnerabilities. Some files go to Muse Spark Open on Baseten to write the project section; Muse's text is cached for 24 hours.</p>
 </section>
 <section id="proof" class="band">
   <div class="band-inner home-verify">
     <div><p class="section-label">Verify</p><h2 class="section-title">Don't take our word for it.</h2></div>
-    <div class="home-verify-text"><p class="proof-lede">Every result tells you which yokoten version ran, which commit it looked at, and the commands to run the same check yourself.</p><p class="proof-note">A hash of each result also goes to Sigstore Rekor and a Solana devnet memo. If a result were ever changed later, the hash wouldn't match. Devnet is a test network, so nothing on it has real value.</p></div>
+    <div class="home-verify-text"><p class="proof-lede">Every result shows the yokoten version, the commit, and the commands to run the same check yourself.</p><p class="proof-note">A hash of each result also goes to two public records, Sigstore Rekor and a Solana devnet memo, so a changed result would show. Devnet is a test network; nothing on it has real value.</p></div>
   </div>
 </section>
-<section class="cta"><div class="cta-inner"><div class="cta-text"><p class="cta-title">Want this to stick?</p><p class="cta-body">This page checks once. Install yokoten and it stays on the job: your AI tool asks it before each command or edit, and it checks each commit and runs in CI.</p></div><a href="https://yokoten.app/" class="cta-link">See what yokoten does</a></div></section>
+<section class="cta"><div class="cta-inner"><div class="cta-text"><p class="cta-title">Want this to stick?</p><p class="cta-body">This page checks once. Installed, yokoten checks your agent's commands, your commits, and your pull requests.</p></div><a href="https://yokoten.app/" class="cta-link">See what yokoten does</a></div></section>
 </div>
 <main id="app" hidden></main>
 <Footer />

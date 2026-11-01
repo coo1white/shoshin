@@ -51,7 +51,10 @@ This counts how many rounds of fixes each task needed after the first code came 
 | Correct the reachable score | 1 | test |
 | Record matches the result | 2 | test, review |
 | Save the examples again | 1 | review |
-| Next step and Verify | 2 | test, review |
+| Shorter copy | 2 | test, review |
+| Next step and Verify | 3 | test, review, review |
+
+61 rounds over 49 tasks: a mean of 1.2. Found by review 28, tests 20, the commit check 2, real runs 11.
 
 58 rounds over 48 tasks: a mean of 1.2. Found by review 26, tests 19, the commit check 2, real runs 11.
 

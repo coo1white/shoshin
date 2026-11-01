@@ -7,7 +7,7 @@ from check.result import summarize
 
 YOKOTEN_VERSION = "0.2.0"
 CLONE_FAILED_MSG = "We couldn't copy this repo in time. It may be too big to check here."
-CHECK_FAILED_MSG = "We couldn't finish checking this repo in time. It may be too big to check here."
+CHECK_FAILED_MSG = "This repo took too long to check. It may be too big to check here."
 
 logger = logging.getLogger(__name__)
 

@@ -21,7 +21,7 @@ def check_public(owner: str, repo: str) -> dict:
             data = json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
         if e.code == 404:
-            raise RepoRefused("That repo was not found or is private.") from e
+            raise RepoRefused("No public repo at that URL.") from e
         if e.code == 403 or e.code == 429:
             return {"default_branch": None, "size_kb": None}
         raise RepoRefused("We couldn't reach GitHub. Try again.") from e
