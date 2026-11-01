@@ -261,11 +261,12 @@ def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
                 "/tmp/repo",
                 timeout=60,
             )
-            _, _, rc = _read_process(p)
+            _, stderr, rc = _read_process(p)
         except Exception as e:
             logger.error(type(e).__name__)
             raise RepoRefused(CLONE_FAILED_MSG) from e
         if rc != 0:
+            logger.error("clone failed with %s: %s", rc, stderr.strip()[:200])
             raise RepoRefused(CLONE_FAILED_MSG)
         p = sb.exec("git", "-C", "/tmp/repo", "rev-parse", "HEAD", timeout=10)
         stdout, stderr, rc = _read_process(p)
