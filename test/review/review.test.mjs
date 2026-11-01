@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { parseAnswer, decideEvent, cleanText, buildReviewBody, splitSavedData, MAX_TEXT_CHARS, MAX_FINDINGS } from "../../.github/review/review.mjs";
+import { parseAnswer, decideEvent, cleanText, buildReviewBody, splitSavedData, stopAutoMerge, MAX_TEXT_CHARS, MAX_FINDINGS } from "../../.github/review/review.mjs";
 
 describe("parseAnswer", () => {
   it("parses a good object", () => {
@@ -219,5 +219,49 @@ describe("buildReviewBody with skipped", () => {
     const nullA = buildReviewBody(null, "m", []);
     const nullB = buildReviewBody(null, "m");
     assert.equal(nullA, nullB);
+  });
+});
+
+describe("stopAutoMerge", () => {
+  const withFetch = async (replies, run) => {
+    const original = globalThis.fetch;
+    const calls = [];
+    globalThis.fetch = async (url, options) => {
+      calls.push({ url, body: options.body ? JSON.parse(options.body) : null });
+      return replies[calls.length - 1];
+    };
+    try {
+      await run(calls);
+    } finally {
+      globalThis.fetch = original;
+    }
+  };
+  const prReply = (pr) => ({ ok: true, json: async () => pr });
+
+  it("calls nothing more when auto-merge is off now", async () => {
+    await withFetch([prReply({ auto_merge: null, node_id: "id" })], async (calls) => {
+      await stopAutoMerge("token", "o/r", "1");
+      assert.equal(calls.length, 1);
+    });
+  });
+  it("reads the state fresh, then turns auto-merge off", async () => {
+    const replies = [prReply({ auto_merge: { merge_method: "squash" }, node_id: "id" }), { ok: true, json: async () => ({ data: {} }) }];
+    await withFetch(replies, async (calls) => {
+      await stopAutoMerge("token", "o/r", "1");
+      assert.equal(calls.length, 2);
+      assert.equal(calls[0].url, "https://api.github.com/repos/o/r/pulls/1");
+      assert.equal(calls[1].body.variables.id, "id");
+    });
+  });
+  it("throws when it can't read or GitHub refuses, so the check fails", async () => {
+    await withFetch([{ ok: false }], async () => {
+      await assert.rejects(stopAutoMerge("token", "o/r", "1"));
+    });
+    await withFetch([prReply({ auto_merge: {}, node_id: "id" }), { ok: true, json: async () => ({ errors: [{}] }) }], async () => {
+      await assert.rejects(stopAutoMerge("token", "o/r", "1"));
+    });
+    await withFetch([prReply({ auto_merge: {}, node_id: "id" }), { ok: false }], async () => {
+      await assert.rejects(stopAutoMerge("token", "o/r", "1"));
+    });
   });
 });
