@@ -339,23 +339,23 @@ describe("fixMessage", () => {
     const msg = fixMessage({ files: [{ path: "a.txt" }], muse: "failed" });
     assert.equal(
       msg,
-      "Muse could not write the project section this time. Please fill in the section called This project yourself.",
+      "Muse couldn't write the project section this time. Fill in the “This project” section yourself.",
     );
   });
   test('"failed" with no files also gives Muse message', () => {
     const msg = fixMessage({ files: [], muse: "failed" });
     assert.equal(
       msg,
-      "Muse could not write the project section this time. Please fill in the section called This project yourself.",
+      "Muse couldn't write the project section this time. Fill in the “This project” section yourself.",
     );
   });
   test("no files gives the no-files message", () => {
     const msg = fixMessage({ files: [], muse: "ok" });
-    assert.equal(msg, "yokoten has no files to add to this repo.");
+    assert.equal(msg, "yokoten has nothing to add to this repo.");
   });
   test("no files with not needed also gives no-files message", () => {
     const msg = fixMessage({ files: [], muse: "not needed" });
-    assert.equal(msg, "yokoten has no files to add to this repo.");
+    assert.equal(msg, "yokoten has nothing to add to this repo.");
   });
   test('files with "ok" give empty string', () => {
     const msg = fixMessage({ files: [{ path: "AGENTS.md" }], muse: "ok" });

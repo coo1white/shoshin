@@ -20,13 +20,13 @@ const liveHref = `/?repo=${result.owner}/${result.repo}`;
 const text = JSON.stringify(data).replace(/</g, "\\u003c");
 const slug = Astro.params.slug ?? "";
 const pageTitle = `${result.owner}/${result.repo}: ${result.summary.done} of ${result.summary.total} file checks \u00b7 yokoten doctor`;
-const pageDescription = `A saved yokoten doctor check of ${result.owner}/${result.repo} at commit ${shortCommit}. The file checks do not judge its code.`;
+const pageDescription = `A saved yokoten doctor check of ${result.owner}/${result.repo} at commit ${shortCommit}. The file checks don't judge its code.`;
 const pagePath = `/example/${slug}.html`;
 ---
 <Page noindex title={pageTitle} description={pageDescription} path={pagePath}>
 <Header />
-<p class="saved-note small muted">Saved check from {date}, at commit {shortCommit}. <a href={liveHref}>Check again</a> for a live result.</p>
-<noscript><p class="saved-note small muted">This page needs JavaScript to show the saved check. You can also run it yourself: npx yokoten</p></noscript>
+<p class="saved-note small muted">Saved on {date}, at commit {shortCommit}. <a href={liveHref}>Run it again</a> for a live result.</p>
+<noscript><p class="saved-note small muted">Showing a saved check needs JavaScript. You can also run it on your machine: npx yokoten</p></noscript>
 <main id="app" hidden></main>
 <Footer />
 <div id="saved-check" data-check={text} hidden></div>

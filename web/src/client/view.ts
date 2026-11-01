@@ -105,7 +105,7 @@ export function markLabel(mark: string, reason: string | undefined): string {
     if (reason) return `skipped on purpose: ${reason}`;
     return "skipped on purpose";
   }
-  if (mark === "can't check") return "can't tell from the web";
+  if (mark === "can't check") return "can't tell from here";
   return "unknown";
 }
 
@@ -141,11 +141,11 @@ export function viewModel(result: CheckResult): ViewModel {
   const steps = summary.steps ?? [];
   const installOnlyRaw = summary.install_only ?? summary.installOnly ?? [];
 
-  const scoreText = `${done} of ${total} file checks are done`;
-  let headline = `done ${done} of ${total} file checks`;
+  const scoreText = `${done} of ${total} file checks pass`;
+  let headline = `${done} of ${total} file checks pass`;
   let next: ViewModel["next"] = null;
   if (nextRaw) {
-    headline += ` \u00b7 next: ${nextRaw.title}`;
+    headline += ` · fix this first: ${nextRaw.title}`;
     next = {
       title: nextRaw.title,
       id: nextRaw.id,
