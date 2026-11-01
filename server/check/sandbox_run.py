@@ -2,9 +2,11 @@ import json
 import logging
 import modal
 from fixes.select_files import choose_muse_paths, cap_files, select_fix_paths, is_private_path, fill_owner
+from check.github_check import RepoRefused
 from check.result import summarize
 
 YOKOTEN_VERSION = "0.2.0"
+CLONE_FAILED_MSG = "This repo could not be copied in time. It may be too big to check here."
 
 logger = logging.getLogger(__name__)
 
@@ -244,22 +246,27 @@ def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
             except Exception:
                 pass
         clone_url = f"https://github.com/{owner}/{repo}.git"
-        p = sb.exec(
-            "git",
-            "-c",
-            "core.hooksPath=/dev/null",
-            "clone",
-            "--depth",
-            "1",
-            "--no-recurse-submodules",
-            "--quiet",
-            clone_url,
-            "/tmp/repo",
-            timeout=60,
-        )
-        _, stderr, rc = _read_process(p)
+        # A second try would likely fail too, so this does not say to try again.
+        try:
+            p = sb.exec(
+                "git",
+                "-c",
+                "core.hooksPath=/dev/null",
+                "clone",
+                "--depth",
+                "1",
+                "--no-recurse-submodules",
+                "--quiet",
+                clone_url,
+                "/tmp/repo",
+                timeout=60,
+            )
+            _, _, rc = _read_process(p)
+        except Exception as e:
+            logger.error(type(e).__name__)
+            raise RepoRefused(CLONE_FAILED_MSG) from e
         if rc != 0:
-            raise SandboxFailed(f"Could not clone repo: {stderr.strip()}")
+            raise RepoRefused(CLONE_FAILED_MSG)
         p = sb.exec("git", "-C", "/tmp/repo", "rev-parse", "HEAD", timeout=10)
         stdout, stderr, rc = _read_process(p)
         if rc != 0:
