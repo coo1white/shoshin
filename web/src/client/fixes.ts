@@ -85,7 +85,7 @@ export function orderFiles(files: { path: string; content: string; source?: stri
 
 export function fixMessage(fixes: { files?: { path: string }[]; muse: string }): string {
   if (fixes.muse === "failed") {
-    return "Muse couldn't write the project section this time. Fill in the “This project” section yourself.";
+    return "Muse couldn't write the “This project” section this time. Fill it in yourself.";
   }
   if (!fixes.files || fixes.files.length === 0) {
     return "yokoten has nothing to add to this repo.";
@@ -138,7 +138,7 @@ export function recordView(record: unknown): { sha256: string; recordedAt: strin
   } else if (rekorUrl && !solanaUrl) {
     message = "The devnet record couldn't be written this time.";
   } else if (!rekorUrl) {
-    message = "The public record couldn't be written this time. The result above is still correct.";
+    message = "The public record couldn't be written this time. The check still ran.";
   }
   return { sha256, recordedAt, documentName, documentText, verifyCommand, rekorUrl, solanaUrl, message };
 }

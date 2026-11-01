@@ -15,17 +15,16 @@ const { data } = Astro.props as { data: { result: any; fixes: any; record: any }
 const result = data.result;
 const record = data.record;
 const date = String(record.recorded_at).slice(0, 10);
-const shortCommit = String(result.commit).slice(0, 7);
 const liveHref = `/?repo=${result.owner}/${result.repo}`;
 const text = JSON.stringify(data).replace(/</g, "\\u003c");
 const slug = Astro.params.slug ?? "";
 const pageTitle = `${result.owner}/${result.repo}: ${result.summary.done} of ${result.summary.total} file checks \u00b7 yokoten doctor`;
-const pageDescription = `A saved yokoten doctor check of ${result.owner}/${result.repo} at commit ${shortCommit}. The file checks don't judge its code.`;
+const pageDescription = `A saved yokoten doctor check of ${result.owner}/${result.repo}. The file checks don't judge its code.`;
 const pagePath = `/example/${slug}.html`;
 ---
 <Page noindex title={pageTitle} description={pageDescription} path={pagePath}>
 <Header />
-<p class="saved-note small muted">Saved on {date}, at commit {shortCommit}. <a href={liveHref}>Run it again</a> for a live result.</p>
+<p class="saved-note small muted">Saved {date}. <a href={liveHref}>Run it again</a> for a live result.</p>
 <noscript><p class="saved-note small muted">Showing a saved check needs JavaScript. You can also run it on your machine: npx yokoten</p></noscript>
 <main id="app" hidden></main>
 <Footer />

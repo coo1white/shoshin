@@ -22,7 +22,7 @@ export function renderPrivateSection({ vm }: { vm: ViewModel }): HTMLElement | n
 
   const note = document.createElement("p");
   note.className = "private-note";
-  note.textContent = "Some of it may be public on purpose. That's your call. Here's what we found and what to do about it.";
+  note.textContent = "Some of it may be public on purpose. That's your call.";
   inner.appendChild(note);
 
   const table = document.createElement("div");

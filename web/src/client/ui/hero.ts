@@ -1,8 +1,8 @@
-import { toSentence } from "../view.ts";
+import { toSentence, nextAction } from "../view.ts";
 import { renderChart } from "./chart.ts";
 import type { CheckResult, FixesPayload, ViewModel } from "../types.ts";
 
-export function renderResultHero({ lastResult, vm, lastFixes }: { lastResult: CheckResult; vm: ViewModel; lastFixes: FixesPayload | null }): HTMLElement {
+export function renderResultHero({ lastResult, vm, lastFixes, isWaitingForFixes }: { lastResult: CheckResult; vm: ViewModel; lastFixes: FixesPayload | null; isWaitingForFixes?: boolean }): HTMLElement {
   const section = document.createElement("section");
   section.className = "result-hero";
   section.id = "result-panel";
@@ -13,26 +13,15 @@ export function renderResultHero({ lastResult, vm, lastFixes }: { lastResult: Ch
   checkAnother.href = "/";
   checkAnother.textContent = "Check another repo";
   actions.appendChild(checkAnother);
-  const checkAgain = document.createElement("a");
-  checkAgain.textContent = "Run it again";
-  checkAgain.href = `/?repo=${encodeURIComponent(lastResult.owner + "/" + lastResult.repo)}`;
-  if (window.location.pathname === "/") {
-    checkAgain.addEventListener("click", (e) => {
-      e.preventDefault();
-      window.location.href = checkAgain.href;
-      window.location.reload();
-    });
-  }
-  actions.appendChild(checkAgain);
   const copyBtn = document.createElement("button");
   copyBtn.type = "button";
-  copyBtn.textContent = "Copy link to this result";
+  copyBtn.textContent = "Copy link";
   const currentUrl = window.location.href;
   copyBtn.addEventListener("click", () => {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(currentUrl).then(() => {
         copyBtn.textContent = "Copied";
-        setTimeout(() => { copyBtn.textContent = "Copy link to this result"; }, 2000);
+        setTimeout(() => { copyBtn.textContent = "Copy link"; }, 2000);
       }).catch(() => {
         copyBtn.textContent = "Press Ctrl+C to copy";
       });
@@ -49,13 +38,6 @@ export function renderResultHero({ lastResult, vm, lastFixes }: { lastResult: Ch
   const left = document.createElement("div");
   left.className = "result-hero-left";
 
-  const meta = document.createElement("p");
-  meta.className = "result-meta";
-  const shortCommit = vm.evidence.shortCommit || "";
-  const ver = vm.evidence.version || "";
-  meta.textContent = `${shortCommit} · yokoten ${ver}`;
-  left.appendChild(meta);
-
   const h1 = document.createElement("h1");
   h1.className = "result-repo";
   h1.appendChild(document.createTextNode(`${lastResult.owner}/`));
@@ -70,7 +52,7 @@ export function renderResultHero({ lastResult, vm, lastFixes }: { lastResult: Ch
     left.appendChild(sumP);
     const small = document.createElement("p");
     small.className = "result-summary-note";
-    small.textContent = "Summary written by Muse.";
+    small.textContent = "Summary by Muse.";
     left.appendChild(small);
   }
 
@@ -130,16 +112,34 @@ export function renderResultHero({ lastResult, vm, lastFixes }: { lastResult: Ch
     h2.className = "next-title";
     h2.textContent = vm.next.title;
     nextWrap.appendChild(h2);
-    if (vm.next.why) {
+    if (vm.next.id === "issues") {
+      const whyP = document.createElement("p");
+      whyP.className = "next-why";
+      whyP.textContent = "Turn on issues in the repo's settings on GitHub.";
+      nextWrap.appendChild(whyP);
+    } else if (vm.next.why) {
       const whyP = document.createElement("p");
       whyP.className = "next-why";
       whyP.textContent = toSentence(vm.next.why);
       nextWrap.appendChild(whyP);
     }
+    const owner = String(lastResult.owner ?? "");
+    const repo = String(lastResult.repo ?? "");
+    const act = nextAction(vm.next, vm.installOnly, lastFixes?.files ?? [], owner, repo, !!isWaitingForFixes);
     const fixLink = document.createElement("a");
-    fixLink.href = "#files";
-    fixLink.textContent = "Fix it";
+    fixLink.href = act.href;
+    fixLink.textContent = act.label;
     fixLink.className = "button-primary";
+    if (act.href.startsWith("https://")) {
+      fixLink.target = "_blank";
+      fixLink.rel = "noopener";
+    }
+    if (act.opensChart) {
+      fixLink.addEventListener("click", () => {
+        const details = document.querySelector("details.show-all-checks") as HTMLDetailsElement | null;
+        if (details) details.open = true;
+      });
+    }
     nextWrap.appendChild(fixLink);
     left.appendChild(nextWrap);
   } else if (vm.installOnly.length === 0 && done === total) {

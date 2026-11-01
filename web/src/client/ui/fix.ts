@@ -20,7 +20,6 @@ function createFileRow(owner: string, repo: string, branch: string | null, file:
   li.appendChild(action);
 
   const details = document.createElement("details");
-  if (isFirst) details.open = true;
   details.setAttribute("data-key", "read-" + file.path);
   const sum = document.createElement("summary");
   sum.textContent = "Read this file";
@@ -28,7 +27,7 @@ function createFileRow(owner: string, repo: string, branch: string | null, file:
   if (file.source === "yokoten and Muse") {
     const museNote = document.createElement("p");
     museNote.className = "small";
-    museNote.textContent = "Muse wrote the “This project” section. Read it before you commit it.";
+    museNote.textContent = "Muse wrote the “This project” section. Read it before you commit.";
     details.appendChild(museNote);
   }
   const preWrap = document.createElement("div");
@@ -53,12 +52,12 @@ function createFileRow(owner: string, repo: string, branch: string | null, file:
   if (plan.kind !== "filled") {
     const hint = document.createElement("p");
     hint.className = "small muted";
-    hint.textContent = "GitHub will open an empty file. Paste this in, then pick a new branch to open a pull request.";
+    hint.textContent = "GitHub opens an empty file. Paste this in, then pick a new branch.";
     details.appendChild(hint);
   } else {
     const hint = document.createElement("p");
     hint.className = "small muted";
-    hint.textContent = "GitHub will open a commit form. Pick a new branch to open a pull request.";
+    hint.textContent = "GitHub opens a commit form. Pick a new branch to get a pull request.";
     details.appendChild(hint);
   }
   const wrap = document.createElement("div");
@@ -68,7 +67,10 @@ function createFileRow(owner: string, repo: string, branch: string | null, file:
   return li;
 }
 
-export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult }: { vm: ViewModel; lastFixes: FixesPayload | null; isWaitingForFixes: boolean; lastResult: CheckResult }): HTMLElement {
+export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult }: { vm: ViewModel; lastFixes: FixesPayload | null; isWaitingForFixes: boolean; lastResult: CheckResult }): HTMLElement | null {
+  const files = lastFixes?.files ?? [];
+  const hasOpenInstallOnly = vm.installOnly.length > 0;
+  if (lastFixes && lastFixes.muse !== "failed" && files.length === 0 && hasOpenInstallOnly) return null;
   const section = document.createElement("section");
   section.id = "files";
   section.className = "band";
@@ -107,24 +109,12 @@ export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult 
       left.appendChild(lostP);
       return section;
     }
-    const files = lastFixes.files || [];
-    const hasOpenInstallOnly = vm.installOnly.length > 0;
     const msg = fixMessage(lastFixes);
-    const shouldShowFixMessage = !(files.length === 0 && hasOpenInstallOnly);
-    if (msg && shouldShowFixMessage) {
+    if (msg && (files.length > 0 || lastFixes.muse === "failed")) {
       const msgP = document.createElement("p");
       msgP.textContent = msg;
       if (lastFixes.muse === "failed") msgP.className = "error-box";
       left.appendChild(msgP);
-    }
-    if (files.length === 0 && hasOpenInstallOnly) {
-      const h2 = document.createElement("h2");
-      h2.className = "section-title";
-      h2.textContent = "No files to add";
-      left.appendChild(h2);
-      const noFilesP = document.createElement("p");
-      noFilesP.textContent = "What's left can't be fixed by adding files. The next section explains.";
-      left.appendChild(noFilesP);
     }
     if (files.length > 0) {
       const count = files.length;
@@ -134,7 +124,7 @@ export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult 
       left.appendChild(h2);
       const notice = document.createElement("p");
       notice.className = "files-notice";
-      notice.textContent = "Nothing changes until you commit on GitHub. We can't write to your repo.";
+      notice.textContent = "Nothing changes until you commit. We can't write to your repo.";
       left.appendChild(notice);
       const owner = String(lastResult.owner ?? "");
       const repo = String(lastResult.repo ?? "");
@@ -156,10 +146,6 @@ export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult 
       const termSum = document.createElement("summary");
       termSum.textContent = "Prefer the terminal?";
       termDetails.appendChild(termSum);
-      const p2 = document.createElement("p");
-      p2.className = "muted";
-      p2.textContent = "Download the patch and apply it in your repo.";
-      termDetails.appendChild(p2);
       const dlBtn = document.createElement("button");
       dlBtn.textContent = "Download the patch";
       dlBtn.className = "button-quiet";
@@ -200,7 +186,7 @@ export function renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult 
           h2.textContent = "Nothing to add";
           left.appendChild(h2);
           const nothingP = document.createElement("p");
-          nothingP.textContent = "This repo already has everything these files would add.";
+          nothingP.textContent = msg;
           left.appendChild(nothingP);
         }
       } else {
@@ -249,6 +235,7 @@ export function renderGuardSection({ vm }: { vm: ViewModel }): HTMLElement | nul
   if (!vm.installOnly || vm.installOnly.length === 0) return null;
   const section = document.createElement("section");
   section.className = "section-inner guard-section guard-grid";
+  section.id = "needs-yokoten";
   const left = document.createElement("div");
   left.className = "guard-left";
   const label = document.createElement("p");
@@ -279,7 +266,7 @@ export function renderGuardSection({ vm }: { vm: ViewModel }): HTMLElement | nul
   right.className = "guard-right";
   const p2 = document.createElement("p");
   p2.className = "guard-note";
-  p2.textContent = "Adding files can't do these. Install yokoten in your repo:";
+  p2.textContent = "No file can do these. Install yokoten in your repo:";
   right.appendChild(p2);
   const cmdRow = document.createElement("div");
   cmdRow.className = "cmd-row";
