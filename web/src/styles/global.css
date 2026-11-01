@@ -370,8 +370,10 @@ nav a:hover, nav a[aria-current='page'] { color: var(--fg); }
 .proof-left p { margin: 0; }
 .proof-right { flex: 1 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
 .proof-right p { margin: 0; }
+.proof-result-lede { margin: -16px 0 32px; font-size: 18px; }
+.proof-way-title { margin: 0; font-size: 20px; line-height: 1.3; font-weight: 700; }
+.proof-download { align-self: flex-start; min-height: 44px; }
 .proof-hash { font-family: var(--font-mono); font-size: 13px; overflow-wrap: anywhere; }
-.proof-hash-label { font-size: 14px; font-weight: 600; }
 .proof-links { display: flex; flex-wrap: wrap; gap: 4px 24px; font-weight: 600; }
 .proof-links a, .proof-links button { min-height: 44px; display: inline-flex; align-items: center; }
 .pre-dark { background: #0c0c0c; color: #cccccc; border-radius: 8px; padding: 16px 20px; font-family: var(--font-mono); font-size: 13px; line-height: 1.65; overflow-x: hidden; white-space: pre-wrap; overflow-wrap: anywhere; }

@@ -37,8 +37,9 @@ This counts how many rounds of fixes each task needed after the first code came 
 | Message for a slow copy | 0 | none |
 | Message for a slow check | 0 | none |
 | Who approves a pull request | 0 | none |
+| Make the Proof section clear | 0 | none |
 
-48 rounds over 33 tasks: a mean of 1.5. Found by review 19, tests 16, the commit check 2, real runs 11.
+48 rounds over 34 tasks: a mean of 1.4. Found by review 19, tests 16, the commit check 2, real runs 11.
 
 Four of the problems no test could have caught: a deploy that left out modules, a page buried by 26 repeated warnings, a wrong import, and a worker that weakened a security test while editing nearby lines.
 
