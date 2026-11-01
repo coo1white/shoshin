@@ -1,0 +1,19 @@
+---
+import Page from "../layouts/Page.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import ViewSwitch from "../components/ViewSwitch.astro";
+import agentView from "../data/agent-view.md?raw";
+---
+<Page
+  title="Agent view · yokoten doctor"
+  description="How an AI agent can use yokoten doctor: the API, its limits, and what each result field means."
+  path="/agent-view.html"
+>
+<Header />
+<main id="top" class="section-inner agent-view">
+  <ViewSwitch current="agent" />
+  <pre>{agentView}</pre>
+</main>
+<Footer />
+</Page>

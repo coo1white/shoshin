@@ -1,0 +1,10 @@
+---
+interface Props {
+  current: "human" | "agent";
+}
+const { current } = Astro.props as Props;
+---
+<nav class="view-switch" aria-label="View">
+  <a href="/" aria-current={current === "human" ? "page" : undefined}>human</a>
+  <a href="/agent-view.html" aria-current={current === "agent" ? "page" : undefined}>agent</a>
+</nav>
