@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { parseAnswer, decideEvent, cleanText, buildReviewBody, splitSavedData, MAX_TEXT_CHARS, MAX_FINDINGS } from "../../.github/review/review.mjs";
+import { parseAnswer, decideEvent, cleanText, buildReviewBody, splitSavedData, stopAutoMerge, MAX_TEXT_CHARS, MAX_FINDINGS } from "../../.github/review/review.mjs";
 
 describe("parseAnswer", () => {
   it("parses a good object", () => {
@@ -219,5 +219,43 @@ describe("buildReviewBody with skipped", () => {
     const nullA = buildReviewBody(null, "m", []);
     const nullB = buildReviewBody(null, "m");
     assert.equal(nullA, nullB);
+  });
+});
+
+describe("stopAutoMerge", () => {
+  const withFetch = async (reply, run) => {
+    const original = globalThis.fetch;
+    const calls = [];
+    globalThis.fetch = async (url, options) => {
+      calls.push({ url, body: JSON.parse(options.body) });
+      return reply;
+    };
+    try {
+      await run(calls);
+    } finally {
+      globalThis.fetch = original;
+    }
+  };
+
+  it("calls nothing when auto-merge is off", async () => {
+    await withFetch({ ok: true, json: async () => ({}) }, async (calls) => {
+      await stopAutoMerge("token", { auto_merge: null, node_id: "id" });
+      assert.equal(calls.length, 0);
+    });
+  });
+  it("turns auto-merge off for this pull request", async () => {
+    await withFetch({ ok: true, json: async () => ({ data: {} }) }, async (calls) => {
+      await stopAutoMerge("token", { auto_merge: { merge_method: "squash" }, node_id: "id" });
+      assert.equal(calls.length, 1);
+      assert.equal(calls[0].body.variables.id, "id");
+    });
+  });
+  it("throws when GitHub refuses, so the check fails", async () => {
+    await withFetch({ ok: true, json: async () => ({ errors: [{}] }) }, async () => {
+      await assert.rejects(stopAutoMerge("token", { auto_merge: {}, node_id: "id" }));
+    });
+    await withFetch({ ok: false }, async () => {
+      await assert.rejects(stopAutoMerge("token", { auto_merge: {}, node_id: "id" }));
+    });
   });
 });
