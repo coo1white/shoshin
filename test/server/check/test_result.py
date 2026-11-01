@@ -205,20 +205,47 @@ def test_next_prefers_first_open_non_install_only():
     out = summarize(doctor)
     assert out["next"]["id"] == "b"
 
-def test_fixture_next_is_not_tool_hook():
+def test_fixture_with_only_yokoten_steps_open():
     data = load_fixture()
     if data is None:
         pytest.skip("fixture missing")
-    # fixture has top-level next.id == tool-hook but other files steps are open
+    # this repo has done all 8 checks that need no yokoten, so only install steps are open
     assert data.get("next", {}).get("id") == "tool-hook"
     out = summarize(data)
+    assert out["done"] == 8
+    assert out["next"]["id"] == "tool-hook"
+    ids = {s["id"] for s in out["install_only"]}
+    assert ids == {"tool-hook", "runtime", "ci", "titles", "sandbox"}
+
+def test_ci_and_titles_open_appear_in_install_only():
+    doctor = {
+        "steps": [
+            {"id": "ci", "title": "CI", "mark": "to do", "how": "h", "why": "w", "source": "files"},
+            {"id": "titles", "title": "Titles", "mark": "next", "how": "h", "why": "w", "source": "files"},
+            {"id": "a", "title": "A", "mark": "to do", "how": "h", "why": "w", "source": "files"},
+            {"id": "b", "title": "B", "mark": "to do", "how": "h", "why": "w", "source": "files"},
+        ],
+        "findings": [],
+        "next": {},
+    }
+    out = summarize(doctor)
+    ids = [s["id"] for s in out["install_only"]]
+    assert "ci" in ids
+    assert "titles" in ids
     assert out["next"] is not None
-    assert out["next"]["id"] != "tool-hook"
-    # install_only should contain tool-hook because its mark is not done
-    assert any(s["id"] == "tool-hook" for s in out["install_only"])
-    # next must be first open non-install-only files step
-    for s in out["steps"]:
-        if s["id"] == out["next"]["id"]:
-            assert s["mark"] not in ("done", "not now")
-            assert s["id"] not in ("tool-hook", "runtime", "sandbox")
-            break
+    assert out["next"]["id"] == "a"
+
+def test_next_id_titles_falls_back_to_other_open_step():
+    doctor = {
+        "steps": [
+            {"id": "titles", "title": "Titles", "mark": "next", "how": "h", "why": "w", "source": "files"},
+            {"id": "a", "title": "A", "mark": "to do", "how": "h", "why": "w", "source": "files"},
+            {"id": "b", "title": "B", "mark": "to do", "how": "h", "why": "w", "source": "files"},
+        ],
+        "findings": [],
+        "next": {"id": "titles"},
+    }
+    out = summarize(doctor)
+    assert out["next"] is not None
+    assert out["next"]["id"] == "a"
+    assert out["next"]["id"] != "titles"

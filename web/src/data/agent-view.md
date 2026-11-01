@@ -18,7 +18,7 @@ The same text is at https://doctor.yokoten.app/llms.txt.
 - 10 checks an hour per address, and 300 a day for the whole service.
 - A repo over 15 GB is refused. A very large repo may not finish in time.
 - It doesn't scan code for vulnerabilities.
-- Four of the 13 checks only pass once `yokoten` is installed, so a repo without it tops out at 9 of 13.
+- Five of the 13 checks only pass once `yokoten` is installed, so a repo without it tops out at 8 of 13.
 - Some of the repo's files go to Muse Spark Open, on Baseten, to write the project section. Muse's text stays in a cache for 24 hours.
 
 ## Run a check

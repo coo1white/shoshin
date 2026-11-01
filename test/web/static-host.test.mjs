@@ -470,12 +470,12 @@ describe('static host portability', () => {
     }
   });
 
-  test('dist/index.html holds the titles Web2 and Web3, and the sentence a repo without it tops out at 9 of 13', () => {
+  test('dist/index.html holds the titles Web2 and Web3, and the sentence a repo without it tops out at 8 of 13', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
     assert.ok(html.includes('Web2'), 'dist/index.html should contain Web2');
     assert.ok(html.includes('Web3'), 'dist/index.html should contain Web3');
     assert.equal(html.includes('Our own repo'), false, 'dist/index.html should not list our own repo');
-    assert.ok(html.includes('a repo without it tops out at 9 of 13'), 'dist/index.html should contain a repo without it tops out at 9 of 13');
+    assert.ok(html.includes('a repo without it tops out at 8 of 13'), 'dist/index.html should contain a repo without it tops out at 8 of 13');
   });
 
   test('dist/index.html holds canonical, og:url, og:image and twitter card', () => {
