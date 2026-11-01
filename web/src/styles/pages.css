@@ -71,6 +71,7 @@
 .home-verify-text { display: flex; flex-direction: column; gap: 16px; }
 .proof-lede { margin: 0; font-size: 18px; }
 .proof-note { margin: 0; font-size: 16px; color: var(--muted); }
+.cta { width: 100%; }
 .cta-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 48px; }
 .cta-text { min-width: 0; max-width: 36em; }
 .cta-title { margin: 0 0 8px; font-size: 28px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
