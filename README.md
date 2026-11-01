@@ -2,22 +2,17 @@ The web version of `yokoten doctor`.
 
 # yokoten doctor (web)
 
-Paste a public GitHub repo URL and see what `yokoten doctor` says about it,
-without opening a terminal. The page shows the same checks as the command
-line tool, then hands you the files to fix what is missing.
+Paste a public GitHub repo URL and get the same 13 checks as `yokoten doctor`, the one thing to fix next, and the files that fix it. No terminal.
 
-This repo holds the page in `web/src/` and the small server in `server/`. The
+This repo holds the page in `web/src/` and the server in `server/`. The
 server runs on Modal, and it calls Muse Spark Open on Baseten to write each
 repo's summary and project section. The design is in `docs/design.md`.
 
 ## How it works
 
-1. You paste a public GitHub repo URL.
-2. A throwaway sandbox clones the repo and runs yokoten on it.
-3. The page shows yokoten's checks, in the same order as the terminal.
-4. The missing files come from yokoten's templates. Muse reads your repo and writes the project section of `AGENTS.md`.
-5. You copy the files or download them as a patch.
-6. The server writes a hash of the result to Sigstore Rekor and to a Solana devnet memo. You can download the result and compare.
+1. A throwaway sandbox clones the repo and runs yokoten on it.
+2. The page shows the checks, the files from yokoten's templates (Muse writes the project section of `AGENTS.md`), and a patch.
+3. The server writes a hash of the result to Sigstore Rekor and to a Solana devnet memo. You can download the result and compare.
 
 See `docs/public-record.md`.
 

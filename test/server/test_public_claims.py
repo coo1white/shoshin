@@ -52,6 +52,8 @@ def test_install_only_word_numbers_match_code():
             word = m.group(1)
             assert WORD_TO_NUM[word] == expected_num
             assert int(m.group(2)) == total
+        for m in re.finditer(r"(Two|Three|Four|Five|Six) checks need", text):
+            assert WORD_TO_NUM[m.group(1)] == expected_num
 
 
 def test_hourly_and_daily_limits_match_code():

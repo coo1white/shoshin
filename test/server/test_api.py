@@ -423,7 +423,7 @@ def test_api_limiter_refuses_ip():
     assert events[0] == ("progress", {"step": "reading"})
     assert len(events) == 2
     assert events[1][0] == "error"
-    assert events[1][1]["message"] == "You've run 10 checks this hour. Try again later, or run it on your machine: npx yokoten"
+    assert events[1][1]["message"] == "10 checks this hour is the limit. Try later, or run it on your machine: npx yokoten"
     assert public_calls == []
     assert run_calls == []
 
@@ -445,7 +445,7 @@ def test_api_limiter_refuses_day():
     assert events[0] == ("progress", {"step": "reading"})
     assert len(events) == 2
     assert events[1][0] == "error"
-    assert events[1][1]["message"] == "This page has hit its limit for today. Try again tomorrow, or run it on your machine: npx yokoten"
+    assert events[1][1]["message"] == "This page is at its daily limit. Try tomorrow, or run it on your machine: npx yokoten"
     assert public_calls == []
     assert run_calls == []
 

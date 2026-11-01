@@ -37,7 +37,6 @@
 .check-row:hover { background: var(--raised); color: inherit; }
 .check-repo { flex: 1 1 180px; min-width: 0; font-size: 15px; font-weight: 500; overflow-wrap: anywhere; }
 .check-data { display: inline-flex; align-items: center; gap: 14px; white-space: nowrap; }
-.check-commit { font-size: 12px; color: var(--muted); font-family: var(--font-mono); }
 .check-bar { display: inline-grid; grid-template-columns: repeat(13, 10px); gap: 3px; }
 .check-seg { height: 8px; border-radius: 2px; }
 .check-seg.is-done { background: var(--fg); }
@@ -45,7 +44,6 @@
 .check-seg.is-open { background: var(--raised); }
 .check-score { min-width: 7ch; font-family: var(--font-mono); font-size: 15px; font-weight: 600; text-align: right; }
 .check-total { color: var(--muted); font-weight: 400; }
-@media (max-width: 24rem) { .check-commit { display: none; } }
 .checks-note { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
 .checks-note + .checks-note { margin-top: 6px; }
 .result-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(460px, 100%), 1fr)); gap: 40px 64px; align-items: start; }
