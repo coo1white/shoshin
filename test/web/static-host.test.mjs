@@ -180,7 +180,7 @@ describe('static host portability', () => {
     }
   });
 
-  test('dist/index.html holds the h1 "A health check for repos that AI agents work in.", the label, the Check button, the three examples, the noscript sentence, and the sentence that starts "How this was made"', () => {
+  test('dist/index.html holds the h1 "A health check for repos that AI agents work in.", the label, the Check button, the three examples, and the noscript sentence', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
     const h1Re = /<h1[^>]*>([\s\S]*?)<\/h1>/i;
     const h1 = html.match(h1Re);
@@ -234,14 +234,18 @@ describe('static host portability', () => {
     assert.equal(/\bstyle\s*=/.test(html), false, 'dist/index.html should not contain style= attribute');
   });
 
-  test('in dist/index.html, the sentence "How this was made" comes after <main id="app"', () => {
+  test('"How this was made" is in dist/about.html, not on dist/index.html, and the page links to About and not to Docs', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
-    const mainIdx = html.indexOf('<main id="app"');
-    assert.ok(mainIdx !== -1, '<main id="app" not found');
+    const about = fs.readFileSync(path.join(path.dirname(indexPath), 'about.html'), 'utf8');
     const marker = 'How this was made';
-    const markerIdx = html.indexOf(marker);
-    assert.ok(markerIdx !== -1, `${marker} not found`);
-    assert.ok(markerIdx > mainIdx, `${marker} should come after <main id="app"`);
+    assert.ok(html.includes('<main id="app"'), '<main id="app" not found');
+    assert.ok(about.includes(marker), `${marker} not found in dist/about.html`);
+    assert.equal(html.includes(marker), false, `${marker} should not be in dist/index.html`);
+    assert.ok(html.includes('href="/about.html"'), 'dist/index.html should link to /about.html');
+    assert.equal(html.includes('yokoten.app/docs'), false, 'dist/index.html should not link to Docs');
+    assert.equal(html.includes('How it works'), false, 'dist/index.html should not link to How it works');
+    assert.equal(html.includes('/#questions'), false, 'dist/index.html should not link to Questions');
+    assert.equal(html.includes('yokoten.app/about'), false, 'dist/index.html should not link to the yokoten About page');
     assert.ok(html.includes('Real checks'), 'dist/index.html should contain "Real checks"');
     assert.ok(html.includes('It does not scan for code vulnerabilities'), 'dist/index.html should contain "It does not scan for code vulnerabilities"');
     assert.ok(html.includes('devnet'), 'dist/index.html should contain "devnet"');
