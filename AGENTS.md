@@ -139,3 +139,4 @@ These come from mistakes already made in this repo. Each one was caught in revie
 - Leave no comments that think out loud, no branches that cannot run, and no repeated blocks.
 - A module on Modal must be in `web_image`. A test that imports it does not prove the deploy works.
 - Client code uses only TypeScript syntax that Node can strip, and imports name the `.ts` file.
+- Text a visitor reads on the site is natural American English. The Writing rule above covers rules and docs.
