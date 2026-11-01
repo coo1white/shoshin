@@ -31,3 +31,7 @@ Every request then comes from the Worker address.
 So the per-address limit must change first.
 Read `CF-Connecting-IP` only when proven to come from that Worker.
 Otherwise a caller can set it to anything.
+
+The share image is `web/public/images/share.png`.
+Its source is `web/share/share-image.html`.
+To change it, open the source from a local server at 1200 by 630, and save a screenshot.

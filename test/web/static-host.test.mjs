@@ -29,6 +29,8 @@ describe('static host portability', () => {
     const values = [];
     while ((tagMatch = tagRe.exec(html)) !== null) {
       const tag = tagMatch[0];
+      // A canonical address names the site by design, and it loads nothing.
+      if (/^<link rel="canonical" href="https:\/\/doctor\.yokoten\.app\/[^"]*"\s*\/?>$/.test(tag)) continue;
       const attrMatch = tag.match(/\b(?:href|src)\s*=\s*["']([^"']+)["']/i);
       if (attrMatch) values.push(attrMatch[1]);
     }
@@ -40,8 +42,8 @@ describe('static host portability', () => {
     }
   });
 
-  test('dist/ holds only .html, .js, .css, .svg and .woff2', () => {
-    const allowed = new Set(['.html', '.js', '.css', '.svg', '.woff2']);
+  test('dist/ holds only .html, .js, .css, .svg, .woff2, .png, .txt and .xml', () => {
+    const allowed = new Set(['.html', '.js', '.css', '.svg', '.woff2', '.png', '.txt', '.xml']);
     function walk(dir) {
       const entries = fs.readdirSync(dir, { withFileTypes: true });
       for (const e of entries) {
@@ -388,6 +390,52 @@ describe('static host portability', () => {
         const attrs = match[1];
         assert.ok(/\bsrc\s*=/.test(attrs), `script without src in ${slug}.html: <script${attrs}>`);
       }
+    }
+  });
+
+  test('dist/index.html holds canonical, og:url, og:image and twitter card', () => {
+    const html = fs.readFileSync(indexPath, 'utf8');
+    assert.ok(html.includes('rel="canonical"'), 'canonical link not found');
+    assert.ok(html.includes('href="https://doctor.yokoten.app/"'), 'canonical href should be https://doctor.yokoten.app/');
+    assert.ok(html.includes('property="og:url"'), 'og:url not found');
+    assert.ok(html.includes('content="https://doctor.yokoten.app/"'), 'og:url content should be https://doctor.yokoten.app/');
+    assert.ok(html.includes('property="og:image"'), 'og:image not found');
+    assert.ok(html.includes('content="https://doctor.yokoten.app/images/share.png"'), 'og:image should be https://doctor.yokoten.app/images/share.png');
+    assert.ok(html.includes('name="twitter:card"'), 'twitter:card not found');
+    assert.ok(html.includes('content="summary_large_image"'), 'twitter:card should be summary_large_image');
+  });
+
+  test('dist/images/share.png exists and has width 1200 and height 630', () => {
+    const pngPath = path.join(distDir, 'images', 'share.png');
+    assert.ok(fs.existsSync(pngPath), 'dist/images/share.png should exist');
+    const buf = fs.readFileSync(pngPath);
+    const width = buf.readUInt32BE(16);
+    const height = buf.readUInt32BE(20);
+    assert.equal(width, 1200, `width should be 1200, got ${width}`);
+    assert.equal(height, 630, `height should be 630, got ${height}`);
+  });
+
+  test('dist/robots.txt names sitemap and dist/sitemap.xml holds home and not example', () => {
+    const robots = fs.readFileSync(path.join(distDir, 'robots.txt'), 'utf8');
+    assert.ok(robots.includes('Sitemap: https://doctor.yokoten.app/sitemap.xml'), 'robots.txt should contain Sitemap: https://doctor.yokoten.app/sitemap.xml');
+    const sitemap = fs.readFileSync(path.join(distDir, 'sitemap.xml'), 'utf8');
+    assert.ok(sitemap.includes('https://doctor.yokoten.app/'), 'sitemap.xml should contain https://doctor.yokoten.app/');
+    assert.equal(sitemap.includes('/example/'), false, 'sitemap.xml should not contain /example/');
+  });
+
+  test('example pages have canonical and title prefix', () => {
+    const sample = JSON.parse(fs.readFileSync(path.resolve('web/src/data/sample-result.json'), 'utf8'));
+    for (const ex of sample.examples) {
+      const slug = ex.repo.replaceAll("/", "-");
+      const htmlPath = path.join(distDir, 'example', `${slug}.html`);
+      const html = fs.readFileSync(htmlPath, 'utf8');
+      const expectedCanonical = `https://doctor.yokoten.app/example/${slug}.html`;
+      assert.ok(html.includes(expectedCanonical), `${slug}.html should contain canonical ${expectedCanonical}`);
+      const titleMatch = html.match(/<title>([\s\S]*?)<\/title>/i);
+      assert.ok(titleMatch, `title not found in ${slug}.html`);
+      const title = titleMatch[1];
+      const expectedStart = `${ex.repo}: ${ex.done} of ${ex.total} file checks`;
+      assert.ok(title.startsWith(expectedStart), `title in ${slug}.html should start with "${expectedStart}", got "${title}"`);
     }
   });
 });
