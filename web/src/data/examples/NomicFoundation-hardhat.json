@@ -1,0 +1,257 @@
+{
+  "result": {
+    "owner": "NomicFoundation",
+    "repo": "hardhat",
+    "commit": "3f9feb3e206d48bd739c00061f3eb434fe40bf1a",
+    "yokoten_version": "0.2.0",
+    "about": "yokoten stops your AI coding agent from making the mistake you can't undo. One command, no setup.",
+    "rerun": {
+      "doctor": "git clone --filter=blob:none https://github.com/NomicFoundation/hardhat\ncd hardhat\ngit checkout 3f9feb3e206d48bd739c00061f3eb434fe40bf1a\nnpx yokoten@0.2.0 doctor --files --json",
+      "check": "HOME=\"$(mktemp -d)\" npx yokoten@0.2.0 check --json"
+    },
+    "summary": {
+      "done": 6,
+      "total": 13,
+      "next": {
+        "id": "ci",
+        "title": "Run the checks on every pull request",
+        "mark": "to do",
+        "how": "a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten",
+        "why": "a commit made with the hook off would reach main unchecked",
+        "what": "CI does not run `yokoten check`",
+        "fix": "`yokoten init` adds .github/workflows/yokoten.yml"
+      },
+      "steps": [
+        {
+          "id": "rules",
+          "title": "Write the rules for your agents (AGENTS.md)",
+          "mark": "done",
+          "how": "AGENTS.md is at the repo root, and a CLAUDE.md (at the root or in .claude/), when there is one, imports it (`@AGENTS.md`, or `@../AGENTS.md` from .claude/; a Markdown link is not an import): with a CLAUDE.md, Claude Code reads AGENTS.md only through it",
+          "why": "an agent follows the rules it can read, and only those"
+        },
+        {
+          "id": "tool-hook",
+          "title": "Turn on the guard for your agents' commands",
+          "mark": "next",
+          "how": ".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only",
+          "why": "the guard stops a risky command, like a force push, before the agent runs it",
+          "what": "no tool-call guard in .claude/settings.json",
+          "fix": "`yokoten init` adds it"
+        },
+        {
+          "id": "runtime",
+          "title": "Add the yokoten runtime to the project",
+          "mark": "to do",
+          "how": ".yokoten/VERSION is the version of the yokoten that runs doctor; yokoten's own repo needs no copy",
+          "why": "the hooks and CI run this copy, so they work with no network and no global install",
+          "what": "no .yokoten/ runtime",
+          "fix": "`yokoten init` adds it"
+        },
+        {
+          "id": "tests",
+          "title": "Run your tests on every push",
+          "mark": "done",
+          "how": "package.json has a real \"test\" script and a `run:` step in a workflow runs it, or a `run:` step starts a test runner such as `node --test`, `go test`, `pytest`, `tox`, `make test` or `npx vitest`; in a workspaces repo, `npm test --workspaces` or `pnpm -r test` counts too",
+          "why": "tests that run on every push catch a broken change before it reaches main"
+        },
+        {
+          "id": "ci",
+          "title": "Run the checks on every pull request",
+          "mark": "to do",
+          "how": "a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten",
+          "why": "a commit made with the hook off would reach main unchecked",
+          "what": "CI does not run `yokoten check`",
+          "fix": "`yokoten init` adds .github/workflows/yokoten.yml"
+        },
+        {
+          "id": "issues",
+          "title": "Turn on issues",
+          "mark": "done",
+          "how": "there is no TODO.md, TODO, todo.md or docs/todo",
+          "why": "an issue has an owner, a state and a history; a todo file has none"
+        },
+        {
+          "id": "templates",
+          "title": "Add issue and pull request templates",
+          "mark": "done",
+          "how": ".github/ISSUE_TEMPLATE holds a template, and .github holds a pull request template",
+          "why": "a template asks for what a reviewer needs, so nothing is forgotten"
+        },
+        {
+          "id": "no-build-output",
+          "title": "Keep build output out of git",
+          "mark": "done",
+          "how": "no tracked file is in a dist/, build/ or out/ folder or is a built file by its name, apart from yokoten.json \"allowBuild\"",
+          "why": "a build makes these files again from the source, and a reviewer can't read a binary"
+        },
+        {
+          "id": "changelog",
+          "title": "Keep a changelog",
+          "mark": "done",
+          "how": "CHANGELOG.md has an Unreleased heading, or the repo has a changes/ folder or a .changeset/ folder (Changesets)",
+          "why": "each pull request adds its entry as it goes, so a release needs no digging"
+        },
+        {
+          "id": "titles",
+          "title": "Check pull request titles",
+          "mark": "to do",
+          "how": "a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check --pr`, or runs on pull requests with a step that uses yokoten-labs/yokoten and does not set `pr-check: false`",
+          "why": "a pull request title becomes the commit on main, so it must say what changed and why",
+          "what": "CI does not check pull requests (`yokoten check --pr`)",
+          "fix": "`yokoten init` adds .github/workflows/pr.yml"
+        },
+        {
+          "id": "codeowners",
+          "title": "Name the owner (CODEOWNERS)",
+          "mark": "to do",
+          "how": "a CODEOWNERS file is in .github/, at the root or in docs/, and the first one GitHub reads names an owner, not init's placeholder @YOUR_GITHUB_HANDLE; full doctor also reads whether the repo belongs to an organization, and an organization alone (@org, not @org/team) is not an owner",
+          "why": "the host then asks you to review a pull request that changes those paths, and `check --pr` makes it tier A",
+          "what": "no CODEOWNERS file",
+          "fix": "`yokoten init` writes .github/CODEOWNERS for the lead-only paths; or add one with a line `<path> @<your account>` for each path where a mistake is hard to undo: the rules, CI, agent config"
+        },
+        {
+          "id": "sandbox",
+          "title": "Keep your agents in a sandbox",
+          "mark": "to do",
+          "how": ".claude/settings.json turns the sandbox on with no * host; .codex/config.toml pins workspace-write, on-request and no network; .gemini/settings.json blocks YOLO mode; .grok/sandbox.toml holds a workspace profile; writable paths stay in the project",
+          "why": "a worker writes only where the sandbox allows, so it must cover the worktree",
+          "what": "no sandbox in .claude/settings.json",
+          "fix": "`yokoten init` adds it"
+        },
+        {
+          "id": "security-files",
+          "title": "Add a license and a security policy",
+          "mark": "to do",
+          "how": "a SECURITY.md, a Dependabot config and a license file are in the repo",
+          "why": "people can then report a hole in private, old dependencies get updates, and others know how they may use the code",
+          "what": "no security policy (SECURITY.md)",
+          "fix": "run `yokoten init` to add the security policy and Dependabot"
+        }
+      ],
+      "install_only": [
+        {
+          "id": "tool-hook",
+          "title": "Turn on the guard for your agents' commands",
+          "mark": "next",
+          "how": ".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only",
+          "why": "the guard stops a risky command, like a force push, before the agent runs it",
+          "what": "no tool-call guard in .claude/settings.json",
+          "fix": "`yokoten init` adds it"
+        },
+        {
+          "id": "runtime",
+          "title": "Add the yokoten runtime to the project",
+          "mark": "to do",
+          "how": ".yokoten/VERSION is the version of the yokoten that runs doctor; yokoten's own repo needs no copy",
+          "why": "the hooks and CI run this copy, so they work with no network and no global install",
+          "what": "no .yokoten/ runtime",
+          "fix": "`yokoten init` adds it"
+        },
+        {
+          "id": "sandbox",
+          "title": "Keep your agents in a sandbox",
+          "mark": "to do",
+          "how": ".claude/settings.json turns the sandbox on with no * host; .codex/config.toml pins workspace-write, on-request and no network; .gemini/settings.json blocks YOLO mode; .grok/sandbox.toml holds a workspace profile; writable paths stay in the project",
+          "why": "a worker writes only where the sandbox allows, so it must cover the worktree",
+          "what": "no sandbox in .claude/settings.json",
+          "fix": "`yokoten init` adds it"
+        }
+      ]
+    },
+    "secrets": [
+      {
+        "what": "an IP address",
+        "id": "ip",
+        "fix": "use a placeholder from 192.0.2.0/24",
+        "grade": "sure",
+        "file": "packages/hardhat-utils/test/fast-semver.ts",
+        "why": "an IP address can lead to your server or your home network",
+        "line": 38
+      },
+      {
+        "what": "an email address",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
+        "grade": "sure",
+        "file": "packages/hardhat/src/internal/cli/telemetry/sentry/reporter.ts",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "line": 9
+      },
+      {
+        "what": "an email address",
+        "id": "email",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
+        "grade": "sure",
+        "file": "packages/hardhat/src/internal/cli/telemetry/sentry/reporter.ts",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "line": 11
+      },
+      {
+        "what": "an IP address",
+        "id": "ip",
+        "fix": "use a placeholder from 192.0.2.0/24",
+        "grade": "sure",
+        "file": "packages/ignition-ui/src/pages/visualization-overview/visualization-overview.tsx",
+        "why": "an IP address can lead to your server or your home network",
+        "line": 184
+      }
+    ],
+    "default_branch": "main"
+  },
+  "fixes": {
+    "files": [
+      {
+        "path": ".github/CODEOWNERS",
+        "content": "# Written by yokoten init. The owner reviews every change to these paths: the rules\n# the agents work under, their config, the hooks and CI (yokoten's lead-only defaults).\n# Turn on \"Require review from Code Owners\" in branch protection, or GitHub asks\n# nobody. `yokoten check --pr` makes a change here tier A either way.\n\n/AGENTS.md          @NomicFoundation\n/CLAUDE.md          @NomicFoundation\n/yokoten.json       @NomicFoundation\n/CODEOWNERS         @NomicFoundation\n/docs/CODEOWNERS    @NomicFoundation\n/.claude/           @NomicFoundation\n/.claude-plugin/    @NomicFoundation\n/.codex/            @NomicFoundation\n/.gemini/           @NomicFoundation\n/.agents/hooks.json @NomicFoundation\n/.muse/             @NomicFoundation\n/.dsh/              @NomicFoundation\n/.grok/             @NomicFoundation\n/.githooks/         @NomicFoundation\n/.github/           @NomicFoundation\n/.yokoten/          @NomicFoundation\n/.yokotenignore     @NomicFoundation\n",
+        "source": "yokoten"
+      },
+      {
+        "path": ".github/ISSUE_TEMPLATE/incident.yml",
+        "content": "name: Incident\ndescription: \"Something went wrong in how we work. The rca skill turns it into a check. Title: `area: symptom` (what you saw, not the fix), for example `check: misses a key in a JSON file`. At most 60 characters, no full stop, no #N.\"\ntitle: \"area: \"\nlabels: [incident]\nbody:\n  - type: textarea\n    id: what\n    attributes:\n      label: What happened\n      description: Facts only, in order, with times in UTC.\n    validations:\n      required: true\n  - type: textarea\n    id: matters\n    attributes:\n      label: Why it matters\n      description: \"What it cost, or can cost, when it happens again. One or two sentences. `yokoten learn` uses it as the check's reason.\"\n  - type: textarea\n    id: why\n    attributes:\n      label: Why it got through\n      description: Which check should have caught it, and why it did not (or that there was none).\n  - type: textarea\n    id: fix\n    attributes:\n      label: Fix\n      description: What changed so it can't happen again, and the check that now holds it.\n  - type: textarea\n    id: spread\n    attributes:\n      label: Other places it can happen\n      description: Other projects or paths with the same gap (yokoten).\n",
+        "source": "yokoten"
+      },
+      {
+        "path": ".github/ISSUE_TEMPLATE/task.yml",
+        "content": "name: Task\ndescription: \"A piece of work. Every change starts here. Title: `area: verb phrase`, for example `doctor: add the review step`. At most 60 characters, no full stop, no #N.\"\ntitle: \"area: \"\nbody:\n  - type: textarea\n    id: goal\n    attributes:\n      label: Goal\n      description: What is true when this is done, in one or two sentences.\n    validations:\n      required: true\n  - type: textarea\n    id: done\n    attributes:\n      label: Done when\n      description: The checks that prove it. A command and its expected output is best.\n    validations:\n      required: true\n  - type: textarea\n    id: scope\n    attributes:\n      label: Out of scope\n      description: What this task must not change.\n",
+        "source": "yokoten"
+      },
+      {
+        "path": ".github/SECURITY.md",
+        "content": "# Security\n\n## Reporting a vulnerability\n\nPlease report it privately, not in a public issue. Go to this repo's **Security** tab\nand choose **Report a vulnerability**. Only the maintainers see the report.\n\nInclude what you did, what happened, and what you expected. Add the version or commit\nyou used. Steps that show the problem help most.\n\n## What not to put in a public issue\n\nA public issue is open to everyone, at once. Don't put any of these in one:\n\n- the details of a vulnerability, or how to use it;\n- a password, token, key or other secret, even an old one;\n- personal data about anyone.\n\nIf a secret is already public, say so in the private report. It must be revoked, not\nonly deleted.\n\n## What counts\n\nA vulnerability is a fault that lets someone do what they should not be able to do.\nFor example:\n\n- run code on a machine or server that uses this project;\n- read or change data they have no right to;\n- get a secret, or get past a login or a permission check.\n\nA bug that only breaks things, with no gain for an attacker, is a normal issue. Open\nit in public.\n",
+        "source": "yokoten"
+      },
+      {
+        "path": ".github/dependabot.yml",
+        "content": "# Monthly, one grouped pull request, so updates don't each cost a review (core rule 8).\n# A release is taken only once it is a week old, so one pulled for being bad never\n# reaches you. The actions CI runs are always on. `yokoten init` adds a block below for\n# each package manager it finds (npm, cargo, pip, gomod, ...), at the root and one folder\n# down. `check --pr` holds these pull requests to the title rule, and shows the rest as notes.\n#\n# To add one it missed, copy a block. Change package-ecosystem, directory, the group\n# name, and the commit-message prefix (to chore). Keep the schedule, cooldown and groups:\n# then they come the same way, monthly, in one pull request, a week old. The ecosystem names:\n# https://docs.github.com/en/code-security/dependabot/working-with-dependabot/dependabot-options-reference\nversion: 2\nupdates:\n  - package-ecosystem: github-actions\n    directory: /\n    schedule:\n      interval: monthly\n    cooldown:\n      default-days: 7\n    groups:\n      actions:\n        patterns: ['*']\n    commit-message:\n      prefix: ci\n  - package-ecosystem: npm\n    directory: /\n    schedule:\n      interval: monthly\n    cooldown:\n      default-days: 7\n    groups:\n      npm:\n        patterns: ['*']\n    commit-message:\n      prefix: chore\n",
+        "source": "yokoten"
+      },
+      {
+        "path": "CHANGELOG.md",
+        "content": "# Changelog\n\nAll notable changes are listed here. The format follows\n[Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow\n[Semantic Versioning](https://semver.org/spec/v2.0.0.html). Dates are UTC.\n\nEach pull request that changes what users see adds a file in `changes/`, not a line\nhere, so pull requests never conflict. `changes/README.md` shows the form. Before a\nrelease, `node .yokoten/bin/yokoten.ts changelog --write` moves the entries under `[Unreleased]`. Then\nthe owner moves them under a new version heading.\n\n## [Unreleased]\n",
+        "source": "yokoten"
+      }
+    ],
+    "summary": "",
+    "muse": "not needed",
+    "claude_import": null,
+    "after": {
+      "done": 8,
+      "total": 13
+    }
+  },
+  "record": {
+    "sha256": "ff0060bb82ede40f30d1b6233fad1150575eeb0fdad48b3bae7659691dc78f39",
+    "recorded_at": "2026-11-01T00:08:55Z",
+    "document": "{\n  \"recorded_at\": \"2026-11-01T00:08:55Z\",\n  \"result\": {\n    \"about\": \"yokoten stops your AI coding agent from making the mistake you can't undo. One command, no setup.\",\n    \"commit\": \"3f9feb3e206d48bd739c00061f3eb434fe40bf1a\",\n    \"default_branch\": \"main\",\n    \"owner\": \"NomicFoundation\",\n    \"repo\": \"hardhat\",\n    \"rerun\": {\n      \"check\": \"HOME=\\\"$(mktemp -d)\\\" npx yokoten@0.2.0 check --json\",\n      \"doctor\": \"git clone --filter=blob:none https://github.com/NomicFoundation/hardhat\\ncd hardhat\\ngit checkout 3f9feb3e206d48bd739c00061f3eb434fe40bf1a\\nnpx yokoten@0.2.0 doctor --files --json\"\n    },\n    \"secrets\": [\n      {\n        \"file\": \"packages/hardhat-utils/test/fast-semver.ts\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 38,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      },\n      {\n        \"file\": \"packages/hardhat/src/internal/cli/telemetry/sentry/reporter.ts\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 9,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"packages/hardhat/src/internal/cli/telemetry/sentry/reporter.ts\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 11,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"packages/ignition-ui/src/pages/visualization-overview/visualization-overview.tsx\",\n        \"fix\": \"use a placeholder from 192.0.2.0/24\",\n        \"grade\": \"sure\",\n        \"id\": \"ip\",\n        \"line\": 184,\n        \"what\": \"an IP address\",\n        \"why\": \"an IP address can lead to your server or your home network\"\n      }\n    ],\n    \"summary\": {\n      \"done\": 6,\n      \"install_only\": [\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only\",\n          \"id\": \"tool-hook\",\n          \"mark\": \"next\",\n          \"title\": \"Turn on the guard for your agents' commands\",\n          \"what\": \"no tool-call guard in .claude/settings.json\",\n          \"why\": \"the guard stops a risky command, like a force push, before the agent runs it\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".yokoten/VERSION is the version of the yokoten that runs doctor; yokoten's own repo needs no copy\",\n          \"id\": \"runtime\",\n          \"mark\": \"to do\",\n          \"title\": \"Add the yokoten runtime to the project\",\n          \"what\": \"no .yokoten/ runtime\",\n          \"why\": \"the hooks and CI run this copy, so they work with no network and no global install\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json turns the sandbox on with no * host; .codex/config.toml pins workspace-write, on-request and no network; .gemini/settings.json blocks YOLO mode; .grok/sandbox.toml holds a workspace profile; writable paths stay in the project\",\n          \"id\": \"sandbox\",\n          \"mark\": \"to do\",\n          \"title\": \"Keep your agents in a sandbox\",\n          \"what\": \"no sandbox in .claude/settings.json\",\n          \"why\": \"a worker writes only where the sandbox allows, so it must cover the worktree\"\n        }\n      ],\n      \"next\": {\n        \"fix\": \"`yokoten init` adds .github/workflows/yokoten.yml\",\n        \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten\",\n        \"id\": \"ci\",\n        \"mark\": \"to do\",\n        \"title\": \"Run the checks on every pull request\",\n        \"what\": \"CI does not run `yokoten check`\",\n        \"why\": \"a commit made with the hook off would reach main unchecked\"\n      },\n      \"steps\": [\n        {\n          \"how\": \"AGENTS.md is at the repo root, and a CLAUDE.md (at the root or in .claude/), when there is one, imports it (`@AGENTS.md`, or `@../AGENTS.md` from .claude/; a Markdown link is not an import): with a CLAUDE.md, Claude Code reads AGENTS.md only through it\",\n          \"id\": \"rules\",\n          \"mark\": \"done\",\n          \"title\": \"Write the rules for your agents (AGENTS.md)\",\n          \"why\": \"an agent follows the rules it can read, and only those\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only\",\n          \"id\": \"tool-hook\",\n          \"mark\": \"next\",\n          \"title\": \"Turn on the guard for your agents' commands\",\n          \"what\": \"no tool-call guard in .claude/settings.json\",\n          \"why\": \"the guard stops a risky command, like a force push, before the agent runs it\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".yokoten/VERSION is the version of the yokoten that runs doctor; yokoten's own repo needs no copy\",\n          \"id\": \"runtime\",\n          \"mark\": \"to do\",\n          \"title\": \"Add the yokoten runtime to the project\",\n          \"what\": \"no .yokoten/ runtime\",\n          \"why\": \"the hooks and CI run this copy, so they work with no network and no global install\"\n        },\n        {\n          \"how\": \"package.json has a real \\\"test\\\" script and a `run:` step in a workflow runs it, or a `run:` step starts a test runner such as `node --test`, `go test`, `pytest`, `tox`, `make test` or `npx vitest`; in a workspaces repo, `npm test --workspaces` or `pnpm -r test` counts too\",\n          \"id\": \"tests\",\n          \"mark\": \"done\",\n          \"title\": \"Run your tests on every push\",\n          \"why\": \"tests that run on every push catch a broken change before it reaches main\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/yokoten.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten\",\n          \"id\": \"ci\",\n          \"mark\": \"to do\",\n          \"title\": \"Run the checks on every pull request\",\n          \"what\": \"CI does not run `yokoten check`\",\n          \"why\": \"a commit made with the hook off would reach main unchecked\"\n        },\n        {\n          \"how\": \"there is no TODO.md, TODO, todo.md or docs/todo\",\n          \"id\": \"issues\",\n          \"mark\": \"done\",\n          \"title\": \"Turn on issues\",\n          \"why\": \"an issue has an owner, a state and a history; a todo file has none\"\n        },\n        {\n          \"how\": \".github/ISSUE_TEMPLATE holds a template, and .github holds a pull request template\",\n          \"id\": \"templates\",\n          \"mark\": \"done\",\n          \"title\": \"Add issue and pull request templates\",\n          \"why\": \"a template asks for what a reviewer needs, so nothing is forgotten\"\n        },\n        {\n          \"how\": \"no tracked file is in a dist/, build/ or out/ folder or is a built file by its name, apart from yokoten.json \\\"allowBuild\\\"\",\n          \"id\": \"no-build-output\",\n          \"mark\": \"done\",\n          \"title\": \"Keep build output out of git\",\n          \"why\": \"a build makes these files again from the source, and a reviewer can't read a binary\"\n        },\n        {\n          \"how\": \"CHANGELOG.md has an Unreleased heading, or the repo has a changes/ folder or a .changeset/ folder (Changesets)\",\n          \"id\": \"changelog\",\n          \"mark\": \"done\",\n          \"title\": \"Keep a changelog\",\n          \"why\": \"each pull request adds its entry as it goes, so a release needs no digging\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/pr.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check --pr`, or runs on pull requests with a step that uses yokoten-labs/yokoten and does not set `pr-check: false`\",\n          \"id\": \"titles\",\n          \"mark\": \"to do\",\n          \"title\": \"Check pull request titles\",\n          \"what\": \"CI does not check pull requests (`yokoten check --pr`)\",\n          \"why\": \"a pull request title becomes the commit on main, so it must say what changed and why\"\n        },\n        {\n          \"fix\": \"`yokoten init` writes .github/CODEOWNERS for the lead-only paths; or add one with a line `<path> @<your account>` for each path where a mistake is hard to undo: the rules, CI, agent config\",\n          \"how\": \"a CODEOWNERS file is in .github/, at the root or in docs/, and the first one GitHub reads names an owner, not init's placeholder @YOUR_GITHUB_HANDLE; full doctor also reads whether the repo belongs to an organization, and an organization alone (@org, not @org/team) is not an owner\",\n          \"id\": \"codeowners\",\n          \"mark\": \"to do\",\n          \"title\": \"Name the owner (CODEOWNERS)\",\n          \"what\": \"no CODEOWNERS file\",\n          \"why\": \"the host then asks you to review a pull request that changes those paths, and `check --pr` makes it tier A\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json turns the sandbox on with no * host; .codex/config.toml pins workspace-write, on-request and no network; .gemini/settings.json blocks YOLO mode; .grok/sandbox.toml holds a workspace profile; writable paths stay in the project\",\n          \"id\": \"sandbox\",\n          \"mark\": \"to do\",\n          \"title\": \"Keep your agents in a sandbox\",\n          \"what\": \"no sandbox in .claude/settings.json\",\n          \"why\": \"a worker writes only where the sandbox allows, so it must cover the worktree\"\n        },\n        {\n          \"fix\": \"run `yokoten init` to add the security policy and Dependabot\",\n          \"how\": \"a SECURITY.md, a Dependabot config and a license file are in the repo\",\n          \"id\": \"security-files\",\n          \"mark\": \"to do\",\n          \"title\": \"Add a license and a security policy\",\n          \"what\": \"no security policy (SECURITY.md)\",\n          \"why\": \"people can then report a hole in private, old dependencies get updates, and others know how they may use the code\"\n        }\n      ],\n      \"total\": 13\n    },\n    \"yokoten_version\": \"0.2.0\"\n  },\n  \"schema\": \"yokoten-doctor/1\"\n}\n",
+    "rekor": {
+      "uuid": "108e9186e8c5677aef3d40b18c39de13ee6b6cc8f14dcf5877fda2add4e92b4e18bc40ee778be6e8",
+      "log_index": 3616476196,
+      "integrated_time": 1793491735,
+      "url": "https://search.sigstore.dev/?logIndex=3616476196"
+    },
+    "solana": {
+      "signature": "DY4uSFt5mp6PtHZmtDHwLqNGmY8gZ2amGqX7XvkjepcvSQtZA4M7PkWBfKRGFwve3hC2meLu75XdLPNT1WprEx5",
+      "url": "https://explorer.solana.com/tx/DY4uSFt5mp6PtHZmtDHwLqNGmY8gZ2amGqX7XvkjepcvSQtZA4M7PkWBfKRGFwve3hC2meLu75XdLPNT1WprEx5?cluster=devnet"
+    }
+  }
+}

@@ -67,13 +67,22 @@
   ],
   "examples": [
     {
-      "repo": "biomejs/biome",
+      "repo": "Fission-AI/OpenSpec",
       "group": "web2",
-      "commit": "0e9ca5b",
-      "done": 6,
+      "commit": "27c0515",
+      "done": 8,
+      "total": 13,
+      "after": 8,
+      "files": 2
+    },
+    {
+      "repo": "github/spec-kit",
+      "group": "web2",
+      "commit": "7370e59",
+      "done": 7,
       "total": 13,
       "after": 7,
-      "files": 4
+      "files": 2
     },
     {
       "repo": "fastapi/fastapi",
@@ -103,6 +112,15 @@
       "files": 4
     },
     {
+      "repo": "NomicFoundation/hardhat",
+      "group": "web3",
+      "commit": "3f9feb3",
+      "done": 6,
+      "total": 13,
+      "after": 8,
+      "files": 6
+    },
+    {
       "repo": "Uniswap/v4-core",
       "group": "web3",
       "commit": "bea7f6d",
@@ -121,5 +139,5 @@
       "files": 8
     }
   ],
-  "examplesCheckedOn": "2026-10-31"
+  "examplesCheckedOn": "2026-11-01"
 }
