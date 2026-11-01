@@ -22,7 +22,7 @@ def test_public_repo_gives_branch_and_size():
 def test_404_raises_repo_refused():
     err = urllib.error.HTTPError("https://api.github.com/repos/o/r", 404, "Not Found", {}, None)
     with patch("urllib.request.urlopen", side_effect=err):
-        with pytest.raises(RepoRefused, match="not found or is private"):
+        with pytest.raises(RepoRefused, match="No public repo at that URL"):
             check_public("owner", "repo")
 
 def test_403_returns_none_values_and_does_not_raise():

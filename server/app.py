@@ -184,10 +184,10 @@ def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_
                     client_ip = ""
                 decision = limiter.allow(client_ip)
                 if decision == "ip":
-                    yield sse_event("error", {"message": "You've run 10 checks this hour. Try again later, or run it on your machine: npx yokoten"})
+                    yield sse_event("error", {"message": "10 checks this hour is the limit. Try later, or run it on your machine: npx yokoten"})
                     return
                 if decision == "day":
-                    yield sse_event("error", {"message": "This page has hit its limit for today. Try again tomorrow, or run it on your machine: npx yokoten"})
+                    yield sse_event("error", {"message": "This page is at its daily limit. Try tomorrow, or run it on your machine: npx yokoten"})
                     return
 
             try:
