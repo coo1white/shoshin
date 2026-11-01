@@ -67,23 +67,35 @@
   ],
   "examples": [
     {
-      "repo": "Uniswap/v4-core",
-      "commit": "bea7f6d",
-      "done": 4,
+      "repo": "Fission-AI/OpenSpec",
+      "group": "web2",
+      "commit": "27c0515",
+      "done": 8,
       "total": 13,
-      "after": 7,
-      "files": 5
+      "after": 8,
+      "files": 2
     },
     {
-      "repo": "OpenZeppelin/openzeppelin-contracts",
-      "commit": "b7f748e",
+      "repo": "cline/cline",
+      "group": "web2",
+      "commit": "a6507a6",
       "done": 7,
       "total": 13,
       "after": 7,
-      "files": 4
+      "files": 2
+    },
+    {
+      "repo": "fastapi/fastapi",
+      "group": "web2",
+      "commit": "45cb225",
+      "done": 3,
+      "total": 13,
+      "after": 8,
+      "files": 7
     },
     {
       "repo": "expressjs/express",
+      "group": "web2",
       "commit": "1c6f1b0",
       "done": 2,
       "total": 13,
@@ -91,7 +103,35 @@
       "files": 6
     },
     {
+      "repo": "OpenZeppelin/openzeppelin-contracts",
+      "group": "web3",
+      "commit": "b7f748e",
+      "done": 7,
+      "total": 13,
+      "after": 7,
+      "files": 4
+    },
+    {
+      "repo": "NomicFoundation/hardhat",
+      "group": "web3",
+      "commit": "3f9feb3",
+      "done": 6,
+      "total": 13,
+      "after": 8,
+      "files": 6
+    },
+    {
+      "repo": "Uniswap/v4-core",
+      "group": "web3",
+      "commit": "bea7f6d",
+      "done": 4,
+      "total": 13,
+      "after": 7,
+      "files": 5
+    },
+    {
       "repo": "jup-ag/jupiter-quote-api-node",
+      "group": "web3",
       "commit": "6dbd33a",
       "done": 2,
       "total": 13,
@@ -99,5 +139,5 @@
       "files": 8
     }
   ],
-  "examplesCheckedOn": "2026-10-31"
+  "examplesCheckedOn": "2026-11-01"
 }

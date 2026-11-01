@@ -271,6 +271,7 @@ describe('static host portability', () => {
       assert.equal(typeof ex.total, 'number', 'example total should be number');
       assert.ok(Number.isInteger(ex.total), 'example total should be integer');
       assert.ok(ex.after === null || (typeof ex.after === 'number' && Number.isInteger(ex.after)), 'example after should be null or integer');
+      assert.ok(['web2', 'web3'].includes(ex.group), `example group should be web2 or web3: ${ex.group}`);
     }
     assert.equal(typeof data.examplesCheckedOn, 'string', 'examplesCheckedOn should be string');
     assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(data.examplesCheckedOn), `examplesCheckedOn should be YYYY-MM-DD: ${data.examplesCheckedOn}`);
@@ -348,17 +349,25 @@ describe('static host portability', () => {
       assert.ok(String(saved.result.commit).startsWith(ex.commit), `${slug} result.commit should start with ${ex.commit}`);
       assert.equal(saved.result.summary.done, ex.done, `${slug} summary.done`);
       assert.equal(saved.result.summary.total, ex.total, `${slug} summary.total`);
-      assert.equal(saved.fixes.after.done, ex.after, `${slug} fixes.after.done`);
+      if (ex.after === null) {
+        assert.ok(saved.fixes.after == null, `${slug} fixes.after should be null or missing when ex.after is null`);
+      } else {
+        assert.equal(saved.fixes.after.done, ex.after, `${slug} fixes.after.done`);
+      }
       assert.equal(saved.fixes.files.length, ex.files, `${slug} fixes.files.length`);
     }
   });
 
-  test('example fixes.muse is ok', () => {
+  test('example fixes.muse finished', () => {
     const sample = JSON.parse(fs.readFileSync(path.resolve('web/src/data/sample-result.json'), 'utf8'));
     for (const ex of sample.examples) {
       const slug = ex.repo.replaceAll("/", "-");
       const saved = JSON.parse(fs.readFileSync(path.resolve(`web/src/data/examples/${slug}.json`), 'utf8'));
-      assert.equal(saved.fixes.muse, "ok", `${slug} fixes.muse should be ok`);
+      assert.ok(saved.fixes.muse === "ok" || saved.fixes.muse === "not needed", `${slug} fixes.muse should be ok or not needed`);
+      if (saved.fixes.muse === "not needed") {
+        const rules = saved.result.summary.steps.find((step) => step.id === "rules");
+        assert.equal(rules.mark, "done", `${slug} says Muse was not needed, so it must have its own rules file`);
+      }
     }
   });
 
@@ -391,6 +400,27 @@ describe('static host portability', () => {
         assert.ok(/\bsrc\s*=/.test(attrs), `script without src in ${slug}.html: <script${attrs}>`);
       }
     }
+  });
+
+  test('sample-result.json has at least three examples in web2 and at least three in web3, and within each of these two groups the highest done is at least 3 more than the lowest', () => {
+    const data = JSON.parse(fs.readFileSync(path.resolve('web/src/data/sample-result.json'), 'utf8'));
+    for (const group of ['web2', 'web3']) {
+      const groupEx = data.examples.filter((ex) => ex.group === group);
+      assert.equal(groupEx.length, 4, `${group} should have four examples`);
+      const dones = groupEx.map((ex) => ex.done);
+      const max = Math.max(...dones);
+      const min = Math.min(...dones);
+      assert.ok(max - min >= 3, `in ${group} highest done (${max}) should be at least 3 more than lowest (${min})`);
+      assert.deepEqual(dones, [...dones].sort((a, b) => b - a), `${group} should run from its highest result to its lowest`);
+    }
+  });
+
+  test('dist/index.html holds the titles Web2 and Web3, and the sentence a repo without it can reach 9 of 13', () => {
+    const html = fs.readFileSync(indexPath, 'utf8');
+    assert.ok(html.includes('Web2'), 'dist/index.html should contain Web2');
+    assert.ok(html.includes('Web3'), 'dist/index.html should contain Web3');
+    assert.equal(html.includes('Our own repo'), false, 'dist/index.html should not list our own repo');
+    assert.ok(html.includes('a repo without it can reach 9 of 13'), 'dist/index.html should contain a repo without it can reach 9 of 13');
   });
 
   test('dist/index.html holds canonical, og:url, og:image and twitter card', () => {

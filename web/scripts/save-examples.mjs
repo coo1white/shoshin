@@ -50,7 +50,7 @@ async function main() {
           else if (eventName === "record") record = data;
         }
       }
-      if (!result || !fixes || !record || fixes.muse !== "ok") {
+      if (!result || !fixes || !record || (fixes.muse !== "ok" && fixes.muse !== "not needed")) {
         console.error(repo);
         failed = true;
         continue;
