@@ -1,7 +1,8 @@
 const API = "https://yokoten-doctor--yokoten-doctor-fastapi-app.us-east.modal.run";
 
 import { viewModel, repoFromInput, repoFromQuery } from "./view.ts";
-import { renderResultHero, renderPrivateSection } from "./ui/result.ts";
+import { renderResultHero } from "./ui/hero.ts";
+import { renderPrivateSection } from "./ui/private.ts";
 import { renderFixSection, renderGuardSection } from "./ui/fix.ts";
 import { renderProofSection } from "./ui/proof.ts";
 import { captureDetailsState, restoreDetailsState } from "./ui/dom.ts";

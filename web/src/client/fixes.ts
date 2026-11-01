@@ -85,17 +85,17 @@ export function orderFiles(files: { path: string; content: string; source?: stri
 
 export function fixMessage(fixes: { files?: { path: string }[]; muse: string }): string {
   if (fixes.muse === "failed") {
-    return "Muse could not write the project section this time. Please fill in the section called This project yourself.";
+    return "Muse couldn't write the project section this time. Fill in the “This project” section yourself.";
   }
   if (!fixes.files || fixes.files.length === 0) {
-    return "yokoten has no files to add to this repo.";
+    return "yokoten has nothing to add to this repo.";
   }
   return "";
 }
 
 export function claudeImportMessage(fixes: { claude_import?: { file: string; line: string } | null }): string {
   if (fixes && fixes.claude_import && fixes.claude_import.file && fixes.claude_import.line) {
-    return `Your repo already has ${fixes.claude_import.file}. Add this line to it, so Claude Code reads the new rules: ${fixes.claude_import.line}`;
+    return `Your repo already has ${fixes.claude_import.file}. Add this line to it so Claude Code picks up the new rules: ${fixes.claude_import.line}`;
   }
   return "";
 }
@@ -136,9 +136,9 @@ export function recordView(record: unknown): { sha256: string; recordedAt: strin
   if (rekorUrl && solanaUrl) {
     message = "";
   } else if (rekorUrl && !solanaUrl) {
-    message = "The devnet record could not be written this time.";
+    message = "The devnet record couldn't be written this time.";
   } else if (!rekorUrl) {
-    message = "The public record could not be written this time. The result above is still right.";
+    message = "The public record couldn't be written this time. The result above is still correct.";
   }
   return { sha256, recordedAt, documentName, documentText, verifyCommand, rekorUrl, solanaUrl, message };
 }

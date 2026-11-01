@@ -5,22 +5,19 @@ import type { CheckResult, ViewModel } from "../types.ts";
 
 export function renderProofSection({ vm, lastResult, lastRecord }: { vm: ViewModel; lastResult: CheckResult; lastRecord: unknown }): HTMLElement {
   const section = document.createElement("section");
-  section.className = "section-band";
+  section.className = "band";
   const inner = document.createElement("div");
-  inner.className = "proof-inner";
+  inner.className = "band-inner";
   section.appendChild(inner);
 
   const label = document.createElement("p");
   label.className = "section-label";
-  const num = document.createElement("span");
-  num.textContent = "04 \u00b7";
-  label.appendChild(num);
-  label.appendChild(document.createTextNode(" Proof"));
+  label.textContent = "Verify";
   inner.appendChild(label);
 
   const h2 = document.createElement("h2");
   h2.className = "section-title";
-  h2.textContent = "Check it yourself";
+  h2.textContent = "Check this result yourself";
   inner.appendChild(h2);
 
   const rv = recordView(lastRecord);
@@ -28,8 +25,8 @@ export function renderProofSection({ vm, lastResult, lastRecord }: { vm: ViewMod
   const lede = document.createElement("p");
   lede.className = "proof-result-lede";
   lede.textContent = rv
-    ? "You do not have to trust this page. You can check this result in two ways."
-    : "You do not have to trust this page. You can run the same check yourself.";
+    ? "You don't have to trust this page. There are two ways to check."
+    : "You don't have to trust this page. You can run the same check yourself.";
   inner.appendChild(lede);
 
   const grid = document.createElement("div");
@@ -46,7 +43,7 @@ export function renderProofSection({ vm, lastResult, lastRecord }: { vm: ViewMod
 
   function addCodeBlockWithCopy(text: string, parent: HTMLElement): void {
     const wrap = document.createElement("div");
-    wrap.className = "code-wrap code-wrap--outside";
+    wrap.className = "code-wrap";
     const pre = document.createElement("pre");
     pre.className = "pre-dark";
     const code = document.createElement("code");
@@ -79,12 +76,12 @@ export function renderProofSection({ vm, lastResult, lastRecord }: { vm: ViewMod
   }
   if (vm.evidence.checkCommand) {
     addCodeBlockWithCopy(vm.evidence.checkCommand, left);
-    addNote("Run this one in a clean home folder: on your own machine, check also looks for your own private marks, which this page never had.", left);
+    addNote("Run this one from a clean home folder. On your own machine, check also looks for your private marks, which this page never had.", left);
   }
 
-  addWayTitle(rv ? "2. See if this result changed" : "Public record", right);
+  addWayTitle(rv ? "2. Confirm the result hasn't changed" : "Public record", right);
   if (rv) {
-    addNote(`Download the result file and run this command. Its hash must match the hash recorded ${formatRecordTime(rv.recordedAt)}.`, right);
+    addNote(`Download the result and run this command. The hash has to match the one recorded ${formatRecordTime(rv.recordedAt)}.`, right);
     const hashP = document.createElement("p");
     hashP.className = "mono proof-hash";
     hashP.textContent = rv.sha256;
@@ -106,8 +103,15 @@ export function renderProofSection({ vm, lastResult, lastRecord }: { vm: ViewMod
     });
     right.appendChild(dlBtn);
     addCodeBlockWithCopy(rv.verifyCommand, right);
-    if (rv.rekorUrl || rv.solanaUrl) {
-      addNote("The same hash is in these public records:", right);
+    if (rv.rekorUrl && rv.solanaUrl) {
+      addNote("The same hash is in two public records:", right);
+      const linksP = document.createElement("p");
+      linksP.className = "proof-links";
+      linksP.appendChild(createLink(rv.rekorUrl, "Rekor entry"));
+      linksP.appendChild(createLink(rv.solanaUrl, "Solana devnet memo"));
+      right.appendChild(linksP);
+    } else if (rv.rekorUrl || rv.solanaUrl) {
+      addNote("The same hash is in this public record:", right);
       const linksP = document.createElement("p");
       linksP.className = "proof-links";
       if (rv.rekorUrl) linksP.appendChild(createLink(rv.rekorUrl, "Rekor entry"));
@@ -115,7 +119,7 @@ export function renderProofSection({ vm, lastResult, lastRecord }: { vm: ViewMod
       right.appendChild(linksP);
     }
     if (rv.solanaUrl) {
-      addNote("Devnet is a test network. It can be reset, and it holds no real money.", right);
+      addNote("Devnet is a test network. It can be reset, and nothing on it has real value.", right);
     }
     if (rv.message) {
       const msgP = document.createElement("p");
@@ -123,7 +127,7 @@ export function renderProofSection({ vm, lastResult, lastRecord }: { vm: ViewMod
       right.appendChild(msgP);
     }
   } else {
-    addNote("No public record is available for this result.", right);
+    addNote("No public record exists for this result.", right);
   }
 
   const footer = document.createElement("div");

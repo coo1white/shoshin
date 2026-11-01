@@ -8,7 +8,7 @@ describe("claudeImportMessage", () => {
     const msg = claudeImportMessage(fixes);
     assert.equal(
       msg,
-      "Your repo already has CLAUDE.md. Add this line to it, so Claude Code reads the new rules: @AGENTS.md"
+      "Your repo already has CLAUDE.md. Add this line to it so Claude Code picks up the new rules: @AGENTS.md"
     );
   });
 
@@ -33,7 +33,7 @@ describe("claudeImportMessage", () => {
     const msg = claudeImportMessage(fixes);
     assert.equal(
       msg,
-      "Your repo already has .claude/CLAUDE.md. Add this line to it, so Claude Code reads the new rules: @../AGENTS.md"
+      "Your repo already has .claude/CLAUDE.md. Add this line to it so Claude Code picks up the new rules: @../AGENTS.md"
     );
   });
 });

@@ -36,7 +36,7 @@ test("viewModel: headline text, next, others leave out next and install-only, ev
   };
 
   const vm = viewModel(result);
-  assert.equal(vm.headline, "done 3 of 10 file checks · next: Next Title");
+  assert.equal(vm.headline, "3 of 10 file checks pass · fix this first: Next Title");
   assert.ok(vm.next);
   assert.equal(vm.next.title, "Next Title");
   assert.equal(vm.next.id, "next-id");
@@ -53,7 +53,7 @@ test("markLabel for each mark, including unknown and not now with reason", () =>
   assert.equal(markLabel("next"), "to do");
   assert.equal(markLabel("not now"), "skipped on purpose");
   assert.equal(markLabel("not now", "we decided"), "skipped on purpose: we decided");
-  assert.equal(markLabel("can't check"), "can't tell from the web");
+  assert.equal(markLabel("can't check"), "can't tell from here");
   assert.equal(markLabel("something-unknown"), "unknown");
 });
 
@@ -72,7 +72,7 @@ test("all-done case has next null", () => {
   };
   const vm = viewModel(result);
   assert.equal(vm.next, null);
-  assert.equal(vm.headline, "done 10 of 10 file checks");
+  assert.equal(vm.headline, "10 of 10 file checks pass");
 });
 
 test("viewModel: secrets grouped by id in first-seen order", () => {
@@ -149,7 +149,7 @@ test("viewModel: grouping preserves first-seen order with many ids", () => {
   assert.deepEqual(vm.secretGroups[2].places, ["c.txt"]);
 });
 
-test("viewModel returns score with done, total and the text 4 of 13 file checks are done", () => {
+test("viewModel returns score with done, total and the text 4 of 13 file checks pass", () => {
   const result = {
     summary: { done: 4, total: 13, next: null, steps: [], install_only: [] },
     secrets: [],
@@ -157,7 +157,7 @@ test("viewModel returns score with done, total and the text 4 of 13 file checks 
   const vm = viewModel(result);
   assert.equal(vm.score.done, 4);
   assert.equal(vm.score.total, 13);
-  assert.equal(vm.score.text, "4 of 13 file checks are done");
+  assert.equal(vm.score.text, "4 of 13 file checks pass");
 });
 
 test("splitCode: plain text", () => {
