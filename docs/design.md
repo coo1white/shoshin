@@ -251,7 +251,7 @@ streamed events (server-sent events) back to the browser
   containers, and 10 requests in each, so a flood queues instead of spending.
 - Limits: 10 checks per address per hour and 300 per day in all. The address is
   stored only as a hash. A bad URL costs nothing.
-- yokoten version: pinned to one exact release in `server/sandbox_run.py`
+- yokoten version: pinned to one exact release in `server/check/sandbox_run.py`
   (v0.2.0), so the re-run command gives the same result. A new release means
   changing that line and deploying again. The version used is written into every
   result. Nothing is fetched at check time.

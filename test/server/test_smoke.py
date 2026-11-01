@@ -18,3 +18,12 @@ def test_web_image_versions_match_requirements():
             continue
         pkg, ver = line.split('==')
         assert f'{pkg}=={ver}' in app, f'{pkg}=={ver} not in server/app.py web_image'
+
+
+def test_web_image_holds_every_server_package():
+    # A deploy once left out modules, and the tests here could not see it.
+    app = pathlib.Path('server/app.py').read_text()
+    packages = [p.name for p in pathlib.Path('server').iterdir() if (p / '__init__.py').exists()]
+    assert sorted(packages) == ['check', 'fixes', 'record']
+    for name in packages:
+        assert f'.add_local_dir(HERE / "{name}", "/root/{name}")' in app, f'{name} not in web_image'

@@ -230,7 +230,7 @@ def test_cap_files_cut_inside_multibyte_does_not_raise():
 
 import io
 import json as _json
-from sandbox_run import _score_after_fixes
+from check.sandbox_run import _score_after_fixes
 
 class _FakeProc:
     def __init__(self, stdout, stderr, rc):

@@ -3,7 +3,7 @@ import urllib.request
 import urllib.error
 import pytest
 from unittest.mock import patch, MagicMock
-from github_check import check_public, RepoRefused
+from check.github_check import check_public, RepoRefused
 
 def _make_response(data_dict):
     mock_resp = MagicMock()

@@ -1,5 +1,5 @@
 import pytest
-from repo_url import parse_repo_url, BadRepoUrl
+from check.repo_url import parse_repo_url, BadRepoUrl
 
 MSG = "That doesn't look like a public GitHub repo. Try https://github.com/owner/repo."
 
