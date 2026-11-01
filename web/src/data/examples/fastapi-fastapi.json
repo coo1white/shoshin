@@ -154,6 +154,24 @@
           "fix": "`yokoten init` adds it"
         },
         {
+          "id": "ci",
+          "title": "Run the checks on every pull request",
+          "mark": "to do",
+          "how": "a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten",
+          "why": "a commit made with the hook off would reach main unchecked",
+          "what": "CI does not run `yokoten check`",
+          "fix": "`yokoten init` adds .github/workflows/yokoten.yml"
+        },
+        {
+          "id": "titles",
+          "title": "Check pull request titles",
+          "mark": "to do",
+          "how": "a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check --pr`, or runs on pull requests with a step that uses yokoten-labs/yokoten and does not set `pr-check: false`",
+          "why": "a pull request title becomes the commit on main, so it must say what changed and why",
+          "what": "CI does not check pull requests (`yokoten check --pr`)",
+          "fix": "`yokoten init` adds .github/workflows/pr.yml"
+        },
+        {
           "id": "sandbox",
           "title": "Keep your agents in a sandbox",
           "mark": "to do",
@@ -166,355 +184,355 @@
     },
     "secrets": [
       {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "file": ".github/ISSUE_TEMPLATE/config.yml",
         "line": 4,
         "why": "an email address points at a person, and git keeps it after the file is gone",
-        "what": "an email address",
         "grade": "sure",
         "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+        "what": "an email address"
       },
       {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "file": "CITATION.cff",
         "line": 13,
         "why": "an email address points at a person, and git keeps it after the file is gone",
-        "what": "an email address",
         "grade": "sure",
         "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+        "what": "an email address"
       },
       {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "file": "docs/en/docs/css/termynal.css",
         "line": 4,
         "why": "an email address points at a person, and git keeps it after the file is gone",
-        "what": "an email address",
         "grade": "sure",
         "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+        "what": "an email address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/deployment/https/https.drawio.svg",
         "line": 580,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/deployment/https/https.drawio.svg",
         "line": 832,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/deployment/https/https01.drawio.svg",
         "line": 86,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/deployment/https/https02.drawio.svg",
         "line": 113,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/deployment/https/https02.drawio.svg",
         "line": 169,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/deployment/https/https03.drawio.svg",
         "line": 494,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/deployment/https/https03.drawio.svg",
         "line": 668,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/deployment/https/https04.drawio.svg",
         "line": 198,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/deployment/https/https04.drawio.svg",
         "line": 372,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/deployment/https/https05.drawio.svg",
         "line": 420,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/deployment/https/https05.drawio.svg",
         "line": 594,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/deployment/https/https06.drawio.svg",
         "line": 452,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/deployment/https/https06.drawio.svg",
         "line": 626,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/deployment/https/https07.drawio.svg",
         "line": 291,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/deployment/https/https07.drawio.svg",
         "line": 493,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/deployment/https/https08.drawio.svg",
         "line": 376,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/deployment/https/https08.drawio.svg",
         "line": 578,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/sponsors/scalar-banner.svg",
         "line": 1,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/sponsors/scalar-banner.svg",
         "line": 1,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/sponsors/scalar-banner.svg",
         "line": 1,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/sponsors/scalar-banner.svg",
         "line": 1,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/sponsors/scalar.svg",
         "line": 1,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/sponsors/scalar.svg",
         "line": 1,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/sponsors/scalar.svg",
         "line": 1,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/sponsors/scalar.svg",
         "line": 1,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/sponsors/scalar.svg",
         "line": 1,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/sponsors/testdriven.svg",
         "line": 1,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/img/sponsors/testdriven.svg",
         "line": 1,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "file": "docs/en/docs/js/termynal.js",
         "line": 6,
         "why": "an email address points at a person, and git keeps it after the file is gone",
-        "what": "an email address",
         "grade": "sure",
         "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+        "what": "an email address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/release-notes.md",
         "line": 2681,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "docs/en/docs/release-notes.md",
         "line": 5054,
         "why": "an IP address can lead to your server or your home network",
-        "what": "an IP address",
         "grade": "sure",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24"
+        "what": "an IP address"
       },
       {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "file": "docs_src/metadata/tutorial001_1_py310.py",
         "line": 27,
         "why": "an email address points at a person, and git keeps it after the file is gone",
-        "what": "an email address",
         "grade": "sure",
         "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+        "what": "an email address"
       },
       {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "file": "docs_src/metadata/tutorial001_py310.py",
         "line": 27,
         "why": "an email address points at a person, and git keeps it after the file is gone",
-        "what": "an email address",
         "grade": "sure",
         "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+        "what": "an email address"
       },
       {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "file": "fastapi/applications.py",
         "line": 607,
         "why": "an email address points at a person, and git keeps it after the file is gone",
-        "what": "an email address",
         "grade": "sure",
         "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+        "what": "an email address"
       },
       {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "file": "tests/test_tutorial/test_metadata/test_tutorial001.py",
         "line": 29,
         "why": "an email address points at a person, and git keeps it after the file is gone",
-        "what": "an email address",
         "grade": "sure",
         "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+        "what": "an email address"
       },
       {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "file": "tests/test_tutorial/test_metadata/test_tutorial001_1.py",
         "line": 29,
         "why": "an email address points at a person, and git keeps it after the file is gone",
-        "what": "an email address",
         "grade": "sure",
         "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+        "what": "an email address"
       }
     ],
     "default_branch": "master"

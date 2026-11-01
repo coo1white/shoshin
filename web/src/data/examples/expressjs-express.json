@@ -156,6 +156,24 @@
           "fix": "`yokoten init` adds it"
         },
         {
+          "id": "ci",
+          "title": "Run the checks on every pull request",
+          "mark": "to do",
+          "how": "a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten",
+          "why": "a commit made with the hook off would reach main unchecked",
+          "what": "CI does not run `yokoten check`",
+          "fix": "`yokoten init` adds .github/workflows/yokoten.yml"
+        },
+        {
+          "id": "titles",
+          "title": "Check pull request titles",
+          "mark": "to do",
+          "how": "a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check --pr`, or runs on pull requests with a step that uses yokoten-labs/yokoten and does not set `pr-check: false`",
+          "why": "a pull request title becomes the commit on main, so it must say what changed and why",
+          "what": "CI does not check pull requests (`yokoten check --pr`)",
+          "fix": "`yokoten init` adds .github/workflows/pr.yml"
+        },
+        {
           "id": "sandbox",
           "title": "Keep your agents in a sandbox",
           "mark": "to do",
@@ -168,130 +186,130 @@
     },
     "secrets": [
       {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "file": "LICENSE",
-        "what": "an email address",
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "line": 3,
-        "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
-      },
-      {
-        "file": "LICENSE",
-        "what": "an email address",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "grade": "sure",
+        "id": "email",
+        "what": "an email address"
+      },
+      {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
+        "file": "LICENSE",
         "line": 4,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "grade": "sure",
         "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+        "what": "an email address"
       },
       {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "file": "LICENSE",
-        "what": "an email address",
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "line": 5,
-        "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
-      },
-      {
-        "file": "examples/ejs/index.js",
-        "what": "an email address",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "grade": "sure",
+        "id": "email",
+        "what": "an email address"
+      },
+      {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
+        "file": "examples/ejs/index.js",
         "line": 40,
-        "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
-      },
-      {
-        "file": "examples/ejs/index.js",
-        "what": "an email address",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "grade": "sure",
+        "id": "email",
+        "what": "an email address"
+      },
+      {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
+        "file": "examples/ejs/index.js",
         "line": 41,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "grade": "sure",
         "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+        "what": "an email address"
       },
       {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "file": "examples/ejs/index.js",
-        "what": "an email address",
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "line": 42,
-        "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
-      },
-      {
-        "file": "examples/route-middleware/index.js",
-        "what": "an email address",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "grade": "sure",
+        "id": "email",
+        "what": "an email address"
+      },
+      {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
+        "file": "examples/route-middleware/index.js",
         "line": 20,
-        "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
-      },
-      {
-        "file": "examples/route-middleware/index.js",
-        "what": "an email address",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "grade": "sure",
+        "id": "email",
+        "what": "an email address"
+      },
+      {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
+        "file": "examples/route-middleware/index.js",
         "line": 21,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "grade": "sure",
         "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+        "what": "an email address"
       },
       {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "file": "examples/route-middleware/index.js",
-        "what": "an email address",
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "line": 22,
-        "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
-      },
-      {
-        "file": "examples/route-separation/user.js",
-        "what": "an email address",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "grade": "sure",
+        "id": "email",
+        "what": "an email address"
+      },
+      {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
+        "file": "examples/route-separation/user.js",
         "line": 6,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "grade": "sure",
         "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+        "what": "an email address"
       },
       {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "file": "examples/route-separation/user.js",
-        "what": "an email address",
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "line": 7,
-        "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
-      },
-      {
-        "file": "test/acceptance/route-separation.js",
-        "what": "an email address",
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "grade": "sure",
+        "id": "email",
+        "what": "an email address"
+      },
+      {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
+        "file": "test/acceptance/route-separation.js",
         "line": 65,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "grade": "sure",
         "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+        "what": "an email address"
       },
       {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "file": "test/acceptance/route-separation.js",
-        "what": "an email address",
+        "line": 80,
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "grade": "sure",
-        "line": 80,
         "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+        "what": "an email address"
       },
       {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "file": "test/res.type.js",
-        "what": "an email address",
+        "line": 103,
         "why": "an email address points at a person, and git keeps it after the file is gone",
         "grade": "sure",
-        "line": 103,
         "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json"
+        "what": "an email address"
       }
     ],
     "default_branch": "master"

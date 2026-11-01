@@ -13,13 +13,13 @@
       "done": 8,
       "total": 13,
       "next": {
-        "id": "ci",
-        "title": "Run the checks on every pull request",
-        "mark": "to do",
-        "how": "a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten",
-        "why": "a commit made with the hook off would reach main unchecked",
-        "what": "CI does not run `yokoten check`",
-        "fix": "`yokoten init` adds .github/workflows/yokoten.yml"
+        "id": "tool-hook",
+        "title": "Turn on the guard for your agents' commands",
+        "mark": "next",
+        "how": ".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only",
+        "why": "the guard stops a risky command, like a force push, before the agent runs it",
+        "what": "no tool-call guard in .claude/settings.json",
+        "fix": "`yokoten init` adds it"
       },
       "steps": [
         {
@@ -144,6 +144,24 @@
           "fix": "`yokoten init` adds it"
         },
         {
+          "id": "ci",
+          "title": "Run the checks on every pull request",
+          "mark": "to do",
+          "how": "a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten",
+          "why": "a commit made with the hook off would reach main unchecked",
+          "what": "CI does not run `yokoten check`",
+          "fix": "`yokoten init` adds .github/workflows/yokoten.yml"
+        },
+        {
+          "id": "titles",
+          "title": "Check pull request titles",
+          "mark": "to do",
+          "how": "a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check --pr`, or runs on pull requests with a step that uses yokoten-labs/yokoten and does not set `pr-check: false`",
+          "why": "a pull request title becomes the commit on main, so it must say what changed and why",
+          "what": "CI does not check pull requests (`yokoten check --pr`)",
+          "fix": "`yokoten init` adds .github/workflows/pr.yml"
+        },
+        {
           "id": "sandbox",
           "title": "Keep your agents in a sandbox",
           "mark": "to do",
@@ -156,139 +174,139 @@
     },
     "secrets": [
       {
-        "what": "an IP address",
-        "id": "ip",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "grade": "sure",
         "file": "openspec/changes/archive/2025-08-13-add-archive-command/tasks.md",
+        "line": 9,
         "why": "an IP address can lead to your server or your home network",
-        "line": 9
+        "grade": "sure",
+        "id": "ip",
+        "what": "an IP address"
       },
       {
-        "what": "an IP address",
-        "id": "ip",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "grade": "sure",
         "file": "openspec/changes/archive/2025-08-13-add-archive-command/tasks.md",
+        "line": 10,
         "why": "an IP address can lead to your server or your home network",
-        "line": 10
+        "grade": "sure",
+        "id": "ip",
+        "what": "an IP address"
       },
       {
-        "what": "an IP address",
-        "id": "ip",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "grade": "sure",
         "file": "openspec/changes/archive/2025-08-13-add-archive-command/tasks.md",
+        "line": 11,
         "why": "an IP address can lead to your server or your home network",
-        "line": 11
+        "grade": "sure",
+        "id": "ip",
+        "what": "an IP address"
       },
       {
-        "what": "an IP address",
-        "id": "ip",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "grade": "sure",
         "file": "openspec/changes/archive/2025-08-13-add-archive-command/tasks.md",
+        "line": 12,
         "why": "an IP address can lead to your server or your home network",
-        "line": 12
+        "grade": "sure",
+        "id": "ip",
+        "what": "an IP address"
       },
       {
-        "what": "an IP address",
-        "id": "ip",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "grade": "sure",
         "file": "openspec/changes/archive/2025-08-13-add-archive-command/tasks.md",
+        "line": 13,
         "why": "an IP address can lead to your server or your home network",
-        "line": 13
+        "grade": "sure",
+        "id": "ip",
+        "what": "an IP address"
       },
       {
-        "what": "an email address",
-        "id": "email",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "grade": "sure",
         "file": "test/binary-installer.test.ts",
+        "line": 187,
         "why": "an email address points at a person, and git keeps it after the file is gone",
-        "line": 187
+        "grade": "sure",
+        "id": "email",
+        "what": "an email address"
       },
       {
-        "what": "an email address",
-        "id": "email",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "grade": "sure",
         "file": "test/commands/install-standalone.test.ts",
+        "line": 124,
         "why": "an email address points at a person, and git keeps it after the file is gone",
-        "line": 124
-      },
-      {
-        "what": "an email address",
+        "grade": "sure",
         "id": "email",
+        "what": "an email address"
+      },
+      {
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "grade": "sure",
         "file": "test/core/store/git-repo-name.test.ts",
+        "line": 11,
         "why": "an email address points at a person, and git keeps it after the file is gone",
-        "line": 11
+        "grade": "sure",
+        "id": "email",
+        "what": "an email address"
       },
       {
-        "what": "an IP address",
-        "id": "ip",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "grade": "sure",
         "file": "test/core/version-check.test.ts",
+        "line": 229,
         "why": "an IP address can lead to your server or your home network",
-        "line": 229
+        "grade": "sure",
+        "id": "ip",
+        "what": "an IP address"
       },
       {
-        "what": "an IP address",
-        "id": "ip",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "grade": "sure",
         "file": "test/core/version-check.test.ts",
+        "line": 446,
         "why": "an IP address can lead to your server or your home network",
-        "line": 446
+        "grade": "sure",
+        "id": "ip",
+        "what": "an IP address"
       },
       {
-        "what": "an IP address",
-        "id": "ip",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "grade": "sure",
         "file": "test/core/version-check.test.ts",
+        "line": 462,
         "why": "an IP address can lead to your server or your home network",
-        "line": 462
+        "grade": "sure",
+        "id": "ip",
+        "what": "an IP address"
       },
       {
-        "what": "an IP address",
-        "id": "ip",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "grade": "sure",
         "file": "test/utils/task-progress.list-markers.test.ts",
+        "line": 50,
         "why": "an IP address can lead to your server or your home network",
-        "line": 50
+        "grade": "sure",
+        "id": "ip",
+        "what": "an IP address"
       },
       {
-        "what": "an IP address",
-        "id": "ip",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "grade": "sure",
         "file": "test/utils/task-progress.test.ts",
+        "line": 202,
         "why": "an IP address can lead to your server or your home network",
-        "line": 202
+        "grade": "sure",
+        "id": "ip",
+        "what": "an IP address"
       },
       {
-        "what": "an IP address",
-        "id": "ip",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "grade": "sure",
         "file": "test/utils/task-progress.test.ts",
+        "line": 228,
         "why": "an IP address can lead to your server or your home network",
-        "line": 228
+        "grade": "sure",
+        "id": "ip",
+        "what": "an IP address"
       },
       {
-        "what": "an IP address",
-        "id": "ip",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "grade": "sure",
         "file": "test/utils/task-progress.test.ts",
+        "line": 234,
         "why": "an IP address can lead to your server or your home network",
-        "line": 234
+        "grade": "sure",
+        "id": "ip",
+        "what": "an IP address"
       }
     ],
     "default_branch": "main"

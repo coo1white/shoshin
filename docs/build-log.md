@@ -49,8 +49,9 @@ This counts how many rounds of fixes each task needed after the first code came 
 | New result page | 1 | review |
 | About, agent view and share image | 1 | review |
 | Correct the reachable score | 1 | test |
+| Save the examples again | 0 | none |
 
-53 rounds over 45 tasks: a mean of 1.2. Found by review 23, tests 17, the commit check 2, real runs 11.
+53 rounds over 46 tasks: a mean of 1.2. Found by review 23, tests 17, the commit check 2, real runs 11.
 
 Four of the problems no test could have caught: a deploy that left out modules, a page buried by 26 repeated warnings, a wrong import, and a worker that weakened a security test while editing nearby lines.
 

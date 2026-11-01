@@ -13,13 +13,13 @@
       "done": 6,
       "total": 13,
       "next": {
-        "id": "ci",
-        "title": "Run the checks on every pull request",
+        "id": "codeowners",
+        "title": "Name the owner (CODEOWNERS)",
         "mark": "to do",
-        "how": "a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten",
-        "why": "a commit made with the hook off would reach main unchecked",
-        "what": "CI does not run `yokoten check`",
-        "fix": "`yokoten init` adds .github/workflows/yokoten.yml"
+        "how": "a CODEOWNERS file is in .github/, at the root or in docs/, and the first one GitHub reads names an owner, not init's placeholder @YOUR_GITHUB_HANDLE; full doctor also reads whether the repo belongs to an organization, and an organization alone (@org, not @org/team) is not an owner",
+        "why": "the host then asks you to review a pull request that changes those paths, and `check --pr` makes it tier A",
+        "what": "no CODEOWNERS file",
+        "fix": "`yokoten init` writes .github/CODEOWNERS for the lead-only paths; or add one with a line `<path> @<your account>` for each path where a mistake is hard to undo: the rules, CI, agent config"
       },
       "steps": [
         {
@@ -148,6 +148,24 @@
           "fix": "`yokoten init` adds it"
         },
         {
+          "id": "ci",
+          "title": "Run the checks on every pull request",
+          "mark": "to do",
+          "how": "a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten",
+          "why": "a commit made with the hook off would reach main unchecked",
+          "what": "CI does not run `yokoten check`",
+          "fix": "`yokoten init` adds .github/workflows/yokoten.yml"
+        },
+        {
+          "id": "titles",
+          "title": "Check pull request titles",
+          "mark": "to do",
+          "how": "a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check --pr`, or runs on pull requests with a step that uses yokoten-labs/yokoten and does not set `pr-check: false`",
+          "why": "a pull request title becomes the commit on main, so it must say what changed and why",
+          "what": "CI does not check pull requests (`yokoten check --pr`)",
+          "fix": "`yokoten init` adds .github/workflows/pr.yml"
+        },
+        {
           "id": "sandbox",
           "title": "Keep your agents in a sandbox",
           "mark": "to do",
@@ -160,40 +178,40 @@
     },
     "secrets": [
       {
-        "what": "an IP address",
-        "id": "ip",
         "fix": "use a placeholder from 192.0.2.0/24",
-        "grade": "sure",
         "file": "packages/hardhat-utils/test/fast-semver.ts",
+        "line": 38,
         "why": "an IP address can lead to your server or your home network",
-        "line": 38
-      },
-      {
-        "what": "an email address",
-        "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "grade": "sure",
-        "file": "packages/hardhat/src/internal/cli/telemetry/sentry/reporter.ts",
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "line": 9
-      },
-      {
-        "what": "an email address",
-        "id": "email",
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "grade": "sure",
-        "file": "packages/hardhat/src/internal/cli/telemetry/sentry/reporter.ts",
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "line": 11
-      },
-      {
-        "what": "an IP address",
         "id": "ip",
-        "fix": "use a placeholder from 192.0.2.0/24",
+        "what": "an IP address"
+      },
+      {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
+        "file": "packages/hardhat/src/internal/cli/telemetry/sentry/reporter.ts",
+        "line": 9,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "grade": "sure",
+        "id": "email",
+        "what": "an email address"
+      },
+      {
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
+        "file": "packages/hardhat/src/internal/cli/telemetry/sentry/reporter.ts",
+        "line": 11,
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "grade": "sure",
+        "id": "email",
+        "what": "an email address"
+      },
+      {
+        "fix": "use a placeholder from 192.0.2.0/24",
         "file": "packages/ignition-ui/src/pages/visualization-overview/visualization-overview.tsx",
+        "line": 184,
         "why": "an IP address can lead to your server or your home network",
-        "line": 184
+        "grade": "sure",
+        "id": "ip",
+        "what": "an IP address"
       }
     ],
     "default_branch": "main"
