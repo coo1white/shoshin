@@ -261,6 +261,19 @@ describe('static host portability', () => {
     assert.ok(fs.readFileSync(indexPath, 'utf8').includes('href="/agent-view.html"'), 'dist/index.html should link to the agent view');
   });
 
+  test('the server deploy runs only from main, and only its deploy step reads the Modal token', () => {
+    const workflow = fs.readFileSync(path.resolve('.github/workflows/deploy-server.yml'), 'utf8');
+    assert.ok(!workflow.includes('pull_request'), 'deploy-server.yml should not run on a pull request');
+    assert.match(workflow, /branches: \[main\]/);
+    assert.match(workflow, /environment: modal/);
+    assert.match(workflow, /needs: test/);
+    assert.equal(workflow.split('secrets.').length - 1, 2, 'deploy-server.yml should read only the two Modal secrets');
+    const beforeDeployStep = workflow.slice(0, workflow.indexOf('- name: Deploy'));
+    assert.ok(!beforeDeployStep.includes('secrets.'), 'no step before Deploy should read a secret');
+    const afterDeployStep = workflow.slice(workflow.indexOf('- name: Check the live server'));
+    assert.ok(!afterDeployStep.includes('secrets.'), 'no step after Deploy should read a secret');
+  });
+
   test('every page has one view switch outside the landing section, marked for its own view', () => {
     const dist = path.dirname(indexPath);
     for (const [name, currentView] of [['index.html', 'human'], ['about.html', 'human'], ['agent-view.html', 'agent']]) {

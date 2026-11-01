@@ -2,6 +2,16 @@
 
 Now: GitHub Pages serves `dist/` after `npm run build`.
 Deploy is by `.github/workflows/pages.yml`.
+The server runs on Modal.
+Deploy is by `.github/workflows/deploy-server.yml`.
+A merge that changes `server/` runs the server tests, deploys, and then runs one real check.
+A failed check fails the workflow but does not undo the deploy.
+To undo a deploy, revert the pull request. The revert deploys the old code.
+
+The workflow reads `MODAL_TOKEN_ID` and `MODAL_TOKEN_SECRET` from the GitHub environment `modal`.
+Only `main` can use that environment, so a pull request cannot read the token.
+The token comes from https://modal.com/settings/tokens.
+
 `doctor.yokoten.app` is a CNAME record.
 The custom domain is set in the repo Pages settings.
 

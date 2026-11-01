@@ -41,8 +41,9 @@ This counts how many rounds of fixes each task needed after the first code came 
 | An About page for doctor | 0 | none |
 | An agent view | 0 | none |
 | A floating view switch | 0 | none |
+| Deploy the server on merge | 0 | none |
 
-48 rounds over 37 tasks: a mean of 1.3. Found by review 19, tests 16, the commit check 2, real runs 11.
+48 rounds over 38 tasks: a mean of 1.3. Found by review 19, tests 16, the commit check 2, real runs 11.
 
 Four of the problems no test could have caught: a deploy that left out modules, a page buried by 26 repeated warnings, a wrong import, and a worker that weakened a security test while editing nearby lines.
 
