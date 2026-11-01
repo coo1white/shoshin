@@ -102,3 +102,11 @@ def test_about_seconds_matches_app():
         text = _read_text(page)
         for mm in re.finditer(r"about (\d+) seconds", text):
             assert int(mm.group(1)) == seconds
+
+
+def test_each_saved_record_holds_the_result_it_shows():
+    paths = sorted(Path("web/src/data/examples").glob("*.json"))
+    assert paths
+    for path in paths:
+        saved = json.loads(path.read_text(encoding="utf-8"))
+        assert json.loads(saved["record"]["document"])["result"] == saved["result"], path.name
