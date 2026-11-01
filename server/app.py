@@ -7,12 +7,12 @@ import threading
 import time
 from typing import Callable
 
-from sandbox_run import run_in_sandbox
-from github_check import RepoRefused
-from github_check import check_public as _check_public_default
-from repo_url import BadRepoUrl
-from repo_url import parse_repo_url as _parse_repo_url_default
-from result import summarize as _summarize_default
+from check.sandbox_run import run_in_sandbox
+from check.github_check import RepoRefused
+from check.github_check import check_public as _check_public_default
+from check.repo_url import BadRepoUrl
+from check.repo_url import parse_repo_url as _parse_repo_url_default
+from check.result import summarize as _summarize_default
 from fixes.build import build_fixes
 
 import modal
@@ -31,10 +31,7 @@ HERE = pathlib.Path(__file__).parent
 
 web_image = (
     modal.Image.debian_slim().pip_install("fastapi==0.162.0", "modal==1.6.3", "cryptography==50.0.2")
-    .add_local_file(HERE / "sandbox_run.py", f"/root/sandbox_run.py")
-    .add_local_file(HERE / "github_check.py", f"/root/github_check.py")
-    .add_local_file(HERE / "repo_url.py", f"/root/repo_url.py")
-    .add_local_file(HERE / "result.py", f"/root/result.py")
+    .add_local_dir(HERE / "check", "/root/check")
     .add_local_dir(HERE / "fixes", "/root/fixes")
     .add_local_dir(HERE / "record", "/root/record")
 )

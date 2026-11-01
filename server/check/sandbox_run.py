@@ -2,7 +2,7 @@ import json
 import logging
 import modal
 from fixes.select_files import choose_muse_paths, cap_files, select_fix_paths, is_private_path, fill_owner
-from result import summarize
+from check.result import summarize
 
 YOKOTEN_VERSION = "0.2.0"
 

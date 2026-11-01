@@ -1,7 +1,7 @@
 import json
 import pathlib
 import pytest
-from result import summarize
+from check.result import summarize
 
 FIXTURE = pathlib.Path("test/fixtures/doctor-files-0.2.0.json")
 

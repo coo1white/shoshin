@@ -3,8 +3,8 @@ import hashlib
 import time
 from fastapi.testclient import TestClient
 from app import create_api, GENERIC_ERROR, BAD_URL_MSG, NO_FIXES, RateLimiter
-from github_check import RepoRefused
-from repo_url import BadRepoUrl
+from check.github_check import RepoRefused
+from check.repo_url import BadRepoUrl
 
 def parse_sse(text):
     events = []
