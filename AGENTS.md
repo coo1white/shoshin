@@ -111,7 +111,8 @@ and a small Python service in `server/` that runs on Modal. The design is in
 - The `pr` check holds the title, tier, sections, issue, change file, milestone and labels.
 - The `review` workflow asks DeepSeek 4.1 Flash to review each pull request, as `yokoten-reviewer[bot]`.
   The reviewer is never a model that writes code here, so it is never Muse or Claude.
-- The lead (Claude Opus 5.5) reads every pull request, and the owner approves it.
+- The lead (Claude Opus 5.5) reads every pull request and merges only after the `review` check ends.
+- The owner approves only a pull request that changes a CODEOWNERS path.
 - The bot squash merges in UTC. A merge to main deploys the page.
 
 ### What not to touch
