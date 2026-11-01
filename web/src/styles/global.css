@@ -118,6 +118,7 @@ nav a:hover, nav a[aria-current='page'] { color: var(--fg); }
 .tools-link { margin-right: 0.5rem; font-family: var(--font-sans); font-size: 0.9rem; font-weight: 500; color: var(--muted); text-decoration: none; }
 .tools-link:hover { color: var(--fg); }
 @media (max-width: 40rem) { .head { flex-wrap: nowrap; gap: 0.5rem; } .home .word { white-space: nowrap; } }
+@media (max-width: 22rem) { .home .word { display: none; } }
 .hero {
   max-width: calc(84rem + 2 * var(--gutter));
   margin: 0 auto;
