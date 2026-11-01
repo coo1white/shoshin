@@ -276,7 +276,7 @@ streamed events (server-sent events) back to the browser
 - Accept `https://github.com/<owner>/<repo>` (with or without `.git`, a trailing
   slash, `/tree/<branch>`). Anything else: a plain error.
 - Ask GitHub (public API, no token) whether the repo is public, its default
-  branch and size. Private or over 500 MB: stop with a plain message.
+  branch and size. Private or over 15 GB of history: stop with a plain message.
 - In a fresh sandbox:
   - `git clone --depth 1 --no-recurse-submodules` with hooks off
     (`-c core.hooksPath=/dev/null`), then note the commit;
