@@ -23,7 +23,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 logger = logging.getLogger(__name__)
 
 ALLOWED_ORIGINS = ["https://doctor.yokoten.app", "http://localhost:8000"]
-GENERIC_ERROR = "The check could not finish. Please try again in a minute."
+GENERIC_ERROR = "The check couldn't finish. Try again in a minute."
 BAD_URL_MSG = "That doesn't look like a public GitHub repo. Try https://github.com/owner/repo."
 NO_FIXES = {"files": [], "summary": "", "muse": "failed", "claude_import": None}
 
@@ -184,10 +184,10 @@ def create_api(run: Callable = run_in_sandbox, public: Callable = _check_public_
                     client_ip = ""
                 decision = limiter.allow(client_ip)
                 if decision == "ip":
-                    yield sse_event("error", {"message": "You have run 10 checks this hour. Please try again later. You can also run it yourself: npx yokoten"})
+                    yield sse_event("error", {"message": "You've run 10 checks this hour. Try again later, or run it on your machine: npx yokoten"})
                     return
                 if decision == "day":
-                    yield sse_event("error", {"message": "This page has reached its limit for today. Please try again tomorrow. You can also run it yourself: npx yokoten"})
+                    yield sse_event("error", {"message": "This page has hit its limit for today. Try again tomorrow, or run it on your machine: npx yokoten"})
                     return
 
             try:
