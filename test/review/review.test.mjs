@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { parseAnswer, decideEvent, cleanText, buildReviewBody, splitSavedData } from "../../.github/review/review.mjs";
+import { parseAnswer, decideEvent, cleanText, buildReviewBody, splitSavedData, MAX_TEXT_CHARS, MAX_FINDINGS } from "../../.github/review/review.mjs";
 
 describe("parseAnswer", () => {
   it("parses a good object", () => {
@@ -79,7 +79,9 @@ describe("cleanText", () => {
   });
   it("truncates long string to 600", () => {
     const long = "a".repeat(700);
-    assert.equal(cleanText(long).length, 600);
+    const out = cleanText(long, 600);
+    assert.equal(out.length, 600);
+    assert.equal(out.endsWith("…"), true);
   });
   it("replaces @ with @ plus zero-width space", () => {
     assert.equal(cleanText("@name"), "@\u200Bname");
@@ -89,7 +91,20 @@ describe("cleanText", () => {
     assert.equal(cleanText("`code`"), "'code'");
   });
   it("exactly 600 stays 600", () => {
-    assert.equal(cleanText("a".repeat(600)).length, 600);
+    assert.equal(cleanText("a".repeat(600), 600).length, 600);
+  });
+  it("400 chars truncated to 300 with ellipsis", () => {
+    const long = "a".repeat(400);
+    const out = cleanText(long);
+    assert.equal(out.length, 300);
+    assert.equal(out.endsWith("…"), true);
+    assert.equal(MAX_TEXT_CHARS, 300);
+  });
+  it("300 chars unchanged", () => {
+    const s = "a".repeat(300);
+    const out = cleanText(s);
+    assert.equal(out.length, 300);
+    assert.equal(out, s);
   });
 });
 
@@ -112,6 +127,31 @@ describe("buildReviewBody", () => {
     const body = buildReviewBody(null, "m");
     const first = body.split("\n")[0];
     assert.equal(first, "The reviewer could not read the model's answer. This is not an approval.");
+  });
+  it("with 12 low findings shows 10 and more line", () => {
+    const findings = Array.from({ length: 12 }, (_, i) => ({ severity: "low", text: `item ${i}` }));
+    const body = buildReviewBody({ summary: "s", findings }, "m");
+    const lines = body.split("\n");
+    const findingLines = lines.filter((l) => l.startsWith("- low:"));
+    assert.equal(findingLines.length, 10);
+    assert.equal(MAX_FINDINGS, 10);
+    assert.ok(body.includes("2 more findings not shown."));
+  });
+  it("orders high before low", () => {
+    const findings = [{ severity: "low", text: "low one" }, { severity: "high", text: "high one" }];
+    const body = buildReviewBody({ summary: "s", findings }, "m");
+    const idxHigh = body.indexOf("- high: high one");
+    const idxLow = body.indexOf("- low: low one");
+    assert.ok(idxHigh !== -1 && idxLow !== -1);
+    assert.ok(idxHigh < idxLow);
+  });
+  it("with 11 low and one high last, decideEvent still REQUEST_CHANGES and body shows high", () => {
+    const findings = [...Array.from({ length: 11 }, (_, i) => ({ severity: "low", text: `low ${i}` })), { severity: "high", text: "high last" }];
+    const answer = { summary: "s", findings };
+    assert.equal(decideEvent(answer), "REQUEST_CHANGES");
+    const body = buildReviewBody(answer, "m");
+    assert.ok(body.includes("- high: high last"));
+    assert.ok(body.includes("2 more findings not shown."));
   });
 });
 
