@@ -2,106 +2,88 @@
 import Page from "../layouts/Page.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
-import TerminalWindow from "../components/TerminalWindow.astro";
-import CheckRows from "../components/CheckRows.astro";
+import ExampleRows from "../components/ExampleRows.astro";
+import Panel from "../components/Panel.astro";
 import sample from "../data/sample-result.json";
 const doneCount = sample.steps.filter((s) => s.mark === "done").length;
 const total = sample.steps.length;
-const visible = [
-  ...sample.steps.filter((s) => s.mark === "done"),
-  ...sample.steps.filter((s) => s.mark === "next").slice(0, 1),
-  ...sample.steps.filter((s) => s.mark === "to do").slice(0, 1)
-];
-const hiddenCount = total - visible.length;
-const commitShort = (sample.commit as string).slice(0, 7).toUpperCase();
+const commitShort = (sample.commit as string).slice(0, 7);
 const ownerRepo = `${sample.owner}/${sample.repo}`;
 ---
 <Page>
 <Header />
 <div id="landing">
 <section id="top" class="hero">
-  <h1>A health check for repos that AI agents work in.</h1>
-  <p>13 file checks, the one next step, and the files that fix it. Your code never runs.</p>
+  <h1>Check your repo before you hand it to an AI agent.</h1>
+  <p>Paste a public GitHub URL. yokoten runs 13 file checks, tells you the one thing to fix next, and writes the files that fix it. Your code never runs.</p>
   <form id="check-form" novalidate class="check-form">
-    <label for="repo-input">GitHub repo URL</label>
+    <label for="repo-input">Public GitHub repo URL</label>
     <div class="input-row">
       <input id="repo-input" name="url" type="url" placeholder="https://github.com/owner/repo" autocomplete="off" />
       <button type="submit">Check</button>
     </div>
+    <p class="check-form-note">Free, no account. 10 checks an hour per visitor.</p>
   </form>
   <p id="check-error" class="error-box" role="alert" hidden></p>
-  <noscript><p>This page needs JavaScript to run a check. You can also run it yourself: npx yokoten</p></noscript>
+  <noscript><p>Running a check needs JavaScript. You can also run it on your machine: npx yokoten</p></noscript>
   <div id="hero-live" class="hero-live" hidden></div>
 </section>
 <section id="checks" class="checks">
-  <h2>Real checks <span class="checks-date">Latest check {sample.examplesCheckedOn}</span></h2>
+  <div class="checks-head"><h2>Real results</h2><span class="checks-date">Last checked {sample.examplesCheckedOn}</span></div>
   <div class="checks-groups">
     <div class="checks-group">
       <h3 class="checks-group-title">Web2</h3>
-      <CheckRows examples={sample.examples.filter((ex) => ex.group === "web2")} />
+      <ExampleRows examples={sample.examples.filter((ex) => ex.group === "web2")} />
     </div>
     <div class="checks-group">
       <h3 class="checks-group-title">Web3</h3>
-      <CheckRows examples={sample.examples.filter((ex) => ex.group === "web3")} />
+      <ExampleRows examples={sample.examples.filter((ex) => ex.group === "web3")} />
     </div>
   </div>
-  <p class="checks-note">Green is done now. Outlined is what the files add.</p>
-  <p class="checks-note">Four of the 13 checks need yokoten, our own tool, so a repo without it can reach 9 of 13.</p>
+  <p class="checks-note">A filled block is a check that passes today. An outlined block is one the files would add.</p>
+  <p class="checks-note">Four of the 13 checks only pass once yokoten is installed, so a repo without it tops out at 9 of 13.</p>
 </section>
 <section id="result" class="band">
-  <div class="band-inner">
-    <p class="section-label"><span>01 ·</span> A real result</p>
-    <h2 class="section-title">What you get</h2>
-    <div class="result-columns">
-      <div class="result-left">
-        <ul class="get-list">
-          <li>Where the repo stands, and the one next step.</li>
-          <li>Files for this repo, ready to commit. Muse writes the project section.</li>
-          <li>The commands that repeat this check.</li>
-        </ul>
-      </div>
-      <div class="result-right">
-        <TerminalWindow title="REAL RESULT" aside={commitShort}>
-          <div class="sample-title">{ownerRepo} · {doneCount} of {total} file checks</div>
-          <div class="spacer"></div>
-          {visible.map((s) => {
-            if (s.mark === "done") return (<div class="terminal-row is-done"><span>✓ done</span><span>{s.title}</span></div>);
-            if (s.mark === "next") return (<div class="terminal-row is-next"><span>● next</span><span>{s.title}</span></div>);
-            return (<div class="terminal-row is-todo"><span>● to do</span><span>{s.title}</span></div>);
-          })}
-          <div class="terminal-row is-more"><span>+{hiddenCount}</span><span>more to do</span></div>
-          <div class="spacer"></div>
-          <div class="muse-label">Muse wrote for this repo:</div>
-          {sample.museLines.map((line: string) => <div>{line}</div>)}
-        </TerminalWindow>
-      </div>
+  <div class="band-inner result-columns">
+    <div class="result-left">
+      <p class="section-label">What you get back</p>
+      <h2 class="section-title">One next step, and the files to take it.</h2>
+      <ul class="get-list">
+        <li>Where the repo stands, and the one thing to do next.</li>
+        <li>Files written for your repo, ready to commit. Muse writes the part that's specific to your project.</li>
+        <li>The exact commands to run the same check on your own machine.</li>
+      </ul>
+    </div>
+    <div class="result-right">
+      <Panel title={ownerRepo} aside={commitShort}>
+        <div class="chart"><p class="chart-count">{doneCount} <span>of {total} file checks pass</span></p><div role="list">{sample.steps.map((s) => {
+          let cls = "is-todo";
+          if (s.mark === "next") cls = "is-next";
+          else if (s.mark === "done") cls = "is-done";
+          return (<div role="listitem" class={`chart-row ${cls}`}><span aria-hidden="true" class="chart-box"></span><span class="chart-mark">{s.mark}</span><span class="chart-title">{s.title}</span></div>);
+        })}</div></div>
+        <div class="panel-foot"><p class="panel-foot-label">Muse wrote for this repo</p>{sample.museLines.map((line: string) => <p>{line}</p>)}</div>
+      </Panel>
     </div>
   </div>
 </section>
 <section id="how" class="section-inner">
-  <p class="section-label"><span>02 ·</span> What it doesn't do</p>
-  <h2 class="section-title">It reads. It does not touch.</h2>
+  <p class="section-label">What it won't do</p>
+  <h2 class="section-title">It reads your repo. That's all.</h2>
   <ul class="facts">
     <li><strong>Your code never runs.</strong> No install, no build, no tests.</li>
-    <li><strong>The network is cut.</strong> yokoten runs in a throwaway sandbox, with no way out.</li>
-    <li><strong>Your repo stays yours.</strong> Nothing changes until you click Commit on GitHub.</li>
+    <li><strong>The network is cut.</strong> yokoten runs in a throwaway sandbox that can't reach anything.</li>
+    <li><strong>Your repo doesn't change.</strong> Nothing happens until you commit on GitHub. We can't write to it.</li>
   </ul>
-  <p class="facts-note">It reads public repos only. Muse's text stays in a cache for 24 hours. It does not scan for code vulnerabilities. It is free, with no account, and each visitor gets 10 checks an hour.</p>
+  <p class="facts-note">Public repos only. It doesn't scan your code for vulnerabilities. Some of your repo's files go to Muse Spark Open on Baseten so it can write the project section, and Muse's text stays in a cache for 24 hours.</p>
 </section>
 <section id="proof" class="band">
-  <div class="band-inner">
-    <p class="section-label"><span>03 ·</span> Don't trust us</p>
-    <h2 class="section-title">Run it yourself.</h2>
-    <p class="proof-lede">Every result gives you the version, the commit and the command.</p>
-    <p class="proof-note">Its hash is on Sigstore Rekor and a Solana devnet memo, so a later change would show. Devnet is a test network.</p>
+  <div class="band-inner home-verify">
+    <div><p class="section-label">Verify</p><h2 class="section-title">Don't take our word for it.</h2></div>
+    <div class="home-verify-text"><p class="proof-lede">Every result tells you which yokoten version ran, which commit it looked at, and the commands to run the same check yourself.</p><p class="proof-note">A hash of each result also goes to Sigstore Rekor and a Solana devnet memo. If a result were ever changed later, the hash wouldn't match. Devnet is a test network, so nothing on it has real value.</p></div>
   </div>
 </section>
-<section class="cta">
-  <div class="cta-inner">
-    <p class="cta-title">This page looks once. yokoten stays on guard.</p>
-    <a href="https://yokoten.app/" class="cta-link">See what it stops</a>
-  </div>
-</section>
+<section class="cta"><div class="cta-inner"><div class="cta-text"><p class="cta-title">Want this to stick?</p><p class="cta-body">This page checks once. Install yokoten and it stays on the job: your AI tool asks it before each command or edit, and it checks each commit and runs in CI.</p></div><a href="https://yokoten.app/" class="cta-link">See what yokoten does</a></div></section>
 </div>
 <main id="app" hidden></main>
 <Footer />

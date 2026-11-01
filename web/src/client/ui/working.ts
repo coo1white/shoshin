@@ -1,31 +1,15 @@
+import { createPanel } from "./dom.ts";
+
 export function renderWorking({ repoName, progress }: { repoName: string; progress: string[] }): HTMLDivElement {
-  const terminalWindow = document.createElement("div");
-  terminalWindow.className = "terminal-window";
-  const terminalHead = document.createElement("div");
-  terminalHead.className = "terminal-head";
-  for (let i = 0; i < 3; i++) {
-    const dot = document.createElement("span");
-    dot.className = "terminal-dot";
-    dot.setAttribute("aria-hidden", "true");
-    terminalHead.appendChild(dot);
-  }
-  const titleSpan = document.createElement("span");
-  titleSpan.className = "terminal-title";
-  titleSpan.textContent = repoName;
-  terminalHead.appendChild(titleSpan);
-  const runningSpan = document.createElement("span");
-  runningSpan.className = "terminal-aside";
-  runningSpan.textContent = "RUNNING";
-  terminalHead.appendChild(runningSpan);
-  terminalWindow.appendChild(terminalHead);
-  const terminalBody = document.createElement("div");
-  terminalBody.className = "terminal-body";
-  terminalBody.setAttribute("role", "status");
+  const { panel, body, asideEl } = createPanel(repoName, "Running");
+  if (asideEl) asideEl.className = "panel-live";
+  body.classList.add("work-list");
+  body.setAttribute("role", "status");
   const steps: Array<[string, string]> = [
-    ["reading", "Reading the repo's details"],
+    ["reading", "Looking up the repo"],
     ["copying", "Copying the public files"],
-    ["checking", "Running yokoten, with the network cut"],
-    ["muse", "Muse writes the project section"],
+    ["checking", "Running yokoten with the network off"],
+    ["muse", "Muse is writing the project section"],
   ];
   const lastStep = progress.length > 0 ? progress[progress.length - 1] : null;
   const stepOrder = steps.map(([id]) => id);
@@ -38,28 +22,27 @@ export function renderWorking({ repoName, progress }: { repoName: string; progre
     let mark: string;
     if (i < effectiveLast) {
       state = "is-done";
-      mark = "✓ done";
+      mark = "done";
     } else if (i === effectiveLast) {
       state = "is-now";
-      mark = "● now";
+      mark = "now";
     } else {
       state = "is-wait";
-      mark = "· wait";
+      mark = "soon";
     }
     if (isMuse && lastStep === "checking") {
       state = "is-wait";
-      mark = "· wait";
+      mark = "soon";
     }
     const row = document.createElement("div");
-    row.className = "terminal-row " + state;
-    const symbolSpan = document.createElement("span");
-    symbolSpan.textContent = mark;
+    row.className = "work-row " + state;
+    const markSpan = document.createElement("span");
+    markSpan.textContent = mark;
     const labelSpan = document.createElement("span");
     labelSpan.textContent = label;
-    row.appendChild(symbolSpan);
+    row.appendChild(markSpan);
     row.appendChild(labelSpan);
-    terminalBody.appendChild(row);
+    body.appendChild(row);
   }
-  terminalWindow.appendChild(terminalBody);
-  return terminalWindow;
+  return panel;
 }

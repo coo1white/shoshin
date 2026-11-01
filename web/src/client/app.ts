@@ -232,7 +232,7 @@ async function startCheck(): Promise<void> {
         } else if (eventName === "error") {
           hasResultOrError = true;
           const d = data as Record<string, unknown>;
-          const msg = typeof d.message === "string" ? d.message : "The check could not finish. Please try again in a minute.";
+          const msg = typeof d.message === "string" ? d.message : "The check couldn't finish. Try again in a minute.";
           state = "empty";
           render();
           showError(msg);
@@ -240,7 +240,7 @@ async function startCheck(): Promise<void> {
       }
     }
     if (!hasResultOrError) {
-      const msg = "The connection dropped. Please try again.";
+      const msg = "The connection dropped. Try again.";
       state = "empty";
       render();
       showError(msg);
@@ -249,7 +249,7 @@ async function startCheck(): Promise<void> {
     }
   } catch (_e) {
     if (lastResult) { markFixesLost(); return; }
-    const msg = "The connection dropped. Please try again.";
+    const msg = "The connection dropped. Try again.";
     state = "empty";
     render();
     showError(msg);

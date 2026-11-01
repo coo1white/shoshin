@@ -54,7 +54,9 @@ This entry was built during the hackathon, with these tools:
 - **yokoten** (`yokoten@0.2.0`) started before the hackathon, and it kept changing during it, in its own repo. This page uses version 0.2.0, released on 2026-10-30. That version holds two things made during the hackathon that this page uses: `doctor --files`, and the `how` field in its JSON. None of yokoten's commits from that time name Muse. yokoten is an npm dependency, and no yokoten code is copied here. This repo holds none of that work, and we do not submit it as this entry. The checks on the page are yokoten's.
 - **A reviewer model** that writes no code here reviews each pull request, through OpenCode Go, from PR #22 on. Each review names its model.
 
-yokoten's logo and site style existed before this project, and the page's style follows them.
+- **Claude Fable 5.1** designed this site's new look and wrote its visitor copy, from 2026-11-01. Its design is a canvas of artboards, and the task briefs for it came from that canvas.
+
+yokoten's logo existed before this project.
 
 A `Co-Authored-By` line names Muse on commits whose code it wrote. Claude's part is stated here instead of in those lines, and some commit messages also name it. Commit messages were edited once, before the first push, to change those lines.
 

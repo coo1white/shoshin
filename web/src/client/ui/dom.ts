@@ -1,5 +1,26 @@
 import { splitCode } from "../view.ts";
 
+export function createPanel(title: string, aside?: string): { panel: HTMLDivElement; body: HTMLDivElement; asideEl: HTMLSpanElement | null } {
+  const panel = document.createElement("div");
+  panel.className = "panel";
+  const head = document.createElement("div");
+  head.className = "panel-head";
+  const titleEl = document.createElement("span");
+  titleEl.textContent = title;
+  head.appendChild(titleEl);
+  let asideEl: HTMLSpanElement | null = null;
+  if (aside) {
+    asideEl = document.createElement("span");
+    asideEl.textContent = aside;
+    head.appendChild(asideEl);
+  }
+  panel.appendChild(head);
+  const body = document.createElement("div");
+  body.className = "panel-content";
+  panel.appendChild(body);
+  return { panel, body, asideEl };
+}
+
 export function safeUrl(href: string): string | null {
   if (typeof href !== "string") return null;
   if (href.startsWith("https://github.com/")) return href;

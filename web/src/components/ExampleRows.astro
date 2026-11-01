@@ -6,16 +6,12 @@ const { examples } = Astro.props as { examples: Example[] };
   {examples.map((ex) => (
     <a class="check-row" href={`/example/${ex.repo.replaceAll("/", "-")}.html`}>
       <span class="check-repo">{ex.repo}</span>
-      <span class="check-commit">{ex.commit}</span>
-      <span class="check-bar" aria-hidden="true">
-        {Array.from({ length: ex.total }).map((_, i) => {
+      <span class="check-data"><span class="check-commit">{ex.commit}</span><span class="check-bar" aria-hidden="true">{Array.from({ length: ex.total }).map((_, i) => {
           let cls = "is-open";
           if (i < ex.done) cls = "is-done";
           else if (ex.after != null && ex.after > ex.done && i < ex.after) cls = "is-after";
           return <span class={`check-seg ${cls}`}></span>;
-        })}
-      </span>
-      <span class="check-score">{ex.done}<span class="check-total">/{ex.total}</span></span>
+        })}</span><span class="check-score">{ex.done} <span class="check-total">of {ex.total}</span></span></span>
     </a>
   ))}
 </div>

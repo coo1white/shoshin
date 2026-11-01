@@ -127,7 +127,7 @@ describe('static host portability', () => {
     assert.equal(connectSrc, api, `connect-src (${connectSrc}) should equal API (${api})`);
   });
 
-  test('dist/index.html holds the page\'s strings: h1 is "A health check for repos that AI agents work in.", and "Real checks", "It does not scan for code vulnerabilities" and "devnet"', () => {
+  test('dist/index.html holds the page\'s strings: h1 is "Check your repo before you hand it to an AI agent.", and "Real results", "It doesn\'t scan your code for vulnerabilities" and "devnet"', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
     const h1Re = /<h1[^>]*>([\s\S]*?)<\/h1>/i;
     const h1Match = html.match(h1Re);
@@ -143,9 +143,9 @@ describe('static host portability', () => {
       .replace(/\u2019/g, "'")
       .replace(/\s+/g, ' ')
       .trim();
-    assert.equal(decoded, "A health check for repos that AI agents work in.");
-    assert.ok(html.includes('Real checks'), 'dist/index.html should contain "Real checks"');
-    assert.ok(html.includes('It does not scan for code vulnerabilities'), 'dist/index.html should contain "It does not scan for code vulnerabilities"');
+    assert.equal(decoded, "Check your repo before you hand it to an AI agent.");
+    assert.ok(html.includes('Real results'), 'dist/index.html should contain "Real results"');
+    assert.ok(html.includes("It doesn't scan your code for vulnerabilities"), "dist/index.html should contain \"It doesn't scan your code for vulnerabilities\"");
     assert.ok(html.includes('devnet'), 'dist/index.html should contain "devnet"');
   });
 
@@ -185,7 +185,7 @@ describe('static host portability', () => {
     }
   });
 
-  test('dist/index.html holds the h1 "A health check for repos that AI agents work in.", the label, the Check button, the three examples, and the noscript sentence', () => {
+  test('dist/index.html holds the h1 "Check your repo before you hand it to an AI agent.", the label, the Check button, the three examples, and the noscript sentence', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
     const h1Re = /<h1[^>]*>([\s\S]*?)<\/h1>/i;
     const h1 = html.match(h1Re);
@@ -200,9 +200,9 @@ describe('static host portability', () => {
       .replace(/&#x2019;/gi, "'")
       .replace(/\s+/g, ' ')
       .trim();
-    assert.equal(decoded, "A health check for repos that AI agents work in.");
-    assert.ok(html.includes('Real checks'), 'dist/index.html should contain "Real checks"');
-    assert.ok(html.includes('It does not scan for code vulnerabilities'), 'dist/index.html should contain "It does not scan for code vulnerabilities"');
+    assert.equal(decoded, "Check your repo before you hand it to an AI agent.");
+    assert.ok(html.includes('Real results'), 'dist/index.html should contain "Real results"');
+    assert.ok(html.includes("It doesn't scan your code for vulnerabilities"), "dist/index.html should contain \"It doesn't scan your code for vulnerabilities\"");
     assert.ok(html.includes('devnet'), 'dist/index.html should contain "devnet"');
     assert.ok(html.includes('<label'), 'label not found in dist/index.html');
     assert.ok(html.includes('>Check<') || html.includes('>Check </button>') || html.includes('Check'), 'Check button not found');
@@ -214,7 +214,7 @@ describe('static host portability', () => {
     for (const ex of data.examples) {
       assert.ok(html.includes(ex.repo), `example "${ex.repo}" not in dist/index.html`);
     }
-    assert.ok(html.includes('This page needs JavaScript to run a check. You can also run it yourself: npx yokoten'), 'noscript text incorrect');
+    assert.ok(html.includes('Running a check needs JavaScript. You can also run it on your machine: npx yokoten'), 'noscript text incorrect');
   });
 
   test('example links in dist/index.html point to /example/<slug>', () => {
@@ -251,8 +251,8 @@ describe('static host portability', () => {
     assert.equal(html.includes('How it works'), false, 'dist/index.html should not link to How it works');
     assert.equal(html.includes('/#questions'), false, 'dist/index.html should not link to Questions');
     assert.equal(html.includes('yokoten.app/about'), false, 'dist/index.html should not link to the yokoten About page');
-    assert.ok(html.includes('Real checks'), 'dist/index.html should contain "Real checks"');
-    assert.ok(html.includes('It does not scan for code vulnerabilities'), 'dist/index.html should contain "It does not scan for code vulnerabilities"');
+    assert.ok(html.includes('Real results'), 'dist/index.html should contain "Real results"');
+    assert.ok(html.includes("It doesn't scan your code for vulnerabilities"), "dist/index.html should contain \"It doesn't scan your code for vulnerabilities\"");
     assert.ok(html.includes('devnet'), 'dist/index.html should contain "devnet"');
   });
 
@@ -375,9 +375,13 @@ describe('static host portability', () => {
     }
   });
 
-  test('dist/index.html does not hold the words "ready for AI agents"', () => {
-    const html = fs.readFileSync(indexPath, 'utf8');
-    assert.equal(html.toLowerCase().includes('ready for ai agents'), false, 'dist/index.html should not contain "ready for AI agents"');
+  test('the visible text of the home, about and agent pages holds none of the banned words', () => {
+    const banned = ['ready for ai agents', 'score', 'security scan', 'find leaks', 'keeps nothing', 'every line by muse', 'proven', 'weaker model'];
+    for (const name of ['index.html', 'about.html', 'agent-view.html']) {
+      const html = fs.readFileSync(path.join(path.dirname(indexPath), name), 'utf8');
+      const text = html.replace(/<script[\s\S]*?<\/script>/g, ' ').replace(/<[^>]*>/g, ' ').toLowerCase();
+      for (const word of banned) assert.equal(text.includes(word), false, `dist/${name} should not contain "${word}"`);
+    }
   });
 
   test('example pages exist and contain noindex', () => {
@@ -466,12 +470,12 @@ describe('static host portability', () => {
     }
   });
 
-  test('dist/index.html holds the titles Web2 and Web3, and the sentence a repo without it can reach 9 of 13', () => {
+  test('dist/index.html holds the titles Web2 and Web3, and the sentence a repo without it tops out at 9 of 13', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
     assert.ok(html.includes('Web2'), 'dist/index.html should contain Web2');
     assert.ok(html.includes('Web3'), 'dist/index.html should contain Web3');
     assert.equal(html.includes('Our own repo'), false, 'dist/index.html should not list our own repo');
-    assert.ok(html.includes('a repo without it can reach 9 of 13'), 'dist/index.html should contain a repo without it can reach 9 of 13');
+    assert.ok(html.includes('a repo without it tops out at 9 of 13'), 'dist/index.html should contain a repo without it tops out at 9 of 13');
   });
 
   test('dist/index.html holds canonical, og:url, og:image and twitter card', () => {
