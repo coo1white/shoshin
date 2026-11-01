@@ -1,4 +1,5 @@
 import datetime
+import json
 import logging
 import os
 import time
@@ -10,6 +11,13 @@ logger = logging.getLogger(__name__)
 
 class RecordFailed(Exception):
     pass
+
+
+def has_different_result(record, result) -> bool:
+    try:
+        return json.loads(record["document"])["result"] != json.loads(json.dumps(result))
+    except Exception:
+        return False
 
 
 def write_record(result, store=None, now=time.time, rekor=None, solana=None, environ=os.environ) -> dict | None:
@@ -39,7 +47,7 @@ def write_record(result, store=None, now=time.time, rekor=None, solana=None, env
             except Exception as e:
                 logger.error(type(e).__name__)
                 existing = None
-            if isinstance(existing, dict) and existing.get("rekor") is not None:
+            if isinstance(existing, dict) and existing.get("rekor") is not None and not has_different_result(existing, result):
                 # both rekor and solana set: return as is
                 if existing.get("solana") is not None:
                     return existing

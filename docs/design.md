@@ -97,7 +97,7 @@ appear the moment yokoten is done; the Muse part streams in after.
 **State C, result.** Laid out like `yokoten doctor` in a terminal, so a user
 who moves to the CLI sees the same thing:
 
-1. Top line: "done 9 of 13 file checks · next: <the first step not done>" (the
+1. Top line: "done 8 of 13 file checks · next: <the first step not done>" (the
    counts come from yokoten's output, never hard-coded).
 2. One sentence, written by Muse, about this repo, e.g. "An agent here would
    not know how to run the tests, because nothing in the repo says how."
@@ -205,12 +205,13 @@ a step id in the list is no longer in doctor's output.)
 - Seen on yokoten main after PR #1265 (2026-10-30, run on this repo): 13
   steps, all `source` "files", each with `title`, `how`, `why`; `next` is a
   files step; exit 0; `notes`, `server`, `lessons` empty.
-- Three files steps are not fixed by the page's patch, because their files
-  need yokoten installed and the patch leaves them out (6.2a): `tool-hook`
-  (the guard in the agent configs), `runtime` (`.yokoten/`) and `sandbox` (the
-  agent sandbox configs). The page groups them under one line, "Fixed when you
-  install yokoten", with `npx yokoten init`, so a user who applied the patch
-  is not surprised that they are still to do.
+- Five files steps are not fixed by the page's patch, because they need
+  yokoten installed and the patch leaves them out (6.2a): `tool-hook` (the guard
+  in the agent configs), `runtime` (`.yokoten/`), `sandbox` (the agent sandbox
+  configs), `ci` (CI runs `yokoten check`) and `titles` (CI runs
+  `yokoten check --pr`). The page groups them under one line, with
+  `npx yokoten init`, so a user who applied the patch is not surprised that they
+  are still to do. A repo without yokoten tops out at 8 of 13.
 - `yokoten doctor --files --json` (yokoten issue #1256, planned for v0.2.0)
   judges from the checkout's files only: no code-host read, no gh, no
   network, no machine notes, and host steps are left out. The sandbox runs
