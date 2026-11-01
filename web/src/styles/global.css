@@ -145,20 +145,6 @@ nav a:hover, nav a[aria-current='page'] { color: var(--fg); }
 @media (max-width: 40rem) {
   .hero h1 { font-size: 40px; }
 }
-.badges {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-  list-style: none;
-  margin: 0 0 24px;
-  padding: 0;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 600;
-}
-.badge-green { background: #0b7a08; color: #ffffff; padding: 3px 8px; border-radius: 6px; }
-.badge-outline { border: 1px solid var(--line); padding: 3px 8px; border-radius: 6px; }
 .check-form { display: flex; flex-direction: column; gap: 8px; margin-top: 32px; width: 100%; max-width: 640px; text-align: left; }
 .check-form label { font-size: 14px; font-weight: 600; }
 .input-row { display: flex; flex-wrap: wrap; gap: 8px; }

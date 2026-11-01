@@ -29,7 +29,7 @@ import Footer from "../components/Footer.astro";
       <li>You paste a public GitHub repo URL.</li>
       <li>A throwaway sandbox copies the repo. Then its network is cut.</li>
       <li><code>yokoten</code> reads the copy. Your code never runs: no install, no build, no tests.</li>
-      <li>Muse Spark Open reads the repo and writes the project section of <code>AGENTS.md</code>.</li>
+      <li>The server sends some of the repo's files to Muse Spark Open, on Baseten. Muse writes the project section of <code>AGENTS.md</code>.</li>
       <li>You get the result and the files. Nothing changes until you click Commit on GitHub.</li>
       <li>The server writes a hash of the result to Sigstore Rekor and a Solana devnet memo. Devnet is a test network.</li>
     </ol>
