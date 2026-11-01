@@ -142,7 +142,7 @@ export function renderResultHero({ lastResult, vm, lastFixes }: { lastResult: Ch
     fixLink.className = "button-primary";
     nextWrap.appendChild(fixLink);
     left.appendChild(nextWrap);
-  } else if (vm.installOnly.length === 0) {
+  } else if (vm.installOnly.length === 0 && done === total) {
     const doneP = document.createElement("p");
     doneP.className = "every-done";
     doneP.textContent = `All ${total} file checks pass.`;
