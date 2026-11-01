@@ -23,9 +23,13 @@ export function renderProofSection({ vm, lastResult, lastRecord }: { vm: ViewMod
   h2.textContent = "Check it yourself";
   inner.appendChild(h2);
 
+  const rv = recordView(lastRecord);
+
   const lede = document.createElement("p");
   lede.className = "proof-result-lede";
-  lede.textContent = "You do not have to trust this page. You can check this result in two ways.";
+  lede.textContent = rv
+    ? "You do not have to trust this page. You can check this result in two ways."
+    : "You do not have to trust this page. You can run the same check yourself.";
   inner.appendChild(lede);
 
   const grid = document.createElement("div");
@@ -68,8 +72,8 @@ export function renderProofSection({ vm, lastResult, lastRecord }: { vm: ViewMod
     parent.appendChild(note);
   }
 
-  addWayTitle("1. Run the same check", left);
-  addNote(`These commands use yokoten ${vm.evidence.version} at commit ${vm.evidence.shortCommit}.`, left);
+  addWayTitle(rv ? "1. Run the same check" : "Run the same check", left);
+  addNote(`This result came from yokoten ${vm.evidence.version} at commit ${vm.evidence.shortCommit}.`, left);
   if (vm.evidence.doctorCommand) {
     addCodeBlockWithCopy(vm.evidence.doctorCommand, left);
   }
@@ -78,8 +82,7 @@ export function renderProofSection({ vm, lastResult, lastRecord }: { vm: ViewMod
     addNote("Run this one in a clean home folder: on your own machine, check also looks for your own private marks, which this page never had.", left);
   }
 
-  addWayTitle("2. See if this result changed", right);
-  const rv = recordView(lastRecord);
+  addWayTitle(rv ? "2. See if this result changed" : "Public record", right);
   if (rv) {
     addNote(`Download the result file and run this command. Its hash must match the hash recorded ${formatRecordTime(rv.recordedAt)}.`, right);
     const hashP = document.createElement("p");
