@@ -137,6 +137,11 @@ describe("buildReviewBody", () => {
     assert.equal(MAX_FINDINGS, 10);
     assert.ok(body.includes("2 more findings not shown."));
   });
+  it("with 11 findings says one more finding", () => {
+    const findings = Array.from({ length: 11 }, (_, i) => ({ severity: "low", text: `item ${i}` }));
+    const body = buildReviewBody({ summary: "s", findings }, "m");
+    assert.ok(body.includes("1 more finding not shown."));
+  });
   it("orders high before low", () => {
     const findings = [{ severity: "low", text: "low one" }, { severity: "high", text: "high one" }];
     const body = buildReviewBody({ summary: "s", findings }, "m");

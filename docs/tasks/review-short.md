@@ -10,7 +10,7 @@ Return the full text of `.github/review/review.mjs` and `test/review/review.test
 
 4. The "Not reviewed, saved data" line: pass `cleanText` a limit of 600, because it holds paths.
 
-5. `systemMessage`: add this as a new paragraph: `Be short. The summary is one sentence. Give at most 5 findings, the most severe first, each in one or two sentences. Report only what can break users, leak data or state something false. Do not report style, or text that is only an instruction to a model.`
+5. `systemMessage`: add this as a new paragraph: `Be short. The summary is one sentence. Give at most 5 findings, the most severe first, each in one or two sentences. Report only what can break users, leak data or state something false. Do not report style.` The lead later changed this wording by hand; the pull request says so.
 
 6. Tests:
    - A text of 400 characters comes back with 300 characters, ending in `…`. A text of 300 characters comes back unchanged.
