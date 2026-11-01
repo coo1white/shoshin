@@ -182,238 +182,238 @@
     },
     "secrets": [
       {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "docs/whitepaper/latex/main-zh.tex",
         "line": 60,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
+        "file": "docs/whitepaper/latex/main-zh.tex",
+        "grade": "sure"
       },
       {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "docs/whitepaper/latex/main-zh.tex",
         "line": 64,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
+        "file": "docs/whitepaper/latex/main-zh.tex",
+        "grade": "sure"
       },
       {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "docs/whitepaper/latex/main-zh.tex",
         "line": 68,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
+        "file": "docs/whitepaper/latex/main-zh.tex",
+        "grade": "sure"
       },
       {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "docs/whitepaper/latex/main-zh.tex",
         "line": 72,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
+        "file": "docs/whitepaper/latex/main-zh.tex",
+        "grade": "sure"
       },
       {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "docs/whitepaper/latex/main-zh.tex",
         "line": 76,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
+        "file": "docs/whitepaper/latex/main-zh.tex",
+        "grade": "sure"
       },
       {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "docs/whitepaper/latex/main-zh.tex",
         "line": 80,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
+        "file": "docs/whitepaper/latex/main-zh.tex",
+        "grade": "sure"
       },
       {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "docs/whitepaper/latex/main-zh.tex",
         "line": 84,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
+        "file": "docs/whitepaper/latex/main-zh.tex",
+        "grade": "sure"
       },
       {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "docs/whitepaper/latex/main-zh.tex",
         "line": 88,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
+        "file": "docs/whitepaper/latex/main-zh.tex",
+        "grade": "sure"
       },
       {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "docs/whitepaper/latex/main-zh.tex",
         "line": 92,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
-      },
-      {
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "file": "docs/whitepaper/latex/main-zh.tex",
+        "grade": "sure"
+      },
+      {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "line": 96,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
+        "file": "docs/whitepaper/latex/main-zh.tex",
+        "grade": "sure"
       },
       {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "docs/whitepaper/latex/main.tex",
         "line": 58,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
+        "file": "docs/whitepaper/latex/main.tex",
+        "grade": "sure"
       },
       {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "docs/whitepaper/latex/main.tex",
         "line": 62,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
+        "file": "docs/whitepaper/latex/main.tex",
+        "grade": "sure"
       },
       {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "docs/whitepaper/latex/main.tex",
         "line": 66,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
+        "file": "docs/whitepaper/latex/main.tex",
+        "grade": "sure"
       },
       {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "docs/whitepaper/latex/main.tex",
         "line": 70,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
+        "file": "docs/whitepaper/latex/main.tex",
+        "grade": "sure"
       },
       {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "docs/whitepaper/latex/main.tex",
         "line": 74,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
+        "file": "docs/whitepaper/latex/main.tex",
+        "grade": "sure"
       },
       {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "docs/whitepaper/latex/main.tex",
         "line": 78,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
+        "file": "docs/whitepaper/latex/main.tex",
+        "grade": "sure"
       },
       {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "docs/whitepaper/latex/main.tex",
         "line": 82,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
+        "file": "docs/whitepaper/latex/main.tex",
+        "grade": "sure"
       },
       {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "docs/whitepaper/latex/main.tex",
         "line": 86,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
+        "file": "docs/whitepaper/latex/main.tex",
+        "grade": "sure"
       },
       {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "docs/whitepaper/latex/main.tex",
         "line": 90,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
-      },
-      {
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "file": "docs/whitepaper/latex/main.tex",
+        "grade": "sure"
+      },
+      {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "line": 94,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
+        "file": "docs/whitepaper/latex/main.tex",
+        "grade": "sure"
       },
       {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "test/js-scripts/dist/getModifyLiquidityResult.js",
         "line": 10151,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
-      },
-      {
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "file": "test/js-scripts/dist/getModifyLiquidityResult.js",
+        "grade": "sure"
+      },
+      {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "line": 45215,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
+        "file": "test/js-scripts/dist/getModifyLiquidityResult.js",
+        "grade": "sure"
       },
       {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "test/js-scripts/dist/getSqrtPriceAtTick.js",
         "line": 12318,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
-      },
-      {
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "file": "test/js-scripts/dist/getSqrtPriceAtTick.js",
-        "line": 34127,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
-        "id": "email",
-        "what": "an email address"
+        "grade": "sure"
       },
       {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
         "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "test/js-scripts/dist/getTickAtSqrtPrice.js",
+        "line": 34127,
+        "id": "email",
+        "file": "test/js-scripts/dist/getSqrtPriceAtTick.js",
+        "grade": "sure"
+      },
+      {
+        "what": "an email address",
+        "why": "an email address points at a person, and git keeps it after the file is gone",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
         "line": 12318,
-        "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
         "id": "email",
-        "what": "an email address"
+        "file": "test/js-scripts/dist/getTickAtSqrtPrice.js",
+        "grade": "sure"
       },
       {
-        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
-        "file": "test/js-scripts/dist/getTickAtSqrtPrice.js",
-        "line": 34127,
+        "what": "an email address",
         "why": "an email address points at a person, and git keeps it after the file is gone",
-        "grade": "sure",
+        "fix": "use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \"privacy.allow\" in yokoten.json",
+        "line": 34127,
         "id": "email",
-        "what": "an email address"
+        "file": "test/js-scripts/dist/getTickAtSqrtPrice.js",
+        "grade": "sure"
       }
     ],
     "default_branch": "main"
@@ -455,18 +455,18 @@
     }
   },
   "record": {
-    "sha256": "5969448ef10448716bea478e91363dbd24dfd94cf4891c7175b108b02f92ab57",
-    "recorded_at": "2026-10-31T10:06:35Z",
-    "document": "{\"recorded_at\":\"2026-10-31T10:06:35Z\",\"result\":{\"about\":\"yokoten stops your AI coding agent from making the mistake you can't undo. One command, no setup.\",\"commit\":\"bea7f6d1c11cd5dc4f0d5151ffa37a1c239feee6\",\"default_branch\":\"main\",\"owner\":\"Uniswap\",\"repo\":\"v4-core\",\"rerun\":{\"check\":\"HOME=\\\"$(mktemp -d)\\\" npx yokoten@0.2.0 check --json\",\"doctor\":\"git clone --filter=blob:none https://github.com/Uniswap/v4-core\\ncd v4-core\\ngit checkout bea7f6d1c11cd5dc4f0d5151ffa37a1c239feee6\\nnpx yokoten@0.2.0 doctor --files --json\"},\"secrets\":[{\"file\":\"docs/whitepaper/latex/main-zh.tex\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":60,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"docs/whitepaper/latex/main-zh.tex\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":64,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"docs/whitepaper/latex/main-zh.tex\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":68,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"docs/whitepaper/latex/main-zh.tex\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":72,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"docs/whitepaper/latex/main-zh.tex\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":76,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"docs/whitepaper/latex/main-zh.tex\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":80,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"docs/whitepaper/latex/main-zh.tex\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":84,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"docs/whitepaper/latex/main-zh.tex\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":88,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"docs/whitepaper/latex/main-zh.tex\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":92,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"docs/whitepaper/latex/main-zh.tex\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":96,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"docs/whitepaper/latex/main.tex\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":58,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"docs/whitepaper/latex/main.tex\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":62,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"docs/whitepaper/latex/main.tex\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":66,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"docs/whitepaper/latex/main.tex\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":70,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"docs/whitepaper/latex/main.tex\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":74,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"docs/whitepaper/latex/main.tex\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":78,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"docs/whitepaper/latex/main.tex\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":82,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"docs/whitepaper/latex/main.tex\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":86,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"docs/whitepaper/latex/main.tex\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":90,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"docs/whitepaper/latex/main.tex\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":94,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"test/js-scripts/dist/getModifyLiquidityResult.js\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":10151,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"test/js-scripts/dist/getModifyLiquidityResult.js\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":45215,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"test/js-scripts/dist/getSqrtPriceAtTick.js\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":12318,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"test/js-scripts/dist/getSqrtPriceAtTick.js\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":34127,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"test/js-scripts/dist/getTickAtSqrtPrice.js\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":12318,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"},{\"file\":\"test/js-scripts/dist/getTickAtSqrtPrice.js\",\"fix\":\"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\"grade\":\"sure\",\"id\":\"email\",\"line\":34127,\"what\":\"an email address\",\"why\":\"an email address points at a person, and git keeps it after the file is gone\"}],\"summary\":{\"done\":4,\"install_only\":[{\"fix\":\"`yokoten init` adds it\",\"how\":\".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only\",\"id\":\"tool-hook\",\"mark\":\"to do\",\"title\":\"Turn on the guard for your agents' commands\",\"what\":\"no tool-call guard in .claude/settings.json\",\"why\":\"the guard stops a risky command, like a force push, before the agent runs it\"},{\"fix\":\"`yokoten init` adds it\",\"how\":\".yokoten/VERSION is the version of the yokoten that runs doctor; yokoten's own repo needs no copy\",\"id\":\"runtime\",\"mark\":\"to do\",\"title\":\"Add the yokoten runtime to the project\",\"what\":\"no .yokoten/ runtime\",\"why\":\"the hooks and CI run this copy, so they work with no network and no global install\"},{\"fix\":\"`yokoten init` adds it\",\"how\":\".claude/settings.json turns the sandbox on with no * host; .codex/config.toml pins workspace-write, on-request and no network; .gemini/settings.json blocks YOLO mode; .grok/sandbox.toml holds a workspace profile; writable paths stay in the project\",\"id\":\"sandbox\",\"mark\":\"to do\",\"title\":\"Keep your agents in a sandbox\",\"what\":\"no sandbox in .claude/settings.json\",\"why\":\"a worker writes only where the sandbox allows, so it must cover the worktree\"}],\"next\":{\"fix\":\"`yokoten init` adds one\",\"how\":\"AGENTS.md is at the repo root, and a CLAUDE.md (at the root or in .claude/), when there is one, imports it (`@AGENTS.md`, or `@../AGENTS.md` from .claude/; a Markdown link is not an import): with a CLAUDE.md, Claude Code reads AGENTS.md only through it\",\"id\":\"rules\",\"mark\":\"next\",\"title\":\"Write the rules for your agents (AGENTS.md)\",\"what\":\"no AGENTS.md, so the agents have no written rules here\",\"why\":\"an agent follows the rules it can read, and only those\"},\"steps\":[{\"fix\":\"`yokoten init` adds one\",\"how\":\"AGENTS.md is at the repo root, and a CLAUDE.md (at the root or in .claude/), when there is one, imports it (`@AGENTS.md`, or `@../AGENTS.md` from .claude/; a Markdown link is not an import): with a CLAUDE.md, Claude Code reads AGENTS.md only through it\",\"id\":\"rules\",\"mark\":\"next\",\"title\":\"Write the rules for your agents (AGENTS.md)\",\"what\":\"no AGENTS.md, so the agents have no written rules here\",\"why\":\"an agent follows the rules it can read, and only those\"},{\"fix\":\"`yokoten init` adds it\",\"how\":\".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only\",\"id\":\"tool-hook\",\"mark\":\"to do\",\"title\":\"Turn on the guard for your agents' commands\",\"what\":\"no tool-call guard in .claude/settings.json\",\"why\":\"the guard stops a risky command, like a force push, before the agent runs it\"},{\"fix\":\"`yokoten init` adds it\",\"how\":\".yokoten/VERSION is the version of the yokoten that runs doctor; yokoten's own repo needs no copy\",\"id\":\"runtime\",\"mark\":\"to do\",\"title\":\"Add the yokoten runtime to the project\",\"what\":\"no .yokoten/ runtime\",\"why\":\"the hooks and CI run this copy, so they work with no network and no global install\"},{\"how\":\"package.json has a real \\\"test\\\" script and a `run:` step in a workflow runs it, or a `run:` step starts a test runner such as `node --test`, `go test`, `pytest`, `tox`, `make test` or `npx vitest`; in a workspaces repo, `npm test --workspaces` or `pnpm -r test` counts too\",\"id\":\"tests\",\"mark\":\"done\",\"title\":\"Run your tests on every push\",\"why\":\"tests that run on every push catch a broken change before it reaches main\"},{\"fix\":\"`yokoten init` adds .github/workflows/yokoten.yml\",\"how\":\"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten\",\"id\":\"ci\",\"mark\":\"to do\",\"title\":\"Run the checks on every pull request\",\"what\":\"CI does not run `yokoten check`\",\"why\":\"a commit made with the hook off would reach main unchecked\"},{\"how\":\"there is no TODO.md, TODO, todo.md or docs/todo\",\"id\":\"issues\",\"mark\":\"done\",\"title\":\"Turn on issues\",\"why\":\"an issue has an owner, a state and a history; a todo file has none\"},{\"how\":\".github/ISSUE_TEMPLATE holds a template, and .github holds a pull request template\",\"id\":\"templates\",\"mark\":\"done\",\"title\":\"Add issue and pull request templates\",\"why\":\"a template asks for what a reviewer needs, so nothing is forgotten\"},{\"fix\":\"remove it with `git rm --cached` and add dist/, build/, out/ to .gitignore\",\"how\":\"no tracked file is in a dist/, build/ or out/ folder or is a built file by its name, apart from yokoten.json \\\"allowBuild\\\"\",\"id\":\"no-build-output\",\"mark\":\"to do\",\"title\":\"Keep build output out of git\",\"what\":\"build output in the repo (test/js-scripts/dist/getModifyLiquidityResult.js, test/js-scripts/dist/getSqrtPriceAtTick.js, test/js-scripts/dist/getTickAtSqrtPrice.js)\",\"why\":\"a build makes these files again from the source, and a reviewer can't read a binary\"},{\"fix\":\"`yokoten init` adds both; then each pull request adds a file in changes/ for each change that users notice\",\"how\":\"CHANGELOG.md has an Unreleased heading, or the repo has a changes/ folder or a .changeset/ folder (Changesets)\",\"id\":\"changelog\",\"mark\":\"to do\",\"title\":\"Keep a changelog\",\"what\":\"no CHANGELOG.md with an \\\"Unreleased\\\" section, and no changes/ folder\",\"why\":\"each pull request adds its entry as it goes, so a release needs no digging\"},{\"fix\":\"`yokoten init` adds .github/workflows/pr.yml\",\"how\":\"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check --pr`, or runs on pull requests with a step that uses yokoten-labs/yokoten and does not set `pr-check: false`\",\"id\":\"titles\",\"mark\":\"to do\",\"title\":\"Check pull request titles\",\"what\":\"CI does not check pull requests (`yokoten check --pr`)\",\"why\":\"a pull request title becomes the commit on main, so it must say what changed and why\"},{\"how\":\"a CODEOWNERS file is in .github/, at the root or in docs/, and the first one GitHub reads names an owner, not init's placeholder @YOUR_GITHUB_HANDLE; full doctor also reads whether the repo belongs to an organization, and an organization alone (@org, not @org/team) is not an owner\",\"id\":\"codeowners\",\"mark\":\"done\",\"title\":\"Name the owner (CODEOWNERS)\",\"why\":\"the host then asks you to review a pull request that changes those paths, and `check --pr` makes it tier A\"},{\"fix\":\"`yokoten init` adds it\",\"how\":\".claude/settings.json turns the sandbox on with no * host; .codex/config.toml pins workspace-write, on-request and no network; .gemini/settings.json blocks YOLO mode; .grok/sandbox.toml holds a workspace profile; writable paths stay in the project\",\"id\":\"sandbox\",\"mark\":\"to do\",\"title\":\"Keep your agents in a sandbox\",\"what\":\"no sandbox in .claude/settings.json\",\"why\":\"a worker writes only where the sandbox allows, so it must cover the worktree\"},{\"fix\":\"run `yokoten init` to add the security policy and Dependabot\",\"how\":\"a SECURITY.md, a Dependabot config and a license file are in the repo\",\"id\":\"security-files\",\"mark\":\"to do\",\"title\":\"Add a license and a security policy\",\"what\":\"no Dependabot config\",\"why\":\"people can then report a hole in private, old dependencies get updates, and others know how they may use the code\"}],\"total\":13},\"yokoten_version\":\"0.2.0\"},\"schema\":\"yokoten-doctor/1\"}",
+    "sha256": "24f1f9236c72700e01cf9ca24f8c60d9eb2dfa907e1ee0199735228588016ea0",
+    "recorded_at": "2026-11-01T12:11:35Z",
+    "document": "{\n  \"recorded_at\": \"2026-11-01T12:11:35Z\",\n  \"result\": {\n    \"about\": \"yokoten stops your AI coding agent from making the mistake you can't undo. One command, no setup.\",\n    \"commit\": \"bea7f6d1c11cd5dc4f0d5151ffa37a1c239feee6\",\n    \"default_branch\": \"main\",\n    \"owner\": \"Uniswap\",\n    \"repo\": \"v4-core\",\n    \"rerun\": {\n      \"check\": \"HOME=\\\"$(mktemp -d)\\\" npx yokoten@0.2.0 check --json\",\n      \"doctor\": \"git clone --filter=blob:none https://github.com/Uniswap/v4-core\\ncd v4-core\\ngit checkout bea7f6d1c11cd5dc4f0d5151ffa37a1c239feee6\\nnpx yokoten@0.2.0 doctor --files --json\"\n    },\n    \"secrets\": [\n      {\n        \"file\": \"docs/whitepaper/latex/main-zh.tex\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 60,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/whitepaper/latex/main-zh.tex\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 64,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/whitepaper/latex/main-zh.tex\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 68,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/whitepaper/latex/main-zh.tex\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 72,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/whitepaper/latex/main-zh.tex\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 76,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/whitepaper/latex/main-zh.tex\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 80,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/whitepaper/latex/main-zh.tex\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 84,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/whitepaper/latex/main-zh.tex\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 88,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/whitepaper/latex/main-zh.tex\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 92,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/whitepaper/latex/main-zh.tex\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 96,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/whitepaper/latex/main.tex\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 58,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/whitepaper/latex/main.tex\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 62,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/whitepaper/latex/main.tex\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 66,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/whitepaper/latex/main.tex\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 70,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/whitepaper/latex/main.tex\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 74,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/whitepaper/latex/main.tex\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 78,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/whitepaper/latex/main.tex\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 82,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/whitepaper/latex/main.tex\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 86,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/whitepaper/latex/main.tex\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 90,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"docs/whitepaper/latex/main.tex\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 94,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"test/js-scripts/dist/getModifyLiquidityResult.js\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 10151,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"test/js-scripts/dist/getModifyLiquidityResult.js\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 45215,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"test/js-scripts/dist/getSqrtPriceAtTick.js\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 12318,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"test/js-scripts/dist/getSqrtPriceAtTick.js\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 34127,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"test/js-scripts/dist/getTickAtSqrtPrice.js\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 12318,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      },\n      {\n        \"file\": \"test/js-scripts/dist/getTickAtSqrtPrice.js\",\n        \"fix\": \"use your GitHub noreply address, or a placeholder at example.com. If it is your project's own public address, such as support@ at its domain, add it to \\\"privacy.allow\\\" in yokoten.json\",\n        \"grade\": \"sure\",\n        \"id\": \"email\",\n        \"line\": 34127,\n        \"what\": \"an email address\",\n        \"why\": \"an email address points at a person, and git keeps it after the file is gone\"\n      }\n    ],\n    \"summary\": {\n      \"done\": 4,\n      \"install_only\": [\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only\",\n          \"id\": \"tool-hook\",\n          \"mark\": \"to do\",\n          \"title\": \"Turn on the guard for your agents' commands\",\n          \"what\": \"no tool-call guard in .claude/settings.json\",\n          \"why\": \"the guard stops a risky command, like a force push, before the agent runs it\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".yokoten/VERSION is the version of the yokoten that runs doctor; yokoten's own repo needs no copy\",\n          \"id\": \"runtime\",\n          \"mark\": \"to do\",\n          \"title\": \"Add the yokoten runtime to the project\",\n          \"what\": \"no .yokoten/ runtime\",\n          \"why\": \"the hooks and CI run this copy, so they work with no network and no global install\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/yokoten.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten\",\n          \"id\": \"ci\",\n          \"mark\": \"to do\",\n          \"title\": \"Run the checks on every pull request\",\n          \"what\": \"CI does not run `yokoten check`\",\n          \"why\": \"a commit made with the hook off would reach main unchecked\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/pr.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check --pr`, or runs on pull requests with a step that uses yokoten-labs/yokoten and does not set `pr-check: false`\",\n          \"id\": \"titles\",\n          \"mark\": \"to do\",\n          \"title\": \"Check pull request titles\",\n          \"what\": \"CI does not check pull requests (`yokoten check --pr`)\",\n          \"why\": \"a pull request title becomes the commit on main, so it must say what changed and why\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json turns the sandbox on with no * host; .codex/config.toml pins workspace-write, on-request and no network; .gemini/settings.json blocks YOLO mode; .grok/sandbox.toml holds a workspace profile; writable paths stay in the project\",\n          \"id\": \"sandbox\",\n          \"mark\": \"to do\",\n          \"title\": \"Keep your agents in a sandbox\",\n          \"what\": \"no sandbox in .claude/settings.json\",\n          \"why\": \"a worker writes only where the sandbox allows, so it must cover the worktree\"\n        }\n      ],\n      \"next\": {\n        \"fix\": \"`yokoten init` adds one\",\n        \"how\": \"AGENTS.md is at the repo root, and a CLAUDE.md (at the root or in .claude/), when there is one, imports it (`@AGENTS.md`, or `@../AGENTS.md` from .claude/; a Markdown link is not an import): with a CLAUDE.md, Claude Code reads AGENTS.md only through it\",\n        \"id\": \"rules\",\n        \"mark\": \"next\",\n        \"title\": \"Write the rules for your agents (AGENTS.md)\",\n        \"what\": \"no AGENTS.md, so the agents have no written rules here\",\n        \"why\": \"an agent follows the rules it can read, and only those\"\n      },\n      \"steps\": [\n        {\n          \"fix\": \"`yokoten init` adds one\",\n          \"how\": \"AGENTS.md is at the repo root, and a CLAUDE.md (at the root or in .claude/), when there is one, imports it (`@AGENTS.md`, or `@../AGENTS.md` from .claude/; a Markdown link is not an import): with a CLAUDE.md, Claude Code reads AGENTS.md only through it\",\n          \"id\": \"rules\",\n          \"mark\": \"next\",\n          \"title\": \"Write the rules for your agents (AGENTS.md)\",\n          \"what\": \"no AGENTS.md, so the agents have no written rules here\",\n          \"why\": \"an agent follows the rules it can read, and only those\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json has a PreToolUse hook that runs `yokoten hook`. With a .muse/hooks.json, Muse Code must also trust the folder: doctor reads its trust.json, read-only\",\n          \"id\": \"tool-hook\",\n          \"mark\": \"to do\",\n          \"title\": \"Turn on the guard for your agents' commands\",\n          \"what\": \"no tool-call guard in .claude/settings.json\",\n          \"why\": \"the guard stops a risky command, like a force push, before the agent runs it\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".yokoten/VERSION is the version of the yokoten that runs doctor; yokoten's own repo needs no copy\",\n          \"id\": \"runtime\",\n          \"mark\": \"to do\",\n          \"title\": \"Add the yokoten runtime to the project\",\n          \"what\": \"no .yokoten/ runtime\",\n          \"why\": \"the hooks and CI run this copy, so they work with no network and no global install\"\n        },\n        {\n          \"how\": \"package.json has a real \\\"test\\\" script and a `run:` step in a workflow runs it, or a `run:` step starts a test runner such as `node --test`, `go test`, `pytest`, `tox`, `make test` or `npx vitest`; in a workspaces repo, `npm test --workspaces` or `pnpm -r test` counts too\",\n          \"id\": \"tests\",\n          \"mark\": \"done\",\n          \"title\": \"Run your tests on every push\",\n          \"why\": \"tests that run on every push catch a broken change before it reaches main\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/yokoten.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check` (by its path, or with npx, bunx or pnpm dlx), or has a step that uses yokoten-labs/yokoten\",\n          \"id\": \"ci\",\n          \"mark\": \"to do\",\n          \"title\": \"Run the checks on every pull request\",\n          \"what\": \"CI does not run `yokoten check`\",\n          \"why\": \"a commit made with the hook off would reach main unchecked\"\n        },\n        {\n          \"how\": \"there is no TODO.md, TODO, todo.md or docs/todo\",\n          \"id\": \"issues\",\n          \"mark\": \"done\",\n          \"title\": \"Turn on issues\",\n          \"why\": \"an issue has an owner, a state and a history; a todo file has none\"\n        },\n        {\n          \"how\": \".github/ISSUE_TEMPLATE holds a template, and .github holds a pull request template\",\n          \"id\": \"templates\",\n          \"mark\": \"done\",\n          \"title\": \"Add issue and pull request templates\",\n          \"why\": \"a template asks for what a reviewer needs, so nothing is forgotten\"\n        },\n        {\n          \"fix\": \"remove it with `git rm --cached` and add dist/, build/, out/ to .gitignore\",\n          \"how\": \"no tracked file is in a dist/, build/ or out/ folder or is a built file by its name, apart from yokoten.json \\\"allowBuild\\\"\",\n          \"id\": \"no-build-output\",\n          \"mark\": \"to do\",\n          \"title\": \"Keep build output out of git\",\n          \"what\": \"build output in the repo (test/js-scripts/dist/getModifyLiquidityResult.js, test/js-scripts/dist/getSqrtPriceAtTick.js, test/js-scripts/dist/getTickAtSqrtPrice.js)\",\n          \"why\": \"a build makes these files again from the source, and a reviewer can't read a binary\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds both; then each pull request adds a file in changes/ for each change that users notice\",\n          \"how\": \"CHANGELOG.md has an Unreleased heading, or the repo has a changes/ folder or a .changeset/ folder (Changesets)\",\n          \"id\": \"changelog\",\n          \"mark\": \"to do\",\n          \"title\": \"Keep a changelog\",\n          \"what\": \"no CHANGELOG.md with an \\\"Unreleased\\\" section, and no changes/ folder\",\n          \"why\": \"each pull request adds its entry as it goes, so a release needs no digging\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds .github/workflows/pr.yml\",\n          \"how\": \"a workflow in the folder this project's code host reads (`.github/workflows`, and `.gitea/workflows` too on Gitea) runs `yokoten check --pr`, or runs on pull requests with a step that uses yokoten-labs/yokoten and does not set `pr-check: false`\",\n          \"id\": \"titles\",\n          \"mark\": \"to do\",\n          \"title\": \"Check pull request titles\",\n          \"what\": \"CI does not check pull requests (`yokoten check --pr`)\",\n          \"why\": \"a pull request title becomes the commit on main, so it must say what changed and why\"\n        },\n        {\n          \"how\": \"a CODEOWNERS file is in .github/, at the root or in docs/, and the first one GitHub reads names an owner, not init's placeholder @YOUR_GITHUB_HANDLE; full doctor also reads whether the repo belongs to an organization, and an organization alone (@org, not @org/team) is not an owner\",\n          \"id\": \"codeowners\",\n          \"mark\": \"done\",\n          \"title\": \"Name the owner (CODEOWNERS)\",\n          \"why\": \"the host then asks you to review a pull request that changes those paths, and `check --pr` makes it tier A\"\n        },\n        {\n          \"fix\": \"`yokoten init` adds it\",\n          \"how\": \".claude/settings.json turns the sandbox on with no * host; .codex/config.toml pins workspace-write, on-request and no network; .gemini/settings.json blocks YOLO mode; .grok/sandbox.toml holds a workspace profile; writable paths stay in the project\",\n          \"id\": \"sandbox\",\n          \"mark\": \"to do\",\n          \"title\": \"Keep your agents in a sandbox\",\n          \"what\": \"no sandbox in .claude/settings.json\",\n          \"why\": \"a worker writes only where the sandbox allows, so it must cover the worktree\"\n        },\n        {\n          \"fix\": \"run `yokoten init` to add the security policy and Dependabot\",\n          \"how\": \"a SECURITY.md, a Dependabot config and a license file are in the repo\",\n          \"id\": \"security-files\",\n          \"mark\": \"to do\",\n          \"title\": \"Add a license and a security policy\",\n          \"what\": \"no Dependabot config\",\n          \"why\": \"people can then report a hole in private, old dependencies get updates, and others know how they may use the code\"\n        }\n      ],\n      \"total\": 13\n    },\n    \"yokoten_version\": \"0.2.0\"\n  },\n  \"schema\": \"yokoten-doctor/1\"\n}\n",
     "rekor": {
-      "uuid": "108e9186e8c5677a182e373515707ba673819e62314b8109341d0f81f3ad93283bce5b4b744657f1",
-      "log_index": 3613237147,
-      "integrated_time": 1793441196,
-      "url": "https://search.sigstore.dev/?logIndex=3613237147"
+      "uuid": "108e9186e8c5677a3796d4a37ed71ea9d2a7601ad12a88274076e65e50351ebf99808a7980848f08",
+      "log_index": 3629211957,
+      "integrated_time": 1793535096,
+      "url": "https://search.sigstore.dev/?logIndex=3629211957"
     },
     "solana": {
-      "signature": "4Gc34RXikFrSwQTLQXfzuFHq8htjZMK1ogDcZsS56at8ux3NAqE9Ywx32WWMsYZLndLM6NdDa1RbqHAcudNGVtwv",
-      "url": "https://explorer.solana.com/tx/4Gc34RXikFrSwQTLQXfzuFHq8htjZMK1ogDcZsS56at8ux3NAqE9Ywx32WWMsYZLndLM6NdDa1RbqHAcudNGVtwv?cluster=devnet"
+      "signature": "cCukLfEg533qUzgYVdPqWvgv91rb4vTFfJMQYdbkBY1JeWdbEb6a4G9zp5KwhyM1oKhhB7rKFGsar62dVg9899d",
+      "url": "https://explorer.solana.com/tx/cCukLfEg533qUzgYVdPqWvgv91rb4vTFfJMQYdbkBY1JeWdbEb6a4G9zp5KwhyM1oKhhB7rKFGsar62dVg9899d?cluster=devnet"
     }
   }
 }
