@@ -6,6 +6,11 @@ import path from 'node:path';
 const distDir = path.resolve('dist');
 const indexPath = path.join(distDir, 'index.html');
 const appPath = path.join(path.resolve('web/src/client'), 'app.ts');
+const stylesDir = path.resolve('web/src/styles');
+
+function readAllStyles() {
+  return fs.readdirSync(stylesDir).map((name) => fs.readFileSync(path.join(stylesDir, name), 'utf8')).join('\n');
+}
 
 function findMissingClasses(classLists, cssText) {
   const defined = new Set();
@@ -314,8 +319,8 @@ describe('static host portability', () => {
     assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(data.examplesCheckedOn), `examplesCheckedOn should be YYYY-MM-DD: ${data.examplesCheckedOn}`);
   });
 
-  test('every class used in .astro and client .ts appears in global.css', () => {
-    const cssText = fs.readFileSync(path.resolve('web/src/styles/global.css'), 'utf8');
+  test('every class used in .astro and client .ts appears in the styles', () => {
+    const cssText = readAllStyles();
     function walk(dir, exts) {
       const entries = fs.readdirSync(dir, { withFileTypes: true });
       let files = [];
@@ -345,7 +350,7 @@ describe('static host portability', () => {
       }
     }
     const missing = findMissingClasses(classLists, cssText);
-    assert.deepEqual(missing, [], `missing classes in global.css: ${missing.join(', ')}`);
+    assert.deepEqual(missing, [], `missing classes in the styles: ${missing.join(', ')}`);
   });
 
   test('findMissingClasses helper catches missing names', () => {
@@ -356,9 +361,18 @@ describe('static host portability', () => {
     assert.deepEqual(none, []);
   });
 
-  test('global.css does not hide every nav, so the footer links stay on a phone', () => {
-    const cssText = fs.readFileSync(path.resolve('web/src/styles/global.css'), 'utf8');
-    assert.doesNotMatch(cssText, /(^|[\s{}])nav\s*\{\s*display:\s*none/);
+  test('the styles do not hide every nav, so the footer links stay on a phone', () => {
+    assert.doesNotMatch(readAllStyles(), /(^|[\s{}])nav\s*\{\s*display:\s*none/);
+  });
+
+  test('web/src/styles/global.css holds only @import lines, and every imported file exists', () => {
+    const lines = fs.readFileSync(path.join(stylesDir, 'global.css'), 'utf8').trim().split('\n');
+    assert.ok(lines.length > 0);
+    for (const line of lines) {
+      const match = line.match(/^@import "\.\/([a-z]+\.css)";$/);
+      assert.ok(match, `global.css should hold only @import lines, found: ${line}`);
+      assert.ok(fs.existsSync(path.join(stylesDir, match[1])), `${match[1]} should exist`);
+    }
   });
 
   test('dist/index.html does not hold the words "ready for AI agents"', () => {

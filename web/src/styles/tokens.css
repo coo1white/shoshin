@@ -1,0 +1,76 @@
+@font-face {
+  font-family: 'Inter Fallback';
+  src: local('Arial'), local('ArialMT');
+  size-adjust: 107.12%;
+  ascent-override: 90.44%;
+  descent-override: 22.52%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'JetBrains Mono Fallback';
+  src: local('Courier New'), local('CourierNewPSMT');
+  size-adjust: 100%;
+  ascent-override: 102%;
+  descent-override: 30%;
+  line-gap-override: 0%;
+}
+:root {
+  --bg: #F6F5F1;
+  --surface: #FFFFFF;
+  --raised: #ECEAE3;
+  --line: #D9D7CF;
+  --fg: #1B1B19;
+  --muted: #5C5B55;
+  --accent: #B5431A;
+  --on-accent: #FFFFFF;
+  --code: #1B1B19;
+  --on-code: #ECEAE3;
+  --chip: rgb(27 27 25 / 0.12);
+  --shadow: 0 1px 2px rgb(27 27 25 / 0.06), 0 16px 40px -20px rgb(27 27 25 / 0.25);
+  --font-sans: 'Inter Variable', 'Inter Fallback', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono Fallback', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+  --gutter: 16px;
+  --max: 1120px;
+  --section: 56px;
+  --section-result: 48px;
+  color-scheme: light;
+}
+@media (min-width: 48rem) {
+  :root { --gutter: 24px; --section: 88px; --section-result: 72px; }
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141412;
+    --surface: #1C1C1A;
+    --raised: #262623;
+    --line: #33332F;
+    --fg: #ECEAE3;
+    --muted: #A3A199;
+    --accent: #F08A58;
+    --on-accent: #141412;
+    --code: #0E0E0D;
+    --on-code: #D6D4CC;
+    --chip: rgb(236 234 227 / 0.16);
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 16px 40px -20px rgb(0 0 0 / 0.7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141412;
+  --surface: #1C1C1A;
+  --raised: #262623;
+  --line: #33332F;
+  --fg: #ECEAE3;
+  --muted: #A3A199;
+  --accent: #F08A58;
+  --on-accent: #141412;
+  --code: #0E0E0D;
+  --on-code: #D6D4CC;
+  --chip: rgb(236 234 227 / 0.16);
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 16px 40px -20px rgb(0 0 0 / 0.7);
+  color-scheme: dark;
+}
