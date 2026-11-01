@@ -269,7 +269,7 @@ describe('static host portability', () => {
       assert.equal(typeof ex.total, 'number', 'example total should be number');
       assert.ok(Number.isInteger(ex.total), 'example total should be integer');
       assert.ok(ex.after === null || (typeof ex.after === 'number' && Number.isInteger(ex.after)), 'example after should be null or integer');
-      assert.ok(['web2', 'web3', 'own'].includes(ex.group), `example group should be web2, web3 or own: ${ex.group}`);
+      assert.ok(['web2', 'web3'].includes(ex.group), `example group should be web2 or web3: ${ex.group}`);
     }
     assert.equal(typeof data.examplesCheckedOn, 'string', 'examplesCheckedOn should be string');
     assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(data.examplesCheckedOn), `examplesCheckedOn should be YYYY-MM-DD: ${data.examplesCheckedOn}`);
@@ -408,11 +408,11 @@ describe('static host portability', () => {
     }
   });
 
-  test('dist/index.html holds the titles Web2, Web3 and Our own repo, and the sentence a repo without it can reach 9 of 13', () => {
+  test('dist/index.html holds the titles Web2 and Web3, and the sentence a repo without it can reach 9 of 13', () => {
     const html = fs.readFileSync(indexPath, 'utf8');
     assert.ok(html.includes('Web2'), 'dist/index.html should contain Web2');
     assert.ok(html.includes('Web3'), 'dist/index.html should contain Web3');
-    assert.ok(html.includes('Our own repo'), 'dist/index.html should contain Our own repo');
+    assert.equal(html.includes('Our own repo'), false, 'dist/index.html should not list our own repo');
     assert.ok(html.includes('a repo without it can reach 9 of 13'), 'dist/index.html should contain a repo without it can reach 9 of 13');
   });
 });

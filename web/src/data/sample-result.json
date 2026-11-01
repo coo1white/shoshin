@@ -119,15 +119,6 @@
       "total": 13,
       "after": 6,
       "files": 8
-    },
-    {
-      "repo": "yokoten-labs/yokoten",
-      "group": "own",
-      "commit": "632d4c1",
-      "done": 12,
-      "total": 13,
-      "after": null,
-      "files": 0
     }
   ],
   "examplesCheckedOn": "2026-10-31"

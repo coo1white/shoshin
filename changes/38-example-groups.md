@@ -1,3 +1,3 @@
 Changed
 
-The first screen now shows Web2 and Web3 examples in two groups, and our own repo with a note on why it is high (#38).
+The first screen now shows Web2 and Web3 examples in two groups, and says that a repo without yokoten can reach 9 of the 13 checks (#38).

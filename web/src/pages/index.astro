@@ -48,12 +48,8 @@ const ownerRepo = `${sample.owner}/${sample.repo}`;
       <CheckRows examples={sample.examples.filter((ex) => ex.group === "web3")} />
     </div>
   </div>
-  <div class="checks-group">
-    <h3 class="checks-group-title">Our own repo</h3>
-    <CheckRows examples={sample.examples.filter((ex) => ex.group === "own")} />
-    <p class="checks-note">yokoten is our own tool. Four of these checks need it, so a repo without it can reach 9 of 13.</p>
-  </div>
   <p class="checks-note">Green is done now. Outlined is what the files add.</p>
+  <p class="checks-note">Four of the 13 checks need yokoten, our own tool, so a repo without it can reach 9 of 13.</p>
 </section>
 <section id="result" class="band">
   <div class="band-inner">
