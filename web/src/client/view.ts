@@ -109,6 +109,12 @@ export function markLabel(mark: string, reason: string | undefined): string {
   return "unknown";
 }
 
+export function shownMark(mark: string, stepId: string, nextId: string | null): string {
+  if (nextId !== null && stepId === nextId) return "next";
+  if (mark === "next" && nextId !== null && stepId !== nextId) return "to do";
+  return mark;
+}
+
 export function secretFolders(places: string[]): { folder: string; count: number }[] {
   const order: string[] = [];
   const counts = new Map<string, number>();
