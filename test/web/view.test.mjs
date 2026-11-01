@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { viewModel, markLabel, splitCode, formatRecordTime, repoFromInput, repoFromQuery, secretFolders, toSentence } from "../../web/src/client/view.ts";
+import { viewModel, markLabel, splitCode, formatRecordTime, repoFromInput, repoFromQuery, secretFolders, toSentence, shownMark } from "../../web/src/client/view.ts";
 import { projectSection } from "../../web/src/client/fixes.ts";
 
 test("viewModel: headline text, next, others leave out next and install-only, evidence short commit", () => {
@@ -290,3 +290,18 @@ test("toSentence: single word", () => {
   assert.equal(toSentence("hello"), "Hello.");
 });
 
+test("shownMark: step with mark next that is not nextId shows to do", () => {
+  assert.equal(shownMark("next", "step-a", "step-b"), "to do");
+});
+
+test("shownMark: step with mark to do that is nextId shows next", () => {
+  assert.equal(shownMark("to do", "step-b", "step-b"), "next");
+});
+
+test("shownMark: step with mark done that is not nextId shows done", () => {
+  assert.equal(shownMark("done", "step-a", "step-b"), "done");
+});
+
+test("shownMark: with nextId null, mark next stays next", () => {
+  assert.equal(shownMark("next", "step-a", null), "next");
+});

@@ -1,5 +1,5 @@
 import { createLink, renderRichText, appendLabeledSection } from "./dom.ts";
-import { secretFolders, toSentence } from "../view.ts";
+import { secretFolders, toSentence, shownMark } from "../view.ts";
 import type { CheckResult, FixesPayload, ViewModel } from "../types.ts";
 
 function makeTerminalWindow(titleLeft: string, titleRight: string): { wrap: HTMLElement; body: HTMLElement } {
@@ -180,10 +180,11 @@ export function renderResultHero({ lastResult, vm, lastFixes }: { lastResult: Ch
     const markSpan = document.createElement("span");
     const titleSpan = document.createElement("span");
     titleSpan.textContent = s.title;
-    if (s.mark === "done") {
+    const mark = shownMark(s.mark, s.id, vm.next ? vm.next.id : null);
+    if (mark === "done") {
       row.classList.add("is-done");
       markSpan.textContent = "\u2713 done";
-    } else if (s.mark === "next") {
+    } else if (mark === "next") {
       row.classList.add("is-next");
       markSpan.textContent = "\u25cf next";
     } else {
