@@ -37,7 +37,7 @@ def check_public(owner: str, repo: str) -> dict:
         raise RepoRefused("That repo is private.")
 
     size = data.get("size")
-    if not isinstance(size, int):
+    if type(size) is not int:
         raise RepoRefused("GitHub did not say how big this repo is. Please try again.")
     # size is KB, and it counts the full history. The sandbox clones one commit, under a time limit.
     if size > 15728640:
