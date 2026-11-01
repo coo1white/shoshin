@@ -364,6 +364,10 @@ describe('static host portability', () => {
       const slug = ex.repo.replaceAll("/", "-");
       const saved = JSON.parse(fs.readFileSync(path.resolve(`web/src/data/examples/${slug}.json`), 'utf8'));
       assert.ok(saved.fixes.muse === "ok" || saved.fixes.muse === "not needed", `${slug} fixes.muse should be ok or not needed`);
+      if (saved.fixes.muse === "not needed") {
+        const rules = saved.result.summary.steps.find((step) => step.id === "rules");
+        assert.equal(rules.mark, "done", `${slug} says Muse was not needed, so it must have its own rules file`);
+      }
     }
   });
 
@@ -402,7 +406,7 @@ describe('static host portability', () => {
     const data = JSON.parse(fs.readFileSync(path.resolve('web/src/data/sample-result.json'), 'utf8'));
     for (const group of ['web2', 'web3']) {
       const groupEx = data.examples.filter((ex) => ex.group === group);
-      assert.ok(groupEx.length >= 3, `${group} should have at least three examples`);
+      assert.equal(groupEx.length, 4, `${group} should have four examples`);
       const dones = groupEx.map((ex) => ex.done);
       const max = Math.max(...dones);
       const min = Math.min(...dones);

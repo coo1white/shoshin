@@ -20,3 +20,5 @@ Return the full text of each file you change. Keep every current test, and chang
    - In `web/src/data/sample-result.json` checks, add: `ex.group` is `web2`, `web3` or `own`.
    - Add a test: `sample-result.json` has at least three examples in `web2` and at least three in `web3`, and within each of these two groups the highest `done` is at least 3 more than the lowest.
    - Add a test: `dist/index.html` holds the titles `Web2`, `Web3` and `Our own repo`, and the sentence `a repo without it can reach 9 of 13`.
+
+The lead later took out the `own` group and the row for our own repo, by hand, on the owner's word. The pull request says so.

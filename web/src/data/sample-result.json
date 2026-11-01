@@ -76,9 +76,9 @@
       "files": 2
     },
     {
-      "repo": "github/spec-kit",
+      "repo": "cline/cline",
       "group": "web2",
-      "commit": "7370e59",
+      "commit": "a6507a6",
       "done": 7,
       "total": 13,
       "after": 7,
