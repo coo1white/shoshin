@@ -7,6 +7,7 @@ from check.result import summarize
 
 YOKOTEN_VERSION = "0.2.0"
 CLONE_FAILED_MSG = "This repo could not be copied in time. It may be too big to check here."
+CHECK_FAILED_MSG = "This repo could not be checked in time. It may be too big to check here."
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +63,20 @@ def _read_process(proc):
     if isinstance(stderr, bytes):
         stderr = stderr.decode("utf-8", errors="replace")
     return stdout, stderr, proc.returncode
+
+
+def _run_yokoten(sb, *args) -> str:
+    # A second try would likely fail too, so this does not say to try again.
+    try:
+        p = sb.exec("env", "-C", "/tmp/repo", "yokoten", *args, timeout=30)
+        stdout, stderr, rc = _read_process(p)
+    except Exception as e:
+        logger.error(type(e).__name__)
+        raise RepoRefused(CHECK_FAILED_MSG) from e
+    if rc not in (0, 1):
+        logger.error("yokoten %s failed with %s: %s", args[0], rc, stderr.strip()[:200])
+        raise RepoRefused(CHECK_FAILED_MSG)
+    return stdout
 
 
 def _read_files(sb, paths, limit) -> dict:
@@ -305,35 +320,12 @@ def run_in_sandbox(owner: str, repo: str, on_progress=None) -> dict:
                 about = ""
         except Exception:
             about = ""
-        p = sb.exec(
-            "env",
-            "-C",
-            "/tmp/repo",
-            "yokoten",
-            "doctor",
-            "--files",
-            "--json",
-            timeout=30,
-        )
-        stdout_d, stderr_d, rc_d = _read_process(p)
-        if rc_d not in (0, 1):
-            raise SandboxFailed(f"yokoten doctor failed: {stderr_d.strip()}")
+        stdout_d = _run_yokoten(sb, "doctor", "--files", "--json")
         try:
             doctor = json.loads(stdout_d)
         except Exception as e:
             raise SandboxFailed(f"Could not parse doctor output: {e}") from e
-        p = sb.exec(
-            "env",
-            "-C",
-            "/tmp/repo",
-            "yokoten",
-            "check",
-            "--json",
-            timeout=30,
-        )
-        stdout_c, stderr_c, rc_c = _read_process(p)
-        if rc_c not in (0, 1):
-            raise SandboxFailed(f"yokoten check failed: {stderr_c.strip()}")
+        stdout_c = _run_yokoten(sb, "check", "--json")
         try:
             check = json.loads(stdout_c)
         except Exception as e:
