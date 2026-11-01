@@ -405,6 +405,7 @@ describe('static host portability', () => {
       const max = Math.max(...dones);
       const min = Math.min(...dones);
       assert.ok(max - min >= 3, `in ${group} highest done (${max}) should be at least 3 more than lowest (${min})`);
+      assert.deepEqual(dones, [...dones].sort((a, b) => b - a), `${group} should run from its highest result to its lowest`);
     }
   });
 
