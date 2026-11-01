@@ -1,7 +1,7 @@
 export const PROGRESS: Record<string, string> = {
-  reading: "Reading the repo's details…",
+  reading: "Looking up the repo…",
   copying: "Copying the public files into a throwaway sandbox…",
-  checking: "yokoten is checking, with the network off…",
+  checking: "Running yokoten with the network off…",
 };
 
 export function toSentence(text: string): string {
