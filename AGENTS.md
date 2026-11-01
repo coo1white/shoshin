@@ -90,7 +90,7 @@ and a small Python service in `server/` that runs on Modal. The design is in
 
 - Web: Astro and TypeScript in `web/src/` (`web/src/pages/index.astro`, `web/src/layouts/Page.astro`, `web/src/components/*.astro`, `web/src/styles/global.css`). Client code is in `web/src/client/`. Run `npm run build` to write the site to `dist/`, and `npm run typecheck` to check types.
 - Server: Python in `server/`. Its runtime dependencies are `modal`, `fastapi` and `cryptography`, listed in `server/requirements.txt`. The entry point is
-  `server/app.py`; `modal deploy server/app.py` deploys it.
+  `server/app.py`. A merge that changes `server/` deploys it, by `.github/workflows/deploy-server.yml`.
 
 ### Test
 
@@ -113,7 +113,7 @@ and a small Python service in `server/` that runs on Modal. The design is in
   The reviewer is never a model that writes code here, so it is never Muse or Claude.
 - The lead (Claude Opus 5.5) reads every pull request and merges only after the `review` check ends.
 - The owner approves only a pull request that changes a CODEOWNERS path.
-- The bot squash merges in UTC. A merge to main deploys the page.
+- The bot squash merges in UTC. A merge to main deploys what it changed: the page, the server, or both.
 
 ### What not to touch
 

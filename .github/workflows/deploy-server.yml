@@ -1,0 +1,56 @@
+name: deploy-server
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server/**'
+      - '.github/workflows/deploy-server.yml'
+  workflow_dispatch:
+permissions: {}
+concurrency:
+  group: deploy-server
+  cancel-in-progress: false
+jobs:
+  test:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - run: pip install pytest -r server/requirements.txt httpx
+      - run: python -m pytest test/server test/record
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+    environment: modal
+    runs-on: ubuntu-latest
+    env:
+      API_URL: https://yokoten-doctor--yokoten-doctor-fastapi-app.us-east.modal.run
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - run: pip install -r server/requirements.txt
+      - name: Deploy
+        env:
+          MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+        run: modal deploy server/app.py
+      - name: Check the live server
+        run: |
+          curl -fsS --max-time 60 "$API_URL/api/health"
+          curl -sSN --max-time 200 -X POST "$API_URL/api/check" \
+            -H 'content-type: application/json' \
+            -d '{"url":"https://github.com/pallets/click"}' > stream.txt
+          grep -qx 'event: result' stream.txt
+          grep -qx 'event: fixes' stream.txt
