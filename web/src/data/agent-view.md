@@ -46,7 +46,7 @@ Read these first:
 - `result.summary.done` and `result.summary.total`: how many checks pass, and how many there are.
 - `result.summary.next`: the one thing to fix next. Each step has `id`, `title`, `mark` and `how`.
 - `result.summary.steps`: every step. `mark` is `done`, `next` or `to do`.
-- `result.secrets`: things that look like personal info. Some may be public on purpose.
+- `result.secrets`: things that look private, such as an email address, a token or a private key. Some may be public on purpose.
 - `fixes.files`: each file has `path`, `content` and `source`.
 - `fixes.after`: the `done` and `total` counts once the files are in.
 - `result.rerun`: the commands that repeat the check.
