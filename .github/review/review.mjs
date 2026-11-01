@@ -196,7 +196,15 @@ async function postReview(repo, prNumber, token, headSha, event, body) {
   if (!res.ok) throw new Error(`post review failed with ${res.status}`);
 }
 
-export async function stopAutoMerge(token, pr) {
+export async function stopAutoMerge(token, repo, prNumber) {
+  const prRes = await fetch(`https://api.github.com/repos/${repo}/pulls/${prNumber}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/vnd.github+json"
+    }
+  });
+  if (!prRes.ok) throw new Error("failed to read auto-merge state");
+  const pr = await prRes.json();
   if (!pr?.auto_merge) return;
   const res = await fetch("https://api.github.com/graphql", {
     method: "POST",
@@ -260,7 +268,7 @@ export async function main() {
     const event = "COMMENT";
     const body = "This diff is too large for one review. It needs a person.";
     await postReview(repo, prNumber, token, headSha, event, body);
-    await stopAutoMerge(token, pr);
+    await stopAutoMerge(token, repo, prNumber);
     return;
   }
 
@@ -290,6 +298,7 @@ export async function main() {
     const reviewBody = buildReviewBody(null, model, skipped);
     await postReview(repo, prNumber, token, headSha, event, reviewBody);
     process.exitCode = 1;
+    await stopAutoMerge(token, repo, prNumber);
     return;
   }
 
@@ -297,7 +306,7 @@ export async function main() {
   const reviewBody = buildReviewBody(answer, model, skipped);
   await postReview(repo, prNumber, token, headSha, event, reviewBody);
   if (answer === null) process.exitCode = 1;
-  if (event === "REQUEST_CHANGES") await stopAutoMerge(token, pr);
+  if (answer === null || event === "REQUEST_CHANGES") await stopAutoMerge(token, repo, prNumber);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

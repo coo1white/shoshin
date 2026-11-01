@@ -223,12 +223,12 @@ describe("buildReviewBody with skipped", () => {
 });
 
 describe("stopAutoMerge", () => {
-  const withFetch = async (reply, run) => {
+  const withFetch = async (replies, run) => {
     const original = globalThis.fetch;
     const calls = [];
     globalThis.fetch = async (url, options) => {
-      calls.push({ url, body: JSON.parse(options.body) });
-      return reply;
+      calls.push({ url, body: options.body ? JSON.parse(options.body) : null });
+      return replies[calls.length - 1];
     };
     try {
       await run(calls);
@@ -236,26 +236,32 @@ describe("stopAutoMerge", () => {
       globalThis.fetch = original;
     }
   };
+  const prReply = (pr) => ({ ok: true, json: async () => pr });
 
-  it("calls nothing when auto-merge is off", async () => {
-    await withFetch({ ok: true, json: async () => ({}) }, async (calls) => {
-      await stopAutoMerge("token", { auto_merge: null, node_id: "id" });
-      assert.equal(calls.length, 0);
-    });
-  });
-  it("turns auto-merge off for this pull request", async () => {
-    await withFetch({ ok: true, json: async () => ({ data: {} }) }, async (calls) => {
-      await stopAutoMerge("token", { auto_merge: { merge_method: "squash" }, node_id: "id" });
+  it("calls nothing more when auto-merge is off now", async () => {
+    await withFetch([prReply({ auto_merge: null, node_id: "id" })], async (calls) => {
+      await stopAutoMerge("token", "o/r", "1");
       assert.equal(calls.length, 1);
-      assert.equal(calls[0].body.variables.id, "id");
     });
   });
-  it("throws when GitHub refuses, so the check fails", async () => {
-    await withFetch({ ok: true, json: async () => ({ errors: [{}] }) }, async () => {
-      await assert.rejects(stopAutoMerge("token", { auto_merge: {}, node_id: "id" }));
+  it("reads the state fresh, then turns auto-merge off", async () => {
+    const replies = [prReply({ auto_merge: { merge_method: "squash" }, node_id: "id" }), { ok: true, json: async () => ({ data: {} }) }];
+    await withFetch(replies, async (calls) => {
+      await stopAutoMerge("token", "o/r", "1");
+      assert.equal(calls.length, 2);
+      assert.equal(calls[0].url, "https://api.github.com/repos/o/r/pulls/1");
+      assert.equal(calls[1].body.variables.id, "id");
     });
-    await withFetch({ ok: false }, async () => {
-      await assert.rejects(stopAutoMerge("token", { auto_merge: {}, node_id: "id" }));
+  });
+  it("throws when it can't read or GitHub refuses, so the check fails", async () => {
+    await withFetch([{ ok: false }], async () => {
+      await assert.rejects(stopAutoMerge("token", "o/r", "1"));
+    });
+    await withFetch([prReply({ auto_merge: {}, node_id: "id" }), { ok: true, json: async () => ({ errors: [{}] }) }], async () => {
+      await assert.rejects(stopAutoMerge("token", "o/r", "1"));
+    });
+    await withFetch([prReply({ auto_merge: {}, node_id: "id" }), { ok: false }], async () => {
+      await assert.rejects(stopAutoMerge("token", "o/r", "1"));
     });
   });
 });
