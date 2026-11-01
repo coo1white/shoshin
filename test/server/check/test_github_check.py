@@ -40,7 +40,7 @@ def test_429_returns_none_values_and_does_not_raise():
 def test_500_raises_repo_refused():
     err = urllib.error.HTTPError("https://api.github.com/repos/o/r", 500, "Server Error", {}, None)
     with patch("urllib.request.urlopen", side_effect=err):
-        with pytest.raises(RepoRefused, match="could not be reached"):
+        with pytest.raises(RepoRefused, match="couldn't reach GitHub"):
             check_public("owner", "repo")
 
 def test_private_true_raises():
@@ -77,5 +77,5 @@ def test_exactly_15gb_does_not_raise():
 def test_urLError_raises_repo_refused():
     err = urllib.error.URLError("network down")
     with patch("urllib.request.urlopen", side_effect=err):
-        with pytest.raises(RepoRefused, match="could not be reached"):
+        with pytest.raises(RepoRefused, match="couldn't reach GitHub"):
             check_public("owner", "repo")

@@ -46,27 +46,27 @@ def raise_timeout():
 
 
 def test_failed_clone_says_it_may_be_too_big(monkeypatch):
-    sandbox = run_with(monkeypatch, {"clone": lambda: FakeProcess(1)}, "could not be copied in time")
+    sandbox = run_with(monkeypatch, {"clone": lambda: FakeProcess(1)}, "couldn't copy this repo in time")
     assert sandbox.is_ended
 
 
 def test_clone_that_raises_says_it_may_be_too_big(monkeypatch):
-    sandbox = run_with(monkeypatch, {"clone": raise_timeout}, "could not be copied in time")
+    sandbox = run_with(monkeypatch, {"clone": raise_timeout}, "couldn't copy this repo in time")
     assert sandbox.is_ended
 
 
 def test_failed_doctor_says_it_may_be_too_big(monkeypatch):
-    sandbox = run_with(monkeypatch, {"doctor": lambda: FakeProcess(-1)}, "could not be checked in time")
+    sandbox = run_with(monkeypatch, {"doctor": lambda: FakeProcess(-1)}, "couldn't finish checking this repo in time")
     assert sandbox.is_ended
 
 
 def test_failed_check_says_it_may_be_too_big(monkeypatch):
     steps = {"doctor": lambda: FakeProcess(0, "{}"), "check": lambda: FakeProcess(-1)}
-    sandbox = run_with(monkeypatch, steps, "could not be checked in time")
+    sandbox = run_with(monkeypatch, steps, "couldn't finish checking this repo in time")
     assert sandbox.is_ended
 
 
 def test_check_that_raises_says_it_may_be_too_big(monkeypatch):
     steps = {"doctor": lambda: FakeProcess(0, "{}"), "check": raise_timeout}
-    sandbox = run_with(monkeypatch, steps, "could not be checked in time")
+    sandbox = run_with(monkeypatch, steps, "couldn't finish checking this repo in time")
     assert sandbox.is_ended

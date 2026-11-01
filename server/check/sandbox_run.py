@@ -6,8 +6,8 @@ from check.github_check import RepoRefused
 from check.result import summarize
 
 YOKOTEN_VERSION = "0.2.0"
-CLONE_FAILED_MSG = "This repo could not be copied in time. It may be too big to check here."
-CHECK_FAILED_MSG = "This repo could not be checked in time. It may be too big to check here."
+CLONE_FAILED_MSG = "We couldn't copy this repo in time. It may be too big to check here."
+CHECK_FAILED_MSG = "We couldn't finish checking this repo in time. It may be too big to check here."
 
 logger = logging.getLogger(__name__)
 
