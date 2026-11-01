@@ -261,6 +261,16 @@ describe('static host portability', () => {
     assert.ok(fs.readFileSync(indexPath, 'utf8').includes('href="/agent-view.html"'), 'dist/index.html should link to the agent view');
   });
 
+  test('every page has one view switch outside the landing section, marked for its own view', () => {
+    const dist = path.dirname(indexPath);
+    for (const [name, currentView] of [['index.html', 'human'], ['about.html', 'human'], ['agent-view.html', 'agent']]) {
+      const html = fs.readFileSync(path.join(dist, name), 'utf8');
+      assert.equal(html.split('class="view-switch"').length - 1, 1, `dist/${name} should have one view switch`);
+      assert.ok(html.indexOf('class="view-switch"') > html.indexOf('</footer>'), `dist/${name} should put the switch after the footer`);
+      assert.match(html, new RegExp(`aria-current="true"[^>]*>${currentView}</a>`), `dist/${name} should mark the ${currentView} view`);
+    }
+  });
+
   test('web/src/data/sample-result.json has a 40-character commit, total equal to the number of steps, and done equal to the steps marked done', () => {
     const p = path.resolve('web/src/data/sample-result.json');
     const data = JSON.parse(fs.readFileSync(p, 'utf8'));

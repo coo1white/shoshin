@@ -457,7 +457,7 @@ nav a:hover, nav a[aria-current='page'] { color: var(--fg); }
   max-width: calc(84rem + 2 * var(--gutter));
   margin-inline: auto;
   padding-inline: var(--gutter);
-  padding-block: 2.5rem 3rem;
+  padding-block: 2.5rem 5rem;
   border-top: 1px solid var(--line);
   display: block;
   font-size: 0.9rem;
@@ -518,11 +518,10 @@ nav a:hover, nav a[aria-current='page'] { color: var(--fg); }
   line-height: 1.6;
   color: var(--muted);
 }
-.view-switch { display: flex; justify-content: center; gap: 2px; width: fit-content; margin: 24px auto 0; padding: 3px; border-radius: 8px; background: var(--band); border: 1px solid var(--line); }
-.view-switch a { min-height: 32px; display: inline-flex; align-items: center; padding: 0 14px; border-radius: 6px; font-family: var(--font-mono); font-size: 13px; color: var(--muted); text-decoration: none; }
-.view-switch a[aria-current='page'] { background: var(--fg); color: var(--bg); }
+.view-switch { position: fixed; left: 50%; bottom: max(16px, env(safe-area-inset-bottom)); z-index: 20; transform: translateX(-50%); display: flex; gap: 2px; padding: 3px; border-radius: 8px; background: var(--surface); background: color-mix(in srgb, var(--surface) 62%, transparent); -webkit-backdrop-filter: blur(14px) saturate(1.4); backdrop-filter: blur(14px) saturate(1.4); border: 1px solid color-mix(in srgb, var(--fg) 14%, transparent); box-shadow: 0 12px 32px -12px rgb(0 0 0 / 0.35); }
+.view-switch a { min-height: 32px; display: inline-flex; align-items: center; padding: 0 14px; border-radius: 6px; font-family: var(--font-mono); font-size: 13px; color: color-mix(in srgb, var(--fg) 72%, transparent); text-decoration: none; }
+.view-switch a[aria-current] { background: color-mix(in srgb, var(--fg) 14%, transparent); color: var(--fg); font-weight: 600; }
 .agent-view { max-width: calc(52rem + 2 * var(--gutter)); }
-.agent-view .view-switch { margin: 0 0 32px; }
 .agent-view pre { margin: 0; padding: 0; max-height: none; overflow: visible; background: transparent; border: none; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
 .about { max-width: calc(52rem + 2 * var(--gutter)); }
 .about h1 { margin: 0 0 16px; font-size: 40px; line-height: 1.15; letter-spacing: -0.02em; font-weight: 700; }
