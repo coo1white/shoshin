@@ -6,11 +6,13 @@ The server runs on Modal.
 Deploy is by `.github/workflows/deploy-server.yml`.
 A merge that changes `server/` runs the server tests, deploys, and then runs one real check.
 A failed check fails the workflow but does not undo the deploy.
+The check cannot tell the new version from the old one.
 To undo a deploy, revert the pull request. The revert deploys the old code.
 
 The workflow reads `MODAL_TOKEN_ID` and `MODAL_TOKEN_SECRET` from the GitHub environment `modal`.
-Only `main` can use that environment, so a pull request cannot read the token.
 The token comes from https://modal.com/settings/tokens.
+Set the environment's deployment branch rule to `main` only.
+The deploy job also skips every other branch, so a pull request or a manual run on a branch cannot read the token.
 
 `doctor.yokoten.app` is a CNAME record.
 The custom domain is set in the repo Pages settings.

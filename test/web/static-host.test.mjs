@@ -266,7 +266,7 @@ describe('static host portability', () => {
     assert.ok(!workflow.includes('pull_request'), 'deploy-server.yml should not run on a pull request');
     assert.match(workflow, /branches: \[main\]/);
     assert.match(workflow, /environment: modal/);
-    assert.match(workflow, /needs: test/);
+    assert.match(workflow, /needs: test\n    if: github\.ref == 'refs\/heads\/main'/);
     assert.equal(workflow.split('secrets.').length - 1, 2, 'deploy-server.yml should read only the two Modal secrets');
     const beforeDeployStep = workflow.slice(0, workflow.indexOf('- name: Deploy'));
     assert.ok(!beforeDeployStep.includes('secrets.'), 'no step before Deploy should read a secret');

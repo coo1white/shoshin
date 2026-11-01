@@ -26,6 +26,7 @@ jobs:
       - run: python -m pytest test/server test/record
   deploy:
     needs: test
+    if: github.ref == 'refs/heads/main'
     permissions:
       contents: read
     environment: modal
