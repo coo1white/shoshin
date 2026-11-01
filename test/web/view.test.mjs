@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { viewModel, markLabel, splitCode, formatRecordTime, repoFromInput, repoFromQuery, secretFolders, toSentence, shownMark } from "../../web/src/client/view.ts";
+import { viewModel, markLabel, splitCode, formatRecordTime, repoFromInput, repoFromQuery, secretFolders, toSentence, shownMark, nextAction } from "../../web/src/client/view.ts";
 import { projectSection } from "../../web/src/client/fixes.ts";
 
 test("viewModel: headline text, next, others leave out next and install-only, evidence short commit", () => {
@@ -304,4 +304,36 @@ test("shownMark: step with mark done that is not nextId shows done", () => {
 
 test("shownMark: with nextId null, mark next stays next", () => {
   assert.equal(shownMark("next", "step-a", null), "next");
+});
+
+test("nextAction: file step with file present -> Fix it", () => {
+  const r = nextAction({ id: "rules" }, [], [{ path: "AGENTS.md", content: "x" }], "owner", "repo", false);
+  assert.deepEqual(r, { label: "Fix it", href: "#files", opensChart: false });
+});
+
+test("nextAction: install-only step -> Install yokoten", () => {
+  const r = nextAction({ id: "ci" }, [{ id: "ci" }], [], "owner", "repo", false);
+  assert.deepEqual(r, { label: "Install yokoten", href: "#needs-yokoten", opensChart: false });
+});
+
+test("nextAction: repo setting step -> Open repo settings", () => {
+  const r = nextAction({ id: "issues" }, [], [], "myowner", "myrepo", false);
+  assert.equal(r.label, "Open repo settings");
+  assert.equal(r.href, "https://github.com/myowner/myrepo/settings");
+  assert.equal(r.opensChart, false);
+});
+
+test("nextAction: repo change step -> See how", () => {
+  const r = nextAction({ id: "tests" }, [], [], "o", "r", false);
+  assert.deepEqual(r, { label: "See how", href: "#check-tests", opensChart: true });
+});
+
+test("nextAction: file step whose file is not in list -> See how", () => {
+  const r = nextAction({ id: "rules" }, [], [{ path: "OTHER.md", content: "x" }], "owner", "repo", false);
+  assert.deepEqual(r, { label: "See how", href: "#check-rules", opensChart: true });
+});
+
+test("nextAction: waiting -> See how even if file present", () => {
+  const r = nextAction({ id: "rules" }, [], [{ path: "AGENTS.md", content: "x" }], "owner", "repo", true);
+  assert.deepEqual(r, { label: "See how", href: "#check-rules", opensChart: true });
 });

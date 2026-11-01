@@ -32,7 +32,6 @@ pre { padding: 0.75rem; overflow-x: auto; border: 1px solid var(--line); border-
 code { padding: 0.1rem 0.3rem; border-radius: 4px; }
 pre code { background: transparent; padding: 0; }
 pre, code { max-width: 100%; overflow-wrap: anywhere; }
-.pre-dark code { background: transparent; }
 .button-quiet { background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 0.25rem 0.75rem; font-size: 14px; font-weight: 500; min-height: 44px; cursor: pointer; }
 .button-quiet:hover { background: var(--raised); }
 .button-primary { display: inline-flex; align-items: center; height: 48px; margin-top: 20px; padding: 0 24px; border-radius: var(--radius-lg); background: var(--accent); color: var(--on-accent); font-weight: 600; text-decoration: none; min-height: 44px; }

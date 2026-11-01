@@ -55,13 +55,13 @@ describe('recordView', () => {
     });
     assert.equal(r.rekorUrl, null);
     assert.equal(r.solanaUrl, null);
-    assert.equal(r.message, "The public record couldn't be written this time. The result above is still correct.");
+    assert.equal(r.message, "The public record couldn't be written this time. The check still ran.");
     const r2 = recordView({
       sha256: sha,
       recorded_at: '2024-01-01T00:00:00Z',
       document: '{}',
     });
-    assert.equal(r2.message, "The public record couldn't be written this time. The result above is still correct.");
+    assert.equal(r2.message, "The public record couldn't be written this time. The check still ran.");
   });
 
   it('rekor url on another host is dropped', () => {
@@ -74,7 +74,7 @@ describe('recordView', () => {
       solana: { url: 'https://explorer.solana.com/tx/abc?cluster=devnet' },
     });
     assert.equal(r.rekorUrl, null);
-    assert.equal(r.message, "The public record couldn't be written this time. The result above is still correct.");
+    assert.equal(r.message, "The public record couldn't be written this time. The check still ran.");
   });
 
   it('solana link without ?cluster=devnet is dropped', () => {

@@ -1,9 +1,3 @@
-export const PROGRESS: Record<string, string> = {
-  reading: "Looking up the repo…",
-  copying: "Copying the public files into a throwaway sandbox…",
-  checking: "Running yokoten with the network off…",
-};
-
 export function toSentence(text: string): string {
   if (!text) return "";
   const first = text.charAt(0).toUpperCase() + text.slice(1);
@@ -129,6 +123,37 @@ export function secretFolders(places: string[]): { folder: string; count: number
     }
   }
   return order.map((folder) => ({ folder, count: counts.get(folder) as number }));
+}
+
+const FILE_FOR_STEP: Record<string, (path: string) => boolean> = {
+  rules: (path) => path === "AGENTS.md",
+  templates: (path) => path.startsWith(".github/ISSUE_TEMPLATE/") || path === ".github/pull_request_template.md",
+  codeowners: (path) => path === ".github/CODEOWNERS",
+  "security-files": (path) => path === ".github/SECURITY.md" || path === ".github/dependabot.yml",
+  changelog: (path) => path === "CHANGELOG.md",
+};
+
+export function nextAction(
+  next: { id: string },
+  installOnly: { id: string }[],
+  files: { path: string }[],
+  owner: string,
+  repo: string,
+  isWaiting: boolean,
+): { label: string; href: string; opensChart: boolean } {
+  const seeHow = { label: "See how", href: `#check-${next.id}`, opensChart: true };
+  if (isWaiting) return seeHow;
+  if (next.id === "issues") {
+    return { label: "Open repo settings", href: `https://github.com/${owner}/${repo}/settings`, opensChart: false };
+  }
+  if (installOnly.some((step) => step.id === next.id)) {
+    return { label: "Install yokoten", href: "#needs-yokoten", opensChart: false };
+  }
+  const isFixedByFile = FILE_FOR_STEP[next.id];
+  if (isFixedByFile && files.some((file) => isFixedByFile(file.path))) {
+    return { label: "Fix it", href: "#files", opensChart: false };
+  }
+  return seeHow;
 }
 
 import type { CheckResult, ViewModel, Rerun } from "./types.ts";

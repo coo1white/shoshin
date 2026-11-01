@@ -49,9 +49,11 @@ export function renderChart({ lastResult, vm }: { lastResult: CheckResult; vm: V
   const checkDetails = document.createElement("div");
   checkDetails.className = "check-details";
 
-  for (const st of vm.others) {
+  const items = vm.next ? [{ ...vm.next, label: "fix this first" }, ...vm.others] : vm.others;
+  for (const st of items) {
     const stWrap = document.createElement("div");
     stWrap.className = "check-item";
+    stWrap.id = `check-${st.id}`;
 
     const titleP = document.createElement("p");
     titleP.className = "check-item-title";

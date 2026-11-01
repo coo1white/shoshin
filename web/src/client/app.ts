@@ -146,15 +146,15 @@ function render(): void {
     }
     window.scrollTo(0, 0);
     const vm = viewModel(lastResult);
-    const hero = renderResultHero({ lastResult, vm, lastFixes });
+    const hero = renderResultHero({ lastResult, vm, lastFixes, isWaitingForFixes });
     appEl.appendChild(hero);
     const fix = renderFixSection({ vm, lastFixes, isWaitingForFixes, lastResult });
-    appEl.appendChild(fix);
+    if (fix) appEl.appendChild(fix);
     const guard = renderGuardSection({ vm });
     if (guard) appEl.appendChild(guard);
     const priv = renderPrivateSection({ vm });
     if (priv) appEl.appendChild(priv);
-    const proof = renderProofSection({ vm, lastResult, lastRecord });
+    const proof = renderProofSection({ vm, lastRecord });
     appEl.appendChild(proof);
   }
 

@@ -339,14 +339,14 @@ describe("fixMessage", () => {
     const msg = fixMessage({ files: [{ path: "a.txt" }], muse: "failed" });
     assert.equal(
       msg,
-      "Muse couldn't write the project section this time. Fill in the “This project” section yourself.",
+      "Muse couldn't write the “This project” section this time. Fill it in yourself.",
     );
   });
   test('"failed" with no files also gives Muse message', () => {
     const msg = fixMessage({ files: [], muse: "failed" });
     assert.equal(
       msg,
-      "Muse couldn't write the project section this time. Fill in the “This project” section yourself.",
+      "Muse couldn't write the “This project” section this time. Fill it in yourself.",
     );
   });
   test("no files gives the no-files message", () => {
