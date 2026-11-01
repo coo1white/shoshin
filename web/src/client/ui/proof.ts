@@ -19,14 +19,14 @@ export function renderProofSection({ vm, lastRecord }: { vm: ViewModel; lastReco
 
   const h2 = document.createElement("h2");
   h2.className = "section-title";
-  const rekorUrl = rv?.rekorUrl;
-  h2.textContent = rekorUrl ? "This result is on record" : "No public record for this result";
+  const hasRecord = !!(rv?.rekorUrl || rv?.solanaUrl);
+  h2.textContent = hasRecord ? "This result is on record" : "No public record for this result";
   inner.appendChild(h2);
 
   const lede = document.createElement("p");
   lede.className = "proof-result-lede";
-  if (rv && rekorUrl) {
-    const isBoth = !!rv.solanaUrl;
+  if (rv && hasRecord) {
+    const isBoth = !!(rv.rekorUrl && rv.solanaUrl);
     const prefix = isBoth
       ? "A fingerprint of this result (its SHA-256 hash) has been in two public records since "
       : "A fingerprint of this result (its SHA-256 hash) has been in a public record since ";
@@ -84,7 +84,7 @@ export function renderProofSection({ vm, lastRecord }: { vm: ViewModel; lastReco
     step1.appendChild(note2);
   }
 
-  if (rv && rekorUrl) {
+  if (rv && hasRecord) {
     const step2 = document.createElement("section");
     step2.className = "proof-step";
     steps.appendChild(step2);
@@ -128,12 +128,12 @@ export function renderProofSection({ vm, lastRecord }: { vm: ViewModel; lastReco
     ddHash.textContent = rv.sha256;
     dl.appendChild(ddHash);
     const dtRec = document.createElement("dt");
-    dtRec.textContent = rv.solanaUrl ? "Public records" : "Public record";
+    dtRec.textContent = rv.rekorUrl && rv.solanaUrl ? "Public records" : "Public record";
     dl.appendChild(dtRec);
     const ddRec = document.createElement("dd");
     const linksP = document.createElement("p");
     linksP.className = "proof-links";
-    linksP.appendChild(createLink(rekorUrl, "Sigstore Rekor entry"));
+    if (rv.rekorUrl) linksP.appendChild(createLink(rv.rekorUrl, "Sigstore Rekor entry"));
     if (rv.solanaUrl) linksP.appendChild(createLink(rv.solanaUrl, "Solana devnet memo"));
     ddRec.appendChild(linksP);
     dl.appendChild(ddRec);
