@@ -5,21 +5,21 @@ import Footer from "../components/Footer.astro";
 ---
 <Page
   title="About · yokoten doctor"
-  description="yokoten doctor is a free page that checks a public GitHub repo for AI agent work. How a check runs, its limits, and how this page was made."
+  description="yokoten doctor is a free page that checks a public GitHub repo for the files AI agents need. How a check runs, its limits, and how this page was made."
   path="/about.html"
 >
 <Header />
 <main id="top" class="section-inner about">
   <h1>About yokoten doctor</h1>
-  <p class="about-lede">A free page that checks a public GitHub repo for AI agent work. Paste a URL and see the result with no terminal.</p>
+  <p class="about-lede">A free page that checks a public GitHub repo for the files AI agents need. Paste a URL and read the result in your browser. No terminal needed.</p>
 
   <section>
-    <h2>What you get</h2>
+    <h2>What you get back</h2>
     <ul>
       <li>13 file checks, and where the repo stands.</li>
-      <li>The one next step.</li>
-      <li>Files for this repo, ready to commit.</li>
-      <li>The commands that repeat the check.</li>
+      <li>The one thing to fix next.</li>
+      <li>Files written for your repo, ready to commit.</li>
+      <li>The commands to run the same check yourself.</li>
     </ul>
   </section>
 
@@ -27,23 +27,23 @@ import Footer from "../components/Footer.astro";
     <h2>How a check runs</h2>
     <ol>
       <li>You paste a public GitHub repo URL.</li>
-      <li>A throwaway sandbox copies the repo. Then its network is cut.</li>
+      <li>A throwaway sandbox copies the repo, then its network is cut.</li>
       <li><code>yokoten</code> reads the copy. Your code never runs: no install, no build, no tests.</li>
-      <li>The server sends some of the repo's files to Muse Spark Open, on Baseten. Muse writes the project section of <code>AGENTS.md</code>.</li>
-      <li>You get the result and the files. Nothing changes until you click Commit on GitHub.</li>
-      <li>The server writes a hash of the result to Sigstore Rekor and a Solana devnet memo. Devnet is a test network.</li>
+      <li>The server sends some of the repo's files to Muse Spark Open, on Baseten. Muse writes the “This project” section of <code>AGENTS.md</code>.</li>
+      <li>You get the result and the files. Nothing changes until you commit on GitHub.</li>
+      <li>The server writes a hash of the result to Sigstore Rekor and a Solana devnet memo. Devnet is a test network, so nothing on it has real value.</li>
     </ol>
   </section>
 
   <section>
     <h2>Limits</h2>
     <ul>
-      <li>It reads public repos only.</li>
-      <li>It does not scan for code vulnerabilities.</li>
+      <li>Public repos only.</li>
+      <li>It doesn't scan your code for vulnerabilities.</li>
       <li>A very large repo may not finish in time.</li>
-      <li>Four of the 13 checks need <code>yokoten</code>, our own tool, so a repo without it can reach 9 of 13.</li>
+      <li>Four of the 13 checks only pass once <code>yokoten</code> is installed, so a repo without it tops out at 9 of 13.</li>
       <li>Muse's text stays in a cache for 24 hours.</li>
-      <li>It is free, with no account. Each visitor gets 10 checks an hour.</li>
+      <li>It's free, with no account. Each visitor gets 10 checks an hour.</li>
     </ul>
   </section>
 
@@ -71,10 +71,10 @@ import Footer from "../components/Footer.astro";
   </section>
 
   <section>
-    <h2>Report a problem</h2>
+    <h2>Something wrong?</h2>
     <ul>
-      <li>A wrong check result goes to the <a href="https://github.com/yokoten-labs/yokoten/issues">yokoten repo</a>. The checks are yokoten's; this page only shows them.</li>
-      <li>A broken page goes to <a href="https://github.com/coo1white/yokoten-doctor/issues">this repo</a>.</li>
+      <li>A wrong check result belongs in the <a href="https://github.com/yokoten-labs/yokoten/issues">yokoten repo</a>. The checks are yokoten's; this page only shows them.</li>
+      <li>A broken page belongs in <a href="https://github.com/coo1white/yokoten-doctor/issues">this repo</a>.</li>
     </ul>
   </section>
 </main>
