@@ -1,5 +1,5 @@
 KNOWN_MARKS = {"done", "to do", "next", "can't check", "not now"}
-INSTALL_ONLY_IDS = {"tool-hook", "runtime", "sandbox"}
+INSTALL_ONLY_IDS = {"tool-hook", "runtime", "sandbox", "ci", "titles"}
 
 
 def summarize(doctor: dict) -> dict:
